@@ -1,0 +1,139 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5620217354503331830
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5620217354503331821}
+  - component: {fileID: 5620217354503331818}
+  - component: {fileID: 5620217354503331819}
+  - component: {fileID: 5620217354503331816}
+  - component: {fileID: 5620217354503331817}
+  - component: {fileID: 5620217354503331820}
+  m_Layer: 0
+  m_Name: FaceDetecter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5620217354503331821
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5620217354503331830}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -279.32574, y: -4.545032, z: -530.4757}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5620217354503331818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5620217354503331830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df35b0c19ca97734e87299a664cea35f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _requestedDeviceName: 
+  _requestedWidth: 640
+  _requestedHeight: 480
+  _requestedIsFrontFacing: 0
+  _requestedFPS: 30
+  _rotate90Degree: 0
+  _flipVertical: 0
+  _flipHorizontal: 0
+  _outputColorFormat: 3
+  _timeoutFrameCount: 1500
+  onInitialized:
+    m_PersistentCalls:
+      m_Calls: []
+  onDisposed:
+    m_PersistentCalls:
+      m_Calls: []
+  onErrorOccurred:
+    m_PersistentCalls:
+      m_Calls: []
+  avoidAndroidFrontCameraLowLightIssue: 0
+--- !u!114 &5620217354503331819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5620217354503331830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 763520caffd576749b25e115b8054cd2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isEyeOpen: 0
+  REyeValue: 0
+  LEyeValue: 0
+  EyeSettingDataCurPos: 0
+  IsFaceDetected: 0
+  IsDoneSetting: 0
+  IsStartAutoSetting: 0
+--- !u!114 &5620217354503331816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5620217354503331830}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 001d4b806c9c73d4bbe354f16fed8b09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  webCamTextureToMatHelper: {fileID: 5620217354503331818}
+  rawImage: {fileID: 0}
+--- !u!114 &5620217354503331817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5620217354503331830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f20f8f418dbe934aae27ce2ad05396a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UpperEyelid: {fileID: 0}
+  LowerEyelid: {fileID: 0}
+  eyelidstate: 3
+  animDuration: 0.3
+  starteyelidstate: 0
+--- !u!114 &5620217354503331820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5620217354503331830}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 03ffc138d8c85b946b9bae82bf2c68c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  alignment: 1
+  offset: {x: 10, y: 10}
+  boxVisible: 1
+  boxWidth: 75
+  boxHeight: 30
+  padding: {x: 8, y: 5}
+  consoleHeight: 50

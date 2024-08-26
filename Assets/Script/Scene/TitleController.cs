@@ -1,0 +1,292 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using TMPro;
+
+public class TitleController : MonoBehaviour
+{
+    //ゲーム終了確認用UIオブジェクト
+    public GameObject confirmationPanel;
+
+    //チュートリアル表示用UIオブジェクト
+    public GameObject TutorialPanel;
+    //チュートリアル表示用UIオブジェクト
+    public GameObject TutorialNextButton;
+    public GameObject TutorialPreviousButton;
+    public GameObject TutorialEndButton;
+
+    public Image TutorialImage;
+    //チュートリアル用の画像
+    public Sprite[] TutorialImages;
+
+    [SerializeField]
+    [Header("目のオプションメニュー")]
+    private GameObject EyeOptionMenu;
+    [SerializeField]
+    [Header("目の閾値設定スライドバー")]
+    private Slider EyeThresholdBar;
+    [SerializeField]
+    [Header("目の閾値のデフォルト")]
+    private float EyeThresholdDefaultValue;
+
+    [SerializeField]
+    [Header("目の閾値を表示")]
+    private TextMeshProUGUI EyeValueTMP;
+
+    public float REyeValue = 0;
+    public float LEyeValue = 0;
+
+    private bool IsFirst = false;
+
+    enum TutorialIdx
+    {
+        TUTORIAL_No1,
+        TUTORIAL_No2,
+        TUTORIAL_No3,
+        TUTORIAL_No4,
+        TUTORIAL_No5,
+        TUTORIAL_No6,
+        TUTORIAL_MAX,
+    }
+
+    TutorialIdx TutoIdx = TutorialIdx.TUTORIAL_No1;
+
+    //目閉じ検知音
+    public AudioClip GoGameScene;
+
+    public AudioClip OnClicked;
+
+    AudioSource audiosouce;
+
+    [SerializeField]
+    private int CountFrame = 0;
+
+    [SerializeField]
+    DlibFaceLandmarkDetectorExample.FaceDetector face;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        //FaceDetectorのゲットコンポーネント
+        //face = GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
+        face.GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
+        //確認パネルを非表示
+        confirmationPanel.SetActive(false);
+        TutorialPanel.SetActive(false);
+        TutorialImage.GetComponent<Image>();
+
+        EyeOptionMenu.SetActive(false);
+        audiosouce = GetComponent<AudioSource>();
+        EyeThresholdBar.GetComponent<Slider>();
+        SetHolidingEyeValue();
+        //ピッチを初期値に
+        audiosouce.pitch = 1.0f;
+        CountFrame = 0;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        //6/17ゲームスタートをボタンに変更
+        //ゲームやめますか画面が開かれていない場合
+        //if (!confirmationPanel.activeSelf)
+        //{
+        //    if (!face.isEyeOpen)
+        //    {
+        //        if (CountFrame == 20)
+        //        {
+        //            audiosouce.PlayOneShot(GoGameScene);
+        //        }
+
+        //        if (CountFrame >= 20)
+        //        {
+        //            CountFrame = 0;
+        //        }
+        //        else
+        //        {
+        //            CountFrame++;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        CountFrame = 0;
+        //    }
+
+        //    if (face.GetKeptEyeClosingTime() >= 5.0f)
+        //    {
+        //        //シーン遷移
+        //        ChangeScene();
+        //    }
+        //}
+
+        //目のオプション画面が開いている間だけアップデート
+        if (EyeOptionMenu.active == true)
+        {
+            UpdateEyeValue();
+        }
+
+
+        if (TutorialPanel.active == false)
+        {
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                if (confirmationPanel.activeSelf == true)
+                {
+                    Unconfirmation();
+                }
+                else
+                {
+                    confirmation();
+                }
+
+            }
+        }
+        
+    }
+
+
+    public void ChangeScene()
+    {
+        //6/22先に目の設定を行うためコメント化
+        //if (!IsEndTutorial.IsEyeTutorial)
+        //{
+        //    IsEndTutorial.IsEyeTutorial = true;
+        //    SceneManager.LoadScene("EyeSettingScene");
+        //}
+            SceneManager.LoadScene("SchoolMain 1");
+        
+    }
+
+    public void PlayClickedSound()
+    {
+        Debug.Log("押された");
+        audiosouce.PlayOneShot(OnClicked);
+    }
+
+    //チュートリアル開始
+    public void TutorialStart()
+    {
+        TutorialPanel.SetActive(true);
+        TutorialNextButton.SetActive(true);
+        TutorialPreviousButton.SetActive(false);
+        TutorialEndButton.SetActive(false);
+        TutoIdx = 0;
+        TutorialImage.sprite = TutorialImages[(int)TutoIdx];
+        audiosouce.PlayOneShot(OnClicked);
+    }
+
+    //一個前にページを戻す
+    public void TutorialPrevious()
+    {
+        if(TutoIdx > 0)
+        {
+            TutoIdx--;  
+        }
+
+        TutorialImage.sprite = TutorialImages[(int)TutoIdx];
+        if((int)TutoIdx == 0)
+        {
+            TutorialPreviousButton.SetActive(false);
+        }
+
+        if ((int)TutoIdx + 1 == (int)TutorialIdx.TUTORIAL_MAX)
+        {
+            TutorialNextButton.SetActive(false);
+            TutorialEndButton.SetActive(true);
+        }
+        else
+        {
+            TutorialNextButton.SetActive(true);
+            TutorialEndButton.SetActive(false);
+        }
+
+        audiosouce.PlayOneShot(OnClicked);
+    }
+
+    public void TutorialNext()
+    {
+        TutoIdx++;
+        TutorialImage.sprite = TutorialImages[(int)TutoIdx];
+        TutorialPreviousButton.SetActive(true);
+        if((int)TutoIdx + 1 == (int)TutorialIdx.TUTORIAL_MAX)
+        {
+            TutorialNextButton.SetActive(false);
+            TutorialEndButton.SetActive(true);
+        }
+        audiosouce.PlayOneShot(OnClicked);
+    }
+
+    public void TutorialEnd()
+    {
+        TutorialPanel.SetActive(false);
+        TutorialPreviousButton.SetActive(false);
+        TutorialEndButton.SetActive(false);
+        audiosouce.PlayOneShot(OnClicked);
+    }
+
+
+    //確認
+    public void confirmation()
+    {
+        confirmationPanel.SetActive(true);
+        audiosouce.PlayOneShot(OnClicked);
+    }
+
+    //ゲームに戻る
+    public void Unconfirmation()
+    {
+        confirmationPanel.SetActive(false);
+        audiosouce.PlayOneShot(OnClicked);
+    }
+
+    
+
+    //ゲームをやめる処理
+    public void QuitGame()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;//ゲームプレイ終了
+#else
+    Application.Quit();//ゲームプレイ終了
+#endif
+    }
+
+    //目のオプションを開く処理
+    public void OpenEyeOption()
+    {
+        EyeOptionMenu.SetActive(true);
+        Time.timeScale = 0.0f;
+        //マウスカーソルを出す
+        Cursor.visible = true;
+    }
+
+    //目のオプションを終了と設定した値を代入
+    public void CloseEyeOption()
+    {
+        EyeOptionMenu.SetActive(false);
+        Time.timeScale = 0.0f;
+        EyeClosingLevel.REyeClosingLevelValue = EyeThresholdBar.value;
+        EyeClosingLevel.LEyeClosingLevelValue = EyeThresholdBar.value;
+        //マウスカーソルを出す
+        Cursor.visible = true;
+    }
+
+    //デフォルトの値を適用する関数
+    public void SetDefaultEyeValue()
+    {
+        EyeThresholdBar.value = EyeThresholdDefaultValue;
+    }
+
+    public void SetHolidingEyeValue()
+    {
+        EyeThresholdBar.value = EyeClosingLevel.REyeClosingLevelValue;
+        EyeThresholdBar.value = EyeClosingLevel.LEyeClosingLevelValue;
+    }
+    //Update中で目の値をEyeOptionのTMPに反映する変数
+    private void UpdateEyeValue()
+    {
+        EyeValueTMP.SetText("現在の右目の値は" + face.REyeValue.ToString("N2") + "で、" + "\n現在の左目の値は" + face.LEyeValue.ToString("N2") + "で、" + "\n右の値を超えると目が開いている判定になります:" + EyeThresholdBar.value.ToString("N2"));
+    }
+}
