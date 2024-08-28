@@ -6,7 +6,12 @@ ModelImporter:
   - first:
       74: -203655887218126122
     second: mixamo.com
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: lambert1
+    second: {fileID: 2100000, guid: 16b1361d7cfb15644a5b0a05bc638050, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -82,8 +87,759 @@ ModelImporter:
   importAnimation: 1
   humanDescription:
     serializedVersion: 3
-    human: []
-    skeleton: []
+    human:
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:Hips
+      humanName: Hips
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftUpLeg
+      humanName: LeftUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightUpLeg
+      humanName: RightUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftLeg
+      humanName: LeftLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightLeg
+      humanName: RightLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftFoot
+      humanName: LeftFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightFoot
+      humanName: RightFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine
+      humanName: Spine
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine1
+      humanName: Chest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:Neck
+      humanName: Neck
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:Head
+      humanName: Head
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftShoulder
+      humanName: LeftShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightShoulder
+      humanName: RightShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftArm
+      humanName: LeftUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightArm
+      humanName: RightUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftForeArm
+      humanName: LeftLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightForeArm
+      humanName: RightLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHand
+      humanName: LeftHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHand
+      humanName: RightHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftToeBase
+      humanName: LeftToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightToeBase
+      humanName: RightToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb1
+      humanName: Left Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb2
+      humanName: Left Thumb Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb3
+      humanName: Left Thumb Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex1
+      humanName: Left Index Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex2
+      humanName: Left Index Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex3
+      humanName: Left Index Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle1
+      humanName: Left Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle2
+      humanName: Left Middle Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle3
+      humanName: Left Middle Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing1
+      humanName: Left Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing2
+      humanName: Left Ring Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing3
+      humanName: Left Ring Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky1
+      humanName: Left Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky2
+      humanName: Left Little Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky3
+      humanName: Left Little Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb1
+      humanName: Right Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb2
+      humanName: Right Thumb Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb3
+      humanName: Right Thumb Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex1
+      humanName: Right Index Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex2
+      humanName: Right Index Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex3
+      humanName: Right Index Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle1
+      humanName: Right Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle2
+      humanName: Right Middle Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle3
+      humanName: Right Middle Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing1
+      humanName: Right Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing2
+      humanName: Right Ring Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing3
+      humanName: Right Ring Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky1
+      humanName: Right Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky2
+      humanName: Right Little Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky3
+      humanName: Right Little Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine2
+      humanName: UpperChest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    skeleton:
+    - name: ghost_girl(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:Mesh
+      parentName: ghost_girl(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:Hips
+      parentName: ghost_girl(Clone)
+      position: {x: 0.00000001022571, y: 0.020195955, z: -0.00025919106}
+      rotation: {x: 0.0000005766247, y: -0.000000247157, z: -0.000026900274, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Hips
+      position: {x: -0, y: 0.0011957311, z: -0.00008259937}
+      rotation: {x: -0.03447828, y: -0.0000006804322, z: 0.000026892802, w: 0.99940544}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine
+      position: {x: -0, y: 0.0013983425, z: 1.0081446e-12}
+      rotation: {x: 6.0668014e-26, y: -8.9538755e-14, z: 6.775615e-13, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine1
+      position: {x: -0, y: 0.0015981067, z: -6.8043258e-12}
+      rotation: {x: 0, y: -6.3108872e-30, z: 8.953571e-29, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:Neck
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine2
+      position: {x: -0, y: 0.0017978685, z: 2.90209e-11}
+      rotation: {x: 0.034477714, y: -1.2278905e-21, z: -1.3564828e-19, w: 0.9994055}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:Head
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Neck
+      position: {x: -0, y: 0.0020655466, z: 0.0005926118}
+      rotation: {x: -4.9303807e-32, y: 2.032879e-20, z: 1.270693e-39, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:HeadTop_End
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Head
+      position: {x: -0, y: 0.0038587784, z: 0.0011070955}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightShoulder
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine2
+      position: {x: 0.0010795577, y: 0.0014719315, z: -0.000015466507}
+      rotation: {x: -0.5260988, y: -0.4716169, z: 0.52757376, w: -0.47166035}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightArm
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightShoulder
+      position: {x: -1.0131645e-12, y: 0.0022485494, z: -1.43908704e-11}
+      rotation: {x: -0.05519735, y: 0.031133994, z: -0.00096350897, w: 0.9979895}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightForeArm
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightArm
+      position: {x: 2.1828685e-12, y: 0.004168026, z: 9.4080535e-11}
+      rotation: {x: 0.00000020669614, y: 0.031098465, z: -0.00000005702568, w: 0.99951637}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHand
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightForeArm
+      position: {x: 2.5085592e-11, y: 0.0036053811, z: 8.119613e-11}
+      rotation: {x: -0.04437741, y: 0.92682344, z: 0.024855696, w: -0.37203658}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHand
+      position: {x: 0.0001789496, y: 0.0029296565, z: 0.000115932344}
+      rotation: {x: 0.006657965, y: -0.00350241, z: 0.064814694, w: 0.99786896}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing1
+      position: {x: 0.000015352165, y: 0.00051978667, z: -8.246221e-12}
+      rotation: {x: -0.000009099997, y: -0.0011037623, z: -0.02031127, w: 0.9997931}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing2
+      position: {x: -0.000005985617, y: 0.00050890376, z: 1.6216698e-11}
+      rotation: {x: 0.0000015652357, y: -0.000103779064, z: -0.004921996, w: 0.9999879}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandRing3
+      position: {x: -0.000009366457, y: 0.00041589772, z: 1.0300527e-11}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHand
+      position: {x: -0.00030147313, y: 0.002971807, z: 0.000039334052}
+      rotation: {x: 0.00752164, y: -0.023059959, z: 0.05782657, w: 0.998032}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle1
+      position: {x: 0.0000075213557, y: 0.00052925356, z: 1.6864385e-11}
+      rotation: {x: -0.0000056107046, y: 0.0008213134, z: -0.022465082, w: 0.99974734}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle2
+      position: {x: -0.0000147016835, y: 0.000502796, z: -1.039889e-11}
+      rotation: {x: 0.0000052142955, y: -0.0007631602, z: 0.022629842, w: 0.99974364}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandMiddle3
+      position: {x: 0.0000071802315, y: 0.00045319446, z: 1.1458609e-11}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHand
+      position: {x: -0.0005921113, y: 0.0027109014, z: 0.00011342717}
+      rotation: {x: 0.008426757, y: -0.048893776, z: 0.06161113, w: 0.99686635}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex1
+      position: {x: 0.000011583367, y: 0.00051816, z: -3.144651e-11}
+      rotation: {x: 0.000000006665534, y: 0.00020293423, z: -0.025088422, w: 0.9996852}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex2
+      position: {x: -0.000014004052, y: 0.0005184811, z: 8.948275e-12}
+      rotation: {x: 0.000007810254, y: -0.0006532442, z: 0.015655467, w: 0.9998773}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandIndex3
+      position: {x: 0.0000024206868, y: 0.00046590497, z: 2.3577206e-11}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHand
+      position: {x: 0.0007146347, y: 0.0022545578, z: 0.00012597555}
+      rotation: {x: 0.008063987, y: -0.025310691, z: -0.010084669, w: 0.99959624}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky1
+      position: {x: 0.00000843072, y: 0.00043560125, z: 1.25968454e-11}
+      rotation: {x: -0.000000967238, y: -0.00009594202, z: -0.006673261, w: 0.99997777}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky2
+      position: {x: 0.000001863311, y: 0.00040005322, z: 5.776499e-12}
+      rotation: {x: 0.000047371, y: -0.0033423603, z: -0.01910392, w: 0.99981195}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandPinky3
+      position: {x: -0.000010294066, y: 0.00030134892, z: -5.4891113e-12}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHand
+      position: {x: -0.0004347164, y: -0.00016051428, z: -0.00074752717}
+      rotation: {x: 0.22548631, y: -0.21543433, z: -0.3953688, w: 0.8639603}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb1
+      position: {x: -0.0002539607, y: 0.00065617746, z: -6.099185e-12}
+      rotation: {x: 0.0023497248, y: -0.015083162, z: 0.21322232, w: 0.9768844}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb2
+      position: {x: 0.00007020778, y: 0.0011583363, z: 7.2810535e-13}
+      rotation: {x: 0.0008350908, y: 0.0070801987, z: 0.057006642, w: 0.99834836}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightHandThumb3
+      position: {x: 0.00018375294, y: 0.0010440947, z: -1.93819e-11}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftShoulder
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Spine2
+      position: {x: -0.0010795577, y: 0.0014729006, z: -0.000029497085}
+      rotation: {x: 0.521952, y: -0.47423625, z: 0.5312844, w: 0.469471}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftArm
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftShoulder
+      position: {x: 1.0629256e-12, y: 0.0022485494, z: -1.4387269e-11}
+      rotation: {x: -0.0548409, y: -0.014032037, z: -0.006403668, w: 0.998376}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftForeArm
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftArm
+      position: {x: 4.9206917e-13, y: 0.004168902, z: 7.482291e-11}
+      rotation: {x: 0.00000017696502, y: -0.050695702, z: -0.00000010122901, w: 0.99871415}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHand
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftForeArm
+      position: {x: -2.2274852e-11, y: 0.0035982402, z: -8.292474e-11}
+      rotation: {x: 0.03747854, y: 0.94754875, z: 0.026665507, w: 0.31628424}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHand
+      position: {x: -0.0001604823, y: 0.0029859259, z: 0.000094277035}
+      rotation: {x: 0.013544412, y: 0.0035581263, z: -0.05373708, w: 0.99845695}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing1
+      position: {x: -0.000009896168, y: 0.00050973514, z: 2.009366e-12}
+      rotation: {x: 0.000000050726836, y: 0.00015702922, z: 0.018275356, w: 0.999833}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing2
+      position: {x: 0.000008125484, y: 0.00047226308, z: 1.9464473e-12}
+      rotation: {x: 0.0000075378475, y: 0.00070275925, z: -0.0060984786, w: 0.99998116}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandRing3
+      position: {x: 0.000001770693, y: 0.00042132183, z: 6.5868643e-13}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHand
+      position: {x: 0.0002489312, y: 0.0028208063, z: 0.000076277225}
+      rotation: {x: 0.014270655, y: 0.029694617, z: -0.058723208, w: 0.99773055}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle1
+      position: {x: -0.000017441696, y: 0.0005599311, z: 2.4338805e-11}
+      rotation: {x: -0.00000026264814, y: 0.00016916763, z: 0.028983185, w: 0.9995799}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle2
+      position: {x: 0.000015561154, y: 0.00057860656, z: 1.6787523e-11}
+      rotation: {x: 0.00001868042, y: 0.0011705499, z: -0.011595904, w: 0.9999321}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandMiddle3
+      position: {x: 0.0000018805208, y: 0.00045129217, z: -1.8617484e-12}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHand
+      position: {x: 0.00059103634, y: 0.0026681405, z: 0.00007172558}
+      rotation: {x: 0.01461443, y: 0.04275488, z: -0.05913875, w: 0.9972267}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex1
+      position: {x: -0.000017386043, y: 0.0005382449, z: 1.0206535e-11}
+      rotation: {x: 0.00000010894109, y: -0.00013215652, z: 0.032514293, w: 0.99947125}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex2
+      position: {x: 0.000017233382, y: 0.00050765835, z: -3.6329071e-12}
+      rotation: {x: 0.0000123011505, y: 0.0007501856, z: -0.01672529, w: 0.99985987}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandIndex3
+      position: {x: 0.000000152748, y: 0.00043909386, z: -4.319851e-12}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHand
+      position: {x: -0.00067948585, y: 0.0021742948, z: 0.00012636125}
+      rotation: {x: 0.006680141, y: 0.023695197, z: 0.018780554, w: 0.99952054}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky1
+      position: {x: -0.0000069725816, y: 0.00047837547, z: 1.450932e-11}
+      rotation: {x: -0.00000035360713, y: -0.000058567977, z: 0.017075444, w: 0.9998542}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky2
+      position: {x: 0.000007815047, y: 0.00040983956, z: -1.1655625e-11}
+      rotation: {x: -0.0000073867736, y: -0.0008754318, z: -0.011288321, w: 0.9999359}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandPinky3
+      position: {x: -0.00000084246426, y: 0.00032590437, z: -1.5589174e-12}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb1
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHand
+      position: {x: 0.00031419657, y: -0.000091676375, z: -0.00058440433}
+      rotation: {x: 0.17508827, y: 0.3030524, z: 0.38249993, w: 0.85510063}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb2
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb1
+      position: {x: 0.0001405091, y: 0.0005171028, z: 3.886447e-12}
+      rotation: {x: 0.0016373111, y: 0.0107938815, z: -0.115426555, w: 0.99325603}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb3
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb2
+      position: {x: 0.000045148638, y: 0.0012903523, z: -8.1164963e-13}
+      rotation: {x: 0.0003225832, y: -0.005062656, z: -0.098280594, w: 0.99514586}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb4
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftHandThumb3
+      position: {x: -0.00018565776, y: 0.0011377501, z: -6.661942e-12}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightUpLeg
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Hips
+      position: {x: 0.0030786218, y: -0.00066429493, z: 0.0002267599}
+      rotation: {x: 0.00007186461, y: 0.0050440654, z: 0.99995494, w: 0.0080466615}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightLeg
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightUpLeg
+      position: {x: -0, y: 0.009168288, z: -6.124915e-12}
+      rotation: {x: -0.044182096, y: -0.00076440704, z: 0.01654678, w: 0.99888617}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightFoot
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightLeg
+      position: {x: -8.722339e-12, y: 0.008807286, z: -2.0083085e-11}
+      rotation: {x: 0.51123375, y: 0.07643744, z: -0.0334191, w: 0.8553833}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightToeBase
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightFoot
+      position: {x: 1.23801655e-11, y: 0.0025703998, z: -2.7588614e-11}
+      rotation: {x: 0.28122446, y: 0.0029885024, z: -0.0008757717, w: 0.959637}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:RightToe_End
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:RightToeBase
+      position: {x: 6.1377656e-12, y: 0.0010298889, z: 3.1263054e-13}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftUpLeg
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:Hips
+      position: {x: -0.0030786218, y: -0.00066429493, z: 0.00009535804}
+      rotation: {x: -0.000028665496, y: 0.0057897097, z: 0.99995047, w: -0.00809882}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftLeg
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftUpLeg
+      position: {x: -0, y: 0.0091677755, z: -8.2031853e-13}
+      rotation: {x: -0.038230527, y: 0.00061173365, z: -0.01653749, w: 0.9991319}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftFoot
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftLeg
+      position: {x: 7.0174877e-12, y: 0.008798911, z: -3.9171244e-12}
+      rotation: {x: 0.5048879, y: -0.07884719, z: 0.032538038, w: 0.8589602}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftToeBase
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftFoot
+      position: {x: -3.1376895e-12, y: 0.0025640735, z: 3.1604348e-12}
+      rotation: {x: 0.28198805, y: 0.0025227235, z: -0.0007415045, w: 0.95941436}
+      scale: {x: 1, y: 1, z: 1}
+    - name: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftToe_End
+      parentName: uploads_files_2359202_PBR_GhostGirl_OBJ:LeftToeBase
+      position: {x: 5.3779073e-12, y: 0.0010456541, z: -5.0773655e-14}
+      rotation: {x: 0, y: -0, z: -0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
     armTwist: 0.5
     foreArmTwist: 0.5
     upperLegTwist: 0.5
