@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI; // NavMeshAgentを使うための宣言
 using UnityEngine.Playables; // PlayableDirectorを使うための宣言
+using UnityEngine.Audio;
 
 public class EnemyAI_move : MonoBehaviour
 {
@@ -42,6 +43,18 @@ public class EnemyAI_move : MonoBehaviour
     [Header("去る音")]
     private AudioSource audioByeBye;
     public bool enemy_Chasing = false;
+    [SerializeField]
+    [Header("心音用のオーディオソース")]
+    private AudioSource audioHeartBeat;
+    [SerializeField]
+    [Header("心音が聞こえ始める距離")]
+    private float StartingHeartBeatSound = 15.0f;
+    [SerializeField]
+    [Header("心音")]
+    private AudioClip AC_HeartBeat ;
+    [SerializeField]
+    [Header("敵とプレイヤーの距離")]
+    private float EtPDis;
 
     private GameManager gameManager;
     private SoundManager soundManager;
@@ -88,6 +101,14 @@ public class EnemyAI_move : MonoBehaviour
     //動けるかどうか
     private bool CanMove =true;
 
+    [Header("心音操作用のオーディオミキサー")]
+    [SerializeField]
+    AudioMixer heartAudioMixer;
+
+    private float distanceVolumeRate_ = 0.0f;//プレイヤーと敵の距離に応じたボリューム
+    private float bgmVolume_ = 0.0f;//BGMのボリューム
+    private bool isEnablePlay = true;//BGMが再生可能か否か
+
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -112,6 +133,11 @@ public class EnemyAI_move : MonoBehaviour
     {
         if (CanMove)
         {
+            DistanceSoundUpdate();
+            //pitchに併せて音程が変わらないように心音を鳴らす
+            heartAudioMixer.SetFloat("HeartBeat",1.0f / audioHeartBeat.pitch);
+
+
             switch (type)
             {
                 case EnemType.KeepLook:
@@ -361,5 +387,38 @@ public class EnemyAI_move : MonoBehaviour
     public void SetCanMove(bool Set)
     {
         CanMove = Set;
+    }
+    //距離によって音量や再生速度を変更する
+    void DistanceSoundUpdate()
+    {
+        EtPDis = Vector3.Distance(this.transform.position,playerObj.transform.position);
+        if (EtPDis <= StartingHeartBeatSound)
+        {
+
+            if (EtPDis >= 10.0f)
+            {
+                //距離で音程を変える
+                audioHeartBeat.pitch = 2.0f * (1.0f / 10.0f); ;
+                audioHeartBeat.volume = (1.0f / 10.0f);
+            }
+            else
+            {
+                //距離で音程を変える
+                audioHeartBeat.pitch = 2.0f * (1.0f / EtPDis) * 1.2f;
+                //距離で音量を変える
+                audioHeartBeat.volume = (1.0f / EtPDis) * 1.2f;
+            }
+
+            if(!audioHeartBeat.isPlaying)
+            {
+                //音を鳴らす
+                audioHeartBeat.PlayOneShot(AC_HeartBeat);
+            }
+        }
+        else
+        {
+            //後々音のフェードアウトもしたい
+            audioHeartBeat.Stop();
+        }
     }
 }
