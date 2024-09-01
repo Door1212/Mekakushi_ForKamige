@@ -48,6 +48,9 @@ public class ToFirstContact : MonoBehaviour
     private bool IsSettingDone;
     float rotationThreshold = 0.3f;
 
+    private GameObject mainCamera;      //メインカメラ格納用
+    private GameObject subCamera;       //サブカメラ格納用 
+
     // Start is called before the first frame update
     void awake()
     {
@@ -72,6 +75,12 @@ public class ToFirstContact : MonoBehaviour
             enemycontact.stopped += OnPlayableDirectorStopped;
         }
         isPlaying = false;
+        //メインカメラとサブカメラをそれぞれ取得
+        mainCamera = GameObject.Find("PlayerCamera");
+        subCamera = GameObject.Find("ContactCamera");
+
+        //サブカメラを非アクティブにする
+        subCamera.SetActive(false);
     }
 
     // Update is called once per frame
@@ -90,7 +99,10 @@ public class ToFirstContact : MonoBehaviour
                 gameManager.SetStopAll(true);
                 ui.SetActive(false);
                 //視線と位置を誘導
-                InductionUniquePosition(PointToMove.transform.position, PointOfFixation.transform, 1.0f, 0.8f);
+                //InductionUniquePosition(PointToMove.transform.position, PointOfFixation.transform, 1.0f, 0.8f);
+                //サブカメラをアクティブに設定
+                mainCamera.SetActive(false);
+                subCamera.SetActive(true);
                 enemycontact.Play();
                 isPlaying = true;
             }
@@ -115,6 +127,9 @@ public class ToFirstContact : MonoBehaviour
 
     private void OnPlayableDirectorStopped(PlayableDirector director)
     {
+        //メインカメラをアクティブに設定
+        subCamera.SetActive(false);
+        mainCamera.SetActive(true);
         gameManager.SetStopAll(false);
         ui.SetActive(true);
         Destroy(enemycontactbody);
