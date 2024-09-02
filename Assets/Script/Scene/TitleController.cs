@@ -266,7 +266,7 @@ public class TitleController : MonoBehaviour
     public void CloseEyeOption()
     {
         EyeOptionMenu.SetActive(false);
-        Time.timeScale = 0.0f;
+        Time.timeScale = 1.0f;
         EyeClosingLevel.REyeClosingLevelValue = EyeThresholdBar.value;
         EyeClosingLevel.LEyeClosingLevelValue = EyeThresholdBar.value;
         //マウスカーソルを出す

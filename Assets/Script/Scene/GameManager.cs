@@ -147,9 +147,9 @@ public class GameManager : MonoBehaviour
     {
         playerMove.SetCanMove(!StopAll);
         CameraMove.SetCanMove(!StopAll);
-        //for(int i = 0; i < EnemyAI_Moves.Length; i++)
-        //{
-        //    EnemyAI_Moves[i].SetCanMove(!StopAll);
-        //}
+        for (int i = 0; i < EnemyAI_Moves.Length; i++)
+        {
+            EnemyAI_Moves[i].SetCanMove(!StopAll);
+        }
     }
 }

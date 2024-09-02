@@ -53,7 +53,7 @@ public class DoorOpen : MonoBehaviour
     private float delayTime = 0.1f;  // 遅延時間を秒単位で設定
 
     [Header("クロスヘアUIオブジェクトの名前")]
-    [SerializeField]
+    //[SerializeField]
     private string CrosshairName = "Crosshair";
 
     [Header("クロスヘアアイコンUI")]
@@ -88,6 +88,9 @@ public class DoorOpen : MonoBehaviour
         Enemy_dis = new float[Enemies.Length];
 
         CrosshairTransform = GameObject.Find(CrosshairName).GetComponent<RectTransform>();
+
+
+
         UICrosshair = GameObject.Find(CrosshairName).GetComponent<Image>();
         //リソースフォルダから読み込む
         CrosshairIcon = Resources.Load<Sprite>("Image/Crosshair");
@@ -241,6 +244,10 @@ public class DoorOpen : MonoBehaviour
     public void ResetUI()
     {
         //IsEnableDoor = false;
+        if (CrosshairTransform == null)
+        {
+            Debug.Log("hey");
+        }
         CrosshairTransform.sizeDelta = new Vector2(CrosshairSizeX, CrosshairSizeY);
         UICrosshair.sprite = CrosshairIcon;
     }

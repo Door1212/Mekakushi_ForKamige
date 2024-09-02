@@ -29,10 +29,23 @@ public class GakiMitsukeAndOpen : MonoBehaviour
     [SerializeField]
     private HidingCharacter[] Gakis; // 必要なガキの配列
 
+    [Header("フェード表示用オブジェクト")]
+    /*[SerializeField] */private GameObject FadeUI;
+    private UIFade uifade;
+
+    private GameManager gameManager;
+
     // ガキが見つかったことを格納するbool配列
     private bool[] IsGakiFind;
     bool alltrue = true; // すべてのガキが見つかったかどうかのフラグ
     bool DoFindAll = false; // ガキを全て見つけた後の処理を行ったかどうかのフラグ
+
+    private GameObject mainCamera;      //メインカメラ格納用
+    private GameObject subCamera;       //サブカメラ格納用 
+
+    [Header("ムービー中に消すUI")]
+    [SerializeField]private GameObject[] UIObject;
+
 
     // Start is called before the first frame update
     void Start()
@@ -45,6 +58,27 @@ public class GakiMitsukeAndOpen : MonoBehaviour
             Gakis[i].GetComponent<HidingCharacter>(); // ガキのコンポーネントを取得
             IsGakiFind[i] = false; // 初期状態ではすべてのガキが見つかっていない
         }
+
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+
+        //メインカメラとサブカメラをそれぞれ取得
+        mainCamera = GameObject.Find("PlayerCamera");
+        subCamera = GameObject.Find("CoboCamera");
+
+        //サブカメラを非アクティブにする
+        subCamera.SetActive(false);
+
+        FadeUI = GameObject.Find("Fade");
+
+        uifade = GameObject.Find("Fade").GetComponent<UIFade>();
+
+        //アルファ値を0に
+        //uifade.SetAlphaZero();
+
+
+
+
+        
     }
 
     // Update is called once per frame
@@ -67,15 +101,31 @@ public class GakiMitsukeAndOpen : MonoBehaviour
 
         if (alltrue && !DoFindAll)
         {
-            FindAll(); // すべてのガキが見つかった場合の処理
+            for(int i =0;i< UIObject.Length;i++)
+            {
+                UIObject[i].SetActive(false);
+            }
+            gameManager.SetStopAll(true);
+            enemy.SetState(EnemyAI_move.EnemyState.Idle);
+            BeforeEnemy.SetActive(false);
+            mainCamera.SetActive(false);
+            subCamera.SetActive(true);
+            // 道を開ける
+            uifade.StartFadeIn();
+            StartCoroutine("FindAll",0.5f); // すべてのガキが見つかった場合の処理
         }
 
          if (DoFindAll && !audioSource.isPlaying) // すべてのガキが見つかりかつ音が鳴り終わっていれば
         {
-            BigCobo.SetActive(false);
-            SmallCobo.SetActive(true);
-            enemy.SetState(EnemyAI_move.EnemyState.Idle);
-            BeforeEnemy.SetActive(false);
+
+            gameManager.SetStopAll(false);
+            mainCamera.SetActive(true);
+            subCamera.SetActive(false);
+            uifade.StartFadeOut();
+            for (int i = 0; i < UIObject.Length; i++)
+            {
+                UIObject[i].SetActive(true);
+            }
             //Destroy(this); // スクリプトを破棄
         }
     }
@@ -83,15 +133,34 @@ public class GakiMitsukeAndOpen : MonoBehaviour
     // すべてのガキが見つかった場合の処理
     private void FindAll()
     {
-        // 道を開ける
 
         // 音を鳴らす
-        if(!audioSource.isPlaying)
+        if (!audioSource.isPlaying)
         {
             audioSource.PlayOneShot(Gomadare);
             Debug.Log("開いとる！");
         }
+        SmallCobo.SetActive(true);
+        BigCobo.SetActive(false);
 
-        DoFindAll = true; // フラグを更新
+        StartCoroutine("Dofadeout",0.5f);
+
+
     }
+
+    private void Dofadeout()
+    {
+        uifade.StartFadeOut();
+        DoFindAll = true; // フラグを更新
+
+        StartCoroutine("Dofadeout", 0.5f);
+        
+    }
+    private void DofadeIn()
+    {
+        uifade.StartFadeIn();
+
+    }
+
+
 }
