@@ -210,11 +210,15 @@ namespace DlibFaceLandmarkDetectorExample
 
                     isEyeOpen = UpdateEyeState(points);
 
-                   
+
 
                     // 現在のランドマークポイントを保存
                     currentLandmarkPoints = points;
+
+
                 }
+               
+
 
             })
 .ObserveOnMainThread()

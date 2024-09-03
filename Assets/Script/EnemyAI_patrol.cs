@@ -33,7 +33,7 @@ public class EnemyAI_patrol : MonoBehaviour
     [SerializeField]private AudioSource audioHeartBeat;
     [SerializeField]
     [Header("S‰¹‚ª•·‚±‚¦n‚ß‚é‹——£")]
-    private float StartingHeartBeatSound = 15.0f;
+    private float StartingHeartBeatSound = 20.0f;
     [SerializeField]
     [Header("S‰¹")]
     private AudioClip AC_HeartBeat;
@@ -169,7 +169,7 @@ public class EnemyAI_patrol : MonoBehaviour
         if (EtPDis <= StartingHeartBeatSound)
         {
 
-            if (EtPDis >= 10.0f)
+            if (EtPDis >= 20.0f)
             {
                 //‹——£‚Å‰¹’ö‚ğ•Ï‚¦‚é
                 audioHeartBeat.pitch = 2.0f * (1.0f / 10.0f); ;
@@ -178,9 +178,9 @@ public class EnemyAI_patrol : MonoBehaviour
             else
             {
                 //‹——£‚Å‰¹’ö‚ğ•Ï‚¦‚é
-                audioHeartBeat.pitch = 2.0f * (1.0f / EtPDis) * 1.2f;
+                audioHeartBeat.pitch = 2.0f * (1.0f / EtPDis) * 1.1f;
                 //‹——£‚Å‰¹—Ê‚ğ•Ï‚¦‚é
-                audioHeartBeat.volume = (1.0f / EtPDis) * 1.2f;
+                audioHeartBeat.volume = (1.0f / EtPDis) * 1.1f;
             }
 
             if (!audioHeartBeat.isPlaying)

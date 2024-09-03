@@ -121,6 +121,7 @@ public class GakiMitsukeAndOpen : MonoBehaviour
             gameManager.SetStopAll(false);
             mainCamera.SetActive(true);
             subCamera.SetActive(false);
+            Debug.Log("–ß‚µ‚½‚æ");
             uifade.StartFadeOut();
             for (int i = 0; i < UIObject.Length; i++)
             {

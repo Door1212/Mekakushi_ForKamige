@@ -61,7 +61,7 @@ public class GameOverController : MonoBehaviour
         
         //if (!audiosouce.isPlaying)
         //{
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("Title1");
         //}
     }
 

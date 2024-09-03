@@ -334,8 +334,27 @@ public class EnemyAI_move : MonoBehaviour
 
     private void ResetEnemy()
     {
-        this.transform.position = new Vector3(Random.Range(MinX, MaxX), 0, Random.Range(MinZ, MaxZ));
+        Vector3 newPosition;
+        float distanceToPlayer;
+
+        do
+        {
+            // ランダムな位置を生成
+            newPosition = new Vector3(Random.Range(MinX, MaxX), 0, Random.Range(MinZ, MaxZ));
+
+            // プレイヤーとの距離を計算
+            distanceToPlayer = Vector3.Distance(newPosition, playerObj.transform.position);
+
+            // プレイヤーから10ユニット以上離れているかを確認
+        } while (distanceToPlayer < 10.0f);
+
+        // 敵の位置を更新
+        this.transform.position = newPosition;
+
+        // 状態をリセット
         ResetState();
+
+        // 敵のコライダーを有効にする
         EnemyBodyCollider.enabled = true;
     }
 

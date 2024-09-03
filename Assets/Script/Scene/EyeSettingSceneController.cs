@@ -415,7 +415,7 @@ public class EyeSettingSceneController : MonoBehaviour
 
     public void EnterMainScene()
     {
-        SceneManager.LoadScene("Title");
+        SceneManager.LoadScene("Title1");
     }
 
     
