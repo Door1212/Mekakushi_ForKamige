@@ -98,8 +98,13 @@ public class EnemyAI_move : MonoBehaviour
     public bool IsThisOpeningDoor = false;
     private bool PreIsThisOpeningDoor = false;
 
+    [Header("視界に入っているかどうかの閾値")]
+    [SerializeField]
+    public float dotThreshold = -0.3f;
+
+
     //動けるかどうか
-    private bool CanMove =true;
+    private bool CanMove = true;
 
     [Header("心音操作用のオーディオミキサー")]
     [SerializeField]
@@ -360,12 +365,13 @@ public class EnemyAI_move : MonoBehaviour
 
     private void KeepLookCheck()
     {
-        if (isRendered)
+        var vec = playerObj.transform.position - ThisBody.transform.position;
+        if (face.isEyeOpen && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
         {
-            var vec = playerObj.transform.position - ThisBody.transform.position;
-
-            if (face.isEyeOpen && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
+            vec.Normalize();
+            if (Vector3.Dot(vec, playerObj.transform.forward.normalized) < dotThreshold)
             {
+                Debug.Log("hahahahahahahaha");
                 navMeshAgent.ResetPath();
                 navMeshAgent.updatePosition = false;
                 navMeshAgent.isStopped = true;
@@ -397,16 +403,13 @@ public class EnemyAI_move : MonoBehaviour
                 audioSource.Play();
             }
         }
-    }
 
-    public void SetisRendered(bool _isRendered)
-    {
-        isRendered = _isRendered;
     }
     public void SetCanMove(bool Set)
     {
         CanMove = Set;
     }
+
     //距離によって音量や再生速度を変更する
     void DistanceSoundUpdate()
     {
@@ -441,3 +444,6 @@ public class EnemyAI_move : MonoBehaviour
         }
     }
 }
+
+}
+
