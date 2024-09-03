@@ -85,8 +85,13 @@ public class EnemyAI_move : MonoBehaviour
     public bool IsThisOpeningDoor = false;
     private bool PreIsThisOpeningDoor = false;
 
+    [Header("Ž‹ŠE‚É“ü‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©‚Ìè‡’l")]
+    [SerializeField]
+    public float dotThreshold = -0.3f;
+
+
     //“®‚¯‚é‚©‚Ç‚¤‚©
-    private bool CanMove =true;
+    private bool CanMove = true;
 
     void Start()
     {
@@ -145,7 +150,7 @@ public class EnemyAI_move : MonoBehaviour
                     }
 
 
-                    if(DisapperTime >= LimitDisappearTime)
+                    if (DisapperTime >= LimitDisappearTime)
                     {
                         isChased = false;
                         if (!audioByeBye.isPlaying)
@@ -178,9 +183,9 @@ public class EnemyAI_move : MonoBehaviour
 
             if (state == EnemyState.Catch)
             {
-                if(type == EnemType.Blind)
+                if (type == EnemType.Blind)
                 {
-                    if(face.isEyeOpen)
+                    if (face.isEyeOpen)
                     {
                         gameManager.isGameOver = true;
                     }
@@ -315,12 +320,13 @@ public class EnemyAI_move : MonoBehaviour
 
     private void KeepLookCheck()
     {
-        if (isRendered)
+        var vec = playerObj.transform.position - ThisBody.transform.position;
+        if (face.isEyeOpen && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
         {
-            var vec = playerObj.transform.position - ThisBody.transform.position;
-
-            if (face.isEyeOpen && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
+            vec.Normalize();
+            if (Vector3.Dot(vec, playerObj.transform.forward.normalized) < dotThreshold)
             {
+                Debug.Log("hahahahahahahaha");
                 navMeshAgent.ResetPath();
                 navMeshAgent.updatePosition = false;
                 navMeshAgent.isStopped = true;
@@ -352,14 +358,11 @@ public class EnemyAI_move : MonoBehaviour
                 audioSource.Play();
             }
         }
-    }
 
-    public void SetisRendered(bool _isRendered)
-    {
-        isRendered = _isRendered;
     }
     public void SetCanMove(bool Set)
     {
         CanMove = Set;
     }
+
 }
