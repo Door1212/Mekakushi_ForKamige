@@ -34,7 +34,8 @@ public class Discover1 : MonoBehaviour
 
     [Header("見つけたオブジェクト")]
     public GameObject FoundObj;
-
+    [Header("前方にあるオブジェクト　※taglistのtagを持つオブジェクトに限る")]
+    public GameObject ForwardObj;
     [Header("ドア")]
 
     DlibFaceLandmarkDetectorExample.FaceDetector faceDetector;
@@ -117,6 +118,10 @@ public class Discover1 : MonoBehaviour
                         {
                             hitcount++;
                         }
+                    }
+                    else
+                    {
+                        ForwardObj = null;
                     }
 
                 }
@@ -208,6 +213,7 @@ public class Discover1 : MonoBehaviour
         {
             if (hit.transform.tag == tagList[i])
             {
+                ForwardObj = hit.transform.gameObject;
                 return true;
             }
         }

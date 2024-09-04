@@ -371,7 +371,6 @@ public class EnemyAI_move : MonoBehaviour
             vec.Normalize();
             if (Vector3.Dot(vec, playerObj.transform.forward.normalized) < dotThreshold)
             {
-                Debug.Log("hahahahahahahaha");
                 navMeshAgent.ResetPath();
                 navMeshAgent.updatePosition = false;
                 navMeshAgent.isStopped = true;
