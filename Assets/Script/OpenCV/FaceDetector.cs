@@ -71,7 +71,8 @@ namespace DlibFaceLandmarkDetectorExample
 #if UNITY_EDITOR
             string dlibShapePredictorFileName = "DlibFaceLandmarkDetector/sp_human_face_68.dat";
 #else
-            string dlibShapePredictorFileName = Application.streamingAssetsPath + "/DlibFaceLandmarkDetector/sp_human_face_68.dat";
+            string dlibShapePredictorFileName = System.IO.Path.Combine(Application.streamingAssetsPath, "/DlibFaceLandmarkDetector/sp_human_face_68.dat");
+            //string dlibShapePredictorFileName = Application.streamingAssetsPath + "/DlibFaceLandmarkDetector/sp_human_face_68.dat";
             Debug.Log("Build Path: " + dlibShapePredictorFileName);
 #endif
 

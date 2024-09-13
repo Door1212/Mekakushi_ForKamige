@@ -130,6 +130,7 @@ public class ToFirstContact : MonoBehaviour
         //メインカメラをアクティブに設定
         subCamera.SetActive(false);
         mainCamera.SetActive(true);
+
         gameManager.SetStopAll(false);
         ui.SetActive(true);
         Destroy(enemycontactbody);

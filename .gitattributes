@@ -84,3 +84,4 @@
 *.prefab linguist-generated
 *.unity linguist-generated
 *.assets filter=lfs diff=lfs merge=lfs -text
+*.exr filter=lfs diff=lfs merge=lfs -text
