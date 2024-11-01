@@ -87,7 +87,20 @@ public class GameManager : MonoBehaviour
             DoStopAll();
         }
 
+        if(Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F1))
+        {
+            SceneManager.LoadScene("SchoolMain 1");
+        }
 
+        if (Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F2))
+        {
+            SceneManager.LoadScene("SchoolMain 2");
+        }
+
+        if (Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F3))
+        {
+            SceneManager.LoadScene("SchoolMain 3");
+        }
 
         UpdatePeopleText();
 

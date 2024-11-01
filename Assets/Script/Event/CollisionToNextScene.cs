@@ -21,6 +21,13 @@ public class CollisionToNextScene : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+
+        //シーン切り替えの際に
+        if(SceneName == "SchoolMain 1")
+        {
+            OptionValue.SpawnSpot = SPAWNSPOT.DEFAULT;
+        }
+
             if (other.CompareTag("Player"))//各自タグに付けた名前を()の中に入れてください
             {
             SceneManager.LoadScene(SceneName);

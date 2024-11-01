@@ -40,6 +40,18 @@ public class TitleController : MonoBehaviour
 
     private bool IsFirst = false;
 
+    //シーン変更フラグ
+    protected bool IsChangeScene;
+
+    //シーン変更フラグ
+    protected bool IsChangeAnimDone;
+
+    //Eyeフェイド用の変数
+    private EyeFadeController _EyeFadeController;
+
+    //EyeFadeオブジェクト
+    private GameObject _EyeFadeContainer;
+
     enum TutorialIdx
     {
         TUTORIAL_No1,
@@ -84,6 +96,14 @@ public class TitleController : MonoBehaviour
         //ピッチを初期値に
         audiosouce.pitch = 1.0f;
         CountFrame = 0;
+
+        //シーン変更
+        IsChangeScene = false;
+        IsChangeAnimDone = false;
+
+        //EyeControllerのゲット
+        _EyeFadeController = this.GetComponent<EyeFadeController>();
+
     }
 
     // Update is called once per frame
@@ -121,6 +141,7 @@ public class TitleController : MonoBehaviour
         //    }
         //}
 
+
         //目のオプション画面が開いている間だけアップデート
         if (EyeOptionMenu.active == true)
         {
@@ -143,6 +164,11 @@ public class TitleController : MonoBehaviour
 
             }
         }
+
+        if(IsChangeScene && IsChangeAnimDone)
+        {
+            SceneManager.LoadScene("SchoolMain 1");
+        }
         
     }
 
@@ -155,7 +181,9 @@ public class TitleController : MonoBehaviour
         //    IsEndTutorial.IsEyeTutorial = true;
         //    SceneManager.LoadScene("EyeSettingScene");
         //}
-            SceneManager.LoadScene("SchoolMain 1");
+        _EyeFadeController.SetClose();
+
+        IsChangeScene =true;
         
     }
 
@@ -289,4 +317,9 @@ public class TitleController : MonoBehaviour
     {
         EyeValueTMP.SetText("現在の右目の値は" + face.REyeValue.ToString("N2") + "で、" + "\n現在の左目の値は" + face.LEyeValue.ToString("N2") + "で、" + "\n右の値を超えると目が開いている判定になります:" + EyeThresholdBar.value.ToString("N2"));
     }
+
+    //チェンジシーン状態に入っているかのじぇんち
+    public bool GetIsChangeScene() { return IsChangeScene; }
+    //チェンジシーン状態に入っているかのじぇんち
+    public void SetIsChangeAnimDone(bool _Done) {IsChangeAnimDone = _Done; }
 }

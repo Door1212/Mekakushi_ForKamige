@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI; // NavMeshAgentを使うための宣言
 using UnityEngine.Playables; // PlayableDirectorを使うための宣言
@@ -20,6 +21,7 @@ public class EnemyAI_move : MonoBehaviour
         KeepLook,       // 視界にとらえていると動きが止まる敵
         Blind,          // 目を閉じているとプレイヤーを認識できなくなる敵
         Footsteps,      // 目を閉じている間だけ足音がする敵
+        TYPE_MAX        // 最期の配列番号である事を示す
     }
 
     private EnemyAI_Search eSearch = default;   // EnemyAI_Search
@@ -30,6 +32,9 @@ public class EnemyAI_move : MonoBehaviour
     private Transform targetTransform; // ターゲットの情報
     private NavMeshAgent navMeshAgent; // NavMeshAgentコンポーネント
     private DlibFaceLandmarkDetectorExample.FaceDetector face; // FaceDetectorコンポーネント
+    
+    [Header("ジャンプスケアモーション格納用 1つめ:KeepLook、2つめ:Blind、3つめFootSteps")]
+    public PlayableDirector[] JumpScareTimeLines;
     [Header("FaceDetectorの名前")]
     public string FaceDetector_name = "FaceDetecter";
     [Header("GameManagerの名前")]
@@ -110,9 +115,19 @@ public class EnemyAI_move : MonoBehaviour
     [SerializeField]
     AudioMixer heartAudioMixer;
 
+    //KeepLookEnemyの見てる判定にFogも影響させるための変数定義
+    private float FogEnd;
+
     private float distanceVolumeRate_ = 0.0f;//プレイヤーと敵の距離に応じたボリューム
     private float bgmVolume_ = 0.0f;//BGMのボリューム
     private bool isEnablePlay = true;//BGMが再生可能か否か
+
+    void awake()
+    {
+        //ムービーのゲットコンポーネント
+        for(int i = 0; i < (int)EnemType.TYPE_MAX - 1; i++)
+        JumpScareTimeLines[i] = GetComponent<PlayableDirector>();
+    }
 
     void Start()
     {
@@ -128,6 +143,17 @@ public class EnemyAI_move : MonoBehaviour
         eSearch = GetComponentInChildren<EnemyAI_Search>();
         playerObj = GameObject.FindWithTag(playerTag);
         CanMove = true;
+        FogEnd = RenderSettings.fogEndDistance;//fogの終端を取得
+        BindTimelineToPlayer();
+        for (int i = 0; i < (int)EnemType.TYPE_MAX - 1; i++)
+        {
+            if (JumpScareTimeLines[i] != null)
+            {
+                // PlayableDirectorの再生が終了したときに呼び出されるイベントハンドラーを設定
+                JumpScareTimeLines[i].stopped += OnPlayableDirectorStopped;
+            }
+        }
+
         if (type == EnemType.Footsteps)
         {
             ThisBody.SetActive(false);
@@ -214,11 +240,13 @@ public class EnemyAI_move : MonoBehaviour
                     if(face.isEyeOpen)
                     {
                         gameManager.isGameOver = true;
+                        //DoEnemyCatchMotion();
                     }
                 }
                 else
                 {
                     gameManager.isGameOver = true;
+                    //DoEnemyCatchMotion();
                 }
 
             }
@@ -366,18 +394,33 @@ public class EnemyAI_move : MonoBehaviour
     private void KeepLookCheck()
     {
         var vec = playerObj.transform.position - ThisBody.transform.position;
-        if (face.isEyeOpen && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
+        float EtPDis = Vector3.Distance(playerObj.transform.position,ThisBody.transform.position);
+        if (EtPDis < FogEnd)
         {
-            vec.Normalize();
-            if (Vector3.Dot(vec, playerObj.transform.forward.normalized) < dotThreshold)
+            if (face.isEyeOpen && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
             {
-                navMeshAgent.ResetPath();
-                navMeshAgent.updatePosition = false;
-                navMeshAgent.isStopped = true;
-                isStopping = true;
-                eSearch.SetUnrecognized(true);
-                transform.position = ThisBody.transform.position;
-                navMeshAgent.Warp(transform.position);
+                vec.Normalize();
+                if (Vector3.Dot(vec, playerObj.transform.forward.normalized) < dotThreshold)
+                {
+                    navMeshAgent.ResetPath();
+                    navMeshAgent.updatePosition = false;
+                    navMeshAgent.isStopped = true;
+                    isStopping = true;
+                    eSearch.SetUnrecognized(true);
+                    transform.position = ThisBody.transform.position;
+                    navMeshAgent.Warp(transform.position);
+                }
+                else
+                {
+                    navMeshAgent.updatePosition = true;
+                    navMeshAgent.isStopped = false;
+                    isStopping = false;
+                    eSearch.SetUnrecognized(false);
+                    if (!audioSource.isPlaying)
+                    {
+                        audioSource.Play();
+                    }
+                }
             }
             else
             {
@@ -442,6 +485,30 @@ public class EnemyAI_move : MonoBehaviour
             audioHeartBeat.Stop();
         }
     }
+
+    void BindTimelineToPlayer()
+    {
+        for (int i = 0; i < (int)EnemType.TYPE_MAX - 1; i++)
+        {        
+            // Timelineのトラックをプレイヤーにバインドする
+            JumpScareTimeLines[i].SetGenericBinding(JumpScareTimeLines[i].playableAsset.outputs.ElementAt(0).sourceObject, playerObj);
+
+        }
+
+    }
+
+    void DoEnemyCatchMotion()
+    {
+        gameManager.SetStopAll(true);
+        JumpScareTimeLines[(int)type].Play();
+    }
+
+    private void OnPlayableDirectorStopped(PlayableDirector director)
+    {
+        gameManager.isGameOver = true;
+    }
+
+
 }
 
 
