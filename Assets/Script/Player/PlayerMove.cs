@@ -17,6 +17,14 @@ public class PlayerMove : MonoBehaviour
     [SerializeField]
     private DlibFaceLandmarkDetectorExample.FaceDetector face;
 
+    GameManager gameManager;
+
+    //スポーン場所オブジェクト
+    public GameObject SpawnPos;
+    public GameObject StealthSpawnPos;
+
+    public GameObject First;
+
     public bool IsStop = false;
     public bool IsRunning = false;
     public bool IsUsingEnemy = true; 
@@ -43,6 +51,22 @@ public class PlayerMove : MonoBehaviour
         cam_trans = GameObject.Find(cam_name).transform;
         //FaceDetecterを取得
         face.GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        //First = GameObject.Find("ToFirstContact");
+
+        if (SpawnPos != null && StealthSpawnPos != null)
+        {
+            OptionValue._SpawnPoint[(int)SPAWNSPOT.DEFAULT] = SpawnPos.transform.position;
+            OptionValue._SpawnPoint[(int)SPAWNSPOT.TUTO_STEALTH] = StealthSpawnPos.transform.position;
+            this.transform.position = OptionValue._SpawnPoint[(int)OptionValue.SpawnSpot];
+            if (OptionValue.SpawnSpot == SPAWNSPOT.TUTO_STEALTH)
+            {
+                gameManager.isFindpeopleNum = 1;
+                First.SetActive(false);
+            }
+
+        }
+
         if(IsUsingEnemy)
         {
             //Enemyコントローラーの取得

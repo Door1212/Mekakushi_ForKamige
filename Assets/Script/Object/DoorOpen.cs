@@ -86,6 +86,7 @@ public class DoorOpen : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         enemyAImove = new EnemyAI_move[Enemies.Length];
         Enemy_dis = new float[Enemies.Length];
+        this.tag = "Door";
 
         CrosshairTransform = GameObject.Find(CrosshairName).GetComponent<RectTransform>();
 

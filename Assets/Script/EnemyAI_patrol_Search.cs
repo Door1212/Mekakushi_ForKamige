@@ -66,11 +66,15 @@ public class EnemyAI_patrol_Search : MonoBehaviour
                         //Debug.Log(searchArea.radius * minCatchDistanceMultiplier);
                         //enemyMove.SetState(EnemyAI_move.EnemyState.Chase, target.transform); // プレイヤーをターゲットにして追跡状態に変更
                     }
+                    else  // プレイヤーが検索角度外にいる場合
+                    {
+                        enemyMove.SetState(EnemyAI_patrol.EnemyState.Idle); // 待機状態に戻す
+                    }
                 }
-                //else if (angle > searchAngle) // プレイヤーが検索角度外にいる場合
-                //{
-                //    enemyMove.SetState(EnemyAI_move.EnemyState.Idle); // 待機状態に戻す
-                //}
+                else if (angle > searchAngle) // プレイヤーが検索角度外にいる場合
+                {
+                    enemyMove.SetState(EnemyAI_patrol.EnemyState.Idle); // 待機状態に戻す
+                }
             }
         }
     }
@@ -85,13 +89,17 @@ public class EnemyAI_patrol_Search : MonoBehaviour
     {
         if (searchArea != null)
         {
-            // 検索エリア全体を青色で描画
-            Gizmos.color = new Color(0, 0, 1, 0.2f);
-            Gizmos.DrawSphere(transform.position, searchArea.radius);
+            //// 検索エリア全体を青色で描画
+            //Gizmos.color = new Color(0, 0, 1, 0.2f);
+            //Gizmos.DrawSphere(transform.position, searchArea.radius);
 
             // キャッチ範囲を赤色で描画
             Gizmos.color = new Color(1, 0, 0, 0.2f);
             Gizmos.DrawSphere(transform.position, searchArea.radius * catchDistanceMultiplier);
+
+            // キャッチ範囲を赤色で描画
+            Gizmos.color = new Color(1, 1, 0, 0.2f);
+            Gizmos.DrawSphere(transform.position, searchArea.radius * minCatchDistanceMultiplier);
         }
     }
 }
