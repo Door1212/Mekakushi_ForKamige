@@ -14,8 +14,8 @@ public class EyeSettingSceneController : MonoBehaviour
         START_FACE_DETECTION = 0,
         CHECK_FACE_DETECTION,
         AUTO_SETTING_EYE_OPTION,
-        CERTAIN_SETTING_EYE_OPTION,
         EYE_SETTING_MAX,
+        CERTAIN_SETTING_EYE_OPTION,
         CHECK_EYE_BLINK,
         SETTING_EYE_OPTION,
     }
