@@ -79,23 +79,26 @@ public class SoundManager : MonoBehaviour
         if (face.isEyeOpen)
         {
             IsFadeIn = true;
-            //í«ÇÌÇÍÇƒÇ¢ÇÈèÛë‘Ç©ïﬂÇ‹Ç¡ÇƒÇ¢ÇÈÇ∆
-            if (isChasingOrAttacking)
-            {
-                if (!a2.isPlaying)
-                {
-                    a1.Stop();
-                    a2.Play();
-                }
-            }
-            else
-            {
-                if (!a1.isPlaying)
-                {
-                    a2.Stop();
-                    a1.Play();
-                }
-            }
+            //í«ÇÌÇÍÇƒÇ¢ÇÈÇ∆Ç´Ç…âπÇè¡Ç∑ÅB
+            a2.Stop();
+            a1.Stop();
+            //if (isChasingOrAttacking)
+            //{
+            //    //11/5í«ê’BGMÇçÌèú
+            //    //if (!a2.isPlaying)
+            //    //{
+            //    //    a1.Stop();
+            //    //    a2.Play();
+            //    //}
+            //}
+            //else
+            //{
+            //    if (!a1.isPlaying)
+            //    {
+            //        a2.Stop();
+            //        a1.Play();
+            //    }
+            //}
         }
         else
         if (!face.isEyeOpen)

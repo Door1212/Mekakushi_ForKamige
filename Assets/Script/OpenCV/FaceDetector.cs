@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using UniRx;
+//using System.Runtime.Remoting.Messaging;
 
 namespace DlibFaceLandmarkDetectorExample
 {
@@ -40,6 +41,7 @@ namespace DlibFaceLandmarkDetectorExample
         private static int EyeFrameInterval = 30; // 目の状態を記録するフレーム数
         private bool[] EyeData = new bool[EyeFrameInterval]; // フレームごとの目の開閉データ
         private int EyeDataCurPos; // 現在のフレーム位置
+        private int EyeDataNum = 0; //
 
         public float REyeValue; // 右目の開き具合
         public float LEyeValue; // 左目の開き具合
@@ -364,7 +366,9 @@ namespace DlibFaceLandmarkDetectorExample
                 }
             }
 
-            if (CloseNum >= (EyeFrameInterval / 3) * 2)
+            EyeDataNum = CloseNum;
+
+            if (CloseNum >= (EyeFrameInterval / 3) * 1.5)
             {
                 return false;
             }
@@ -387,6 +391,21 @@ namespace DlibFaceLandmarkDetectorExample
         public int GetEyeSettingDataNum()
         {
             return EyeSettingDataNum;
+        }
+
+        public int getEyeInterval()
+        {
+            return EyeFrameInterval;
+        }
+
+        public int getEyeDataNum()
+        {
+            return EyeDataNum;
+        }
+
+        public bool getEyeOpen()
+        {
+            return isEyeOpen;
         }
 
         public void calEyeSettingValue()

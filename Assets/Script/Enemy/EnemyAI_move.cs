@@ -201,13 +201,14 @@ public class EnemyAI_move : MonoBehaviour
                         DisapperTime = 0;
                     }
 
-
+                    //LimitDisappearTimei–Ú‚ğ•Â‚¶‘±‚¯‚Ä‚¢‚éŠÔj‚ğ’´‚¦‚é‚Æ’ÇÕ‚ğ‚â‚ß‚³‚¹‚é
                     if(DisapperTime >= LimitDisappearTime)
                     {
                         isChased = false;
                         if (!audioByeBye.isPlaying)
                         {
-                            audioByeBye.Play();
+                            //“G‚ª‹‚é‰¹(11/5‚Éíœ)
+                            //audioByeBye.Play();
                         }
                         ResetEnemy();
                     }
