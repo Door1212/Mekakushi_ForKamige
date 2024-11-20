@@ -114,7 +114,7 @@ public class PlayerMove : MonoBehaviour
                         IsStop = false;
                     }
 
-                    if (Input.GetKey(sprintKey) && z == 1f && face.isEyeOpen)
+                    if (Input.GetKey(sprintKey) && z == 1f && face.getEyeOpen())
                     {
                         dir_player.z *= sprintSpeed;
                         dir_player.x *= sprintSpeed;

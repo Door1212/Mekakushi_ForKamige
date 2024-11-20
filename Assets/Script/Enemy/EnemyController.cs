@@ -180,7 +180,7 @@ public class EnemyController : MonoBehaviour
                 if (CatchingTime > StuckGraceTime)
                 {
                     //目を閉じていなければゲームオーバー
-                    if (face.isEyeOpen)
+                    if (face.getEyeOpen())
                     {
                         audioSource.PlayOneShot(GreatfulDead);
                         gameManager.isGameOver = true;

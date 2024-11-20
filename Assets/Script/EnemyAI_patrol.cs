@@ -94,7 +94,7 @@ public class EnemyAI_patrol : MonoBehaviour
 
         agent.destination = goals[destNum].position;
 
-        Debug.Log(destNum);
+        //Debug.Log(destNum);
     }
 
     // Update is called once per frame
@@ -114,7 +114,7 @@ public class EnemyAI_patrol : MonoBehaviour
 
             if(state == EnemyState.Catch)
             {
-                    if (face.isEyeOpen)
+                    if (face.getEyeOpen())
                     {
                         gameManager.isGameOver = true;
                     }
@@ -163,7 +163,7 @@ public class EnemyAI_patrol : MonoBehaviour
     {
 
         //Debug.Log(this.transform.position);
-        Debug.Log(playerObj.transform.position);
+        //Debug.Log(playerObj.transform.position);
         EtPDis = Vector3.Distance(this.transform.position, playerObj.transform.position);
 
         if (EtPDis <= StartingHeartBeatSound)

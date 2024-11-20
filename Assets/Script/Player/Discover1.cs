@@ -81,7 +81,7 @@ public class Discover1 : MonoBehaviour
             StareProgressGauge.fillAmount = 0.0f;
         }
 
-        if (faceDetector.isEyeOpen)
+        if (faceDetector.getEyeOpen())
         {
             hitcount = 0;
             //‹üƒxƒNƒgƒ‹‚ğ¶¬

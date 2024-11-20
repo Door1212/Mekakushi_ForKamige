@@ -125,10 +125,9 @@ public class BlinkController : MonoBehaviour
         Vector3 OpenLPos = new((Screen.width / 2) + MicroLowerEyelidX, (-Screen.height - Screen.height / 2) + MicroLowerEyelidY, 0f);//下瞼の閉じている時の位置
 
 
-        //顔認識を使用するかで瞼システムを切り替え
-#if UsingFaceDetector
 
-        EyeOpen = faceDetector.isEyeOpen;
+
+        EyeOpen = faceDetector.getEyeOpen();
         //FaceDetectorから指示を受け目を閉じ開きする
         //瞼状態の変化
 
@@ -157,37 +156,6 @@ public class BlinkController : MonoBehaviour
             }
         }
 
-
-#else
-        //瞼状態の変化
-        if(Input.GetKeyDown(KeyCode.Q))
-        {
-            if (eyelidstate != EYELIDSTATE.Closing && eyelidstate != EYELIDSTATE.Open)
-            {
-                eyelidstate = EYELIDSTATE.Opening;
-            }
-            else
-            {
-                Debug.Log("まだ閉じ切っていません");
-            }
-        }
-       
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            if (eyelidstate != EYELIDSTATE.Opening && eyelidstate != EYELIDSTATE.Close)
-            {
-                eyelidstate = EYELIDSTATE.Closing;
-            }
-            else
-            {
-                Debug.Log("まだ空き切っていません");
-            }
-        }
-
-        
-
-#endif
         switch (eyelidstate)
         {
             case EYELIDSTATE.Opening:

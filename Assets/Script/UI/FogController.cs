@@ -39,7 +39,7 @@ public class FogController : MonoBehaviour
             RenderSettings.fogEndDistance = EndFogLength - ( EndFogLength / EndFogTime * face.GetKeptEyeOpeningTime()) /*/ EndFogTime)*/;
         }
         else
-        if (face.isEyeOpen == false)//目が閉じるとリセット
+        if (face.getEyeOpen() == false)//目が閉じるとリセット
         {
             RenderSettings.fog = false;
         }

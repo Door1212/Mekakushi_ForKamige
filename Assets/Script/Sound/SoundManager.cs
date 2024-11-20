@@ -76,7 +76,7 @@ public class SoundManager : MonoBehaviour
         }
 
         //ñ⁄Ç™ãÛÇ¢ÇƒÇ¢Ç»ÇØÇÍÇŒBGMÇé~ÇﬂÇÈ
-        if (face.isEyeOpen)
+        if (face.getEyeOpen())
         {
             IsFadeIn = true;
             //í«ÇÌÇÍÇƒÇ¢ÇÈÇ∆Ç´Ç…âπÇè¡Ç∑ÅB
@@ -93,15 +93,15 @@ public class SoundManager : MonoBehaviour
             //}
             //else
             //{
-            //    if (!a1.isPlaying)
-            //    {
-            //        a2.Stop();
-            //        a1.Play();
-            //    }
+            if (!a1.isPlaying)
+            {
+                a2.Stop();
+                a1.Play();
+            }
             //}
         }
         else
-        if (!face.isEyeOpen)
+        if (!face.getEyeOpen())
         {
             a2.Stop();
             a1.Stop();
