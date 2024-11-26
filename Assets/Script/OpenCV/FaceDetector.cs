@@ -58,6 +58,10 @@ namespace DlibFaceLandmarkDetectorExample
         private float TotalKeptClosingTime = 0.0f; // 合計で目を閉じ続けた時間
         public bool IsStartAutoSetting = false; // 自動設定が開始されたかどうか
 
+        [Header("顔認識デバッグオブジェクト")]
+        public GameObject FaceDebugObj;
+
+
 #if UNITY_WEBGL
         IEnumerator getFilePath_Coroutine;
 #endif
@@ -77,6 +81,7 @@ namespace DlibFaceLandmarkDetectorExample
                 GetComponent<WebCamTextureToMatHelper>().enabled = false;
                 GetComponent<CameraToUIImageWithFaceDetection>().enabled = false;
                 GetComponent<FpsMonitor>().enabled = false;
+
                 return;
             }
             else
@@ -238,6 +243,7 @@ namespace DlibFaceLandmarkDetectorExample
             }
             else
             {
+                FaceDebugObj.SetActive(false);
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
                     if(isEyeOpen)

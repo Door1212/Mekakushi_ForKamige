@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Cinemachine;
 
 public class Discover1 : MonoBehaviour
 {
@@ -30,13 +31,36 @@ public class Discover1 : MonoBehaviour
     [Header("見つめ進捗ゲージ")]
     public Image StareProgressGauge;
 
-    public string[] tagList = { "enemy", "character","door" };
+    [Header("クロスヘアUIオブジェクトの名前")]
+    //[SerializeField]
+    private string CrosshairName = "Crosshair";
+
+    [Header("クロスヘアアイコンUI")]
+    private Sprite CrosshairIcon;
+
+    [Header("ドアが開けられる状態を示すアイコンUI")]
+    private Sprite DoorIcon;
+
+    [Header("アイコンサイズ変更用RectTransformエディター")]
+    private RectTransform CrosshairTransform;
+
+    private float CrosshairSizeX = 100.0f;
+    private float CrosshairSizeY = 100.0f;
+
+    private float DoorIconSizeX = 500.0f;
+    private float DoorIconSizeY = 500.0f;
+
+    private Image UICrosshair;  // 遅延時間を秒単位で設定
+
+    [TagField]
+    public string[] tagList;
 
     [Header("見つけたオブジェクト")]
     public GameObject FoundObj;
     [Header("前方にあるオブジェクト　※taglistのtagを持つオブジェクトに限る")]
     public GameObject ForwardObj;
-    [Header("ドア")]
+    [Header("取得したドアオブジェクト")]
+    [SerializeField] private GameObject ForwardDoor;
 
     DlibFaceLandmarkDetectorExample.FaceDetector faceDetector;
 
@@ -56,6 +80,12 @@ public class Discover1 : MonoBehaviour
         StareProgressGauge.GetComponent<Image>();
 
         StareProgressGauge.fillAmount = 0.0f;
+
+        CrosshairTransform = GameObject.Find(CrosshairName).GetComponent<RectTransform>();
+        UICrosshair = GameObject.Find(CrosshairName).GetComponent<Image>();
+        //リソースフォルダから読み込む
+        CrosshairIcon = Resources.Load<Sprite>("Image/Crosshair");
+        DoorIcon = Resources.Load<Sprite>("Image/aikonn_door_01");
     }
 
     void Update()
@@ -81,6 +111,7 @@ public class Discover1 : MonoBehaviour
             StareProgressGauge.fillAmount = 0.0f;
         }
 
+        //目を開けている状態
         if (faceDetector.getEyeOpen())
         {
             hitcount = 0;
@@ -114,6 +145,7 @@ public class Discover1 : MonoBehaviour
                         Vector3.one * 0.05f, v, out hit, Quaternion.identity);
                     if (isHit && CheckTags(hit))
                     {
+                        ForwardDoor = null;
                         if (hit.distance <= MaxDistance)
                         {
                             hitcount++;
@@ -207,6 +239,7 @@ public class Discover1 : MonoBehaviour
 //#endif
 //    }
 
+    //タグを確認
     bool CheckTags(RaycastHit _hit)
     {
         for (int i = 0; i < tagList.Length; i++)
@@ -214,9 +247,33 @@ public class Discover1 : MonoBehaviour
             if (hit.transform.tag == tagList[i])
             {
                 ForwardObj = hit.transform.gameObject;
+
+                //もしそれがドアオブジェクトなら格納
+                if("Door"== tagList[i])
+                {
+                    ForwardDoor = hit.transform.gameObject;
+                    CrosshairTransform.sizeDelta = new Vector2(DoorIconSizeX, DoorIconSizeY);
+                    UICrosshair.sprite = DoorIcon;
+                    return false;
+                }
                 return true;
+            }
+            else
+            {
+                ForwardDoor = null;
+                CrosshairTransform.sizeDelta = new Vector2(CrosshairSizeX, CrosshairSizeY);
+                UICrosshair.sprite = CrosshairIcon;
             }
         }
         return false;
+    }
+
+    /// <summary>
+    /// 取得したドアオブジェクトを返す
+    /// </summary>
+    /// <returns> GameObject型</returns>
+    public GameObject GetDoorObject()
+    {
+        return ForwardDoor;
     }
 }

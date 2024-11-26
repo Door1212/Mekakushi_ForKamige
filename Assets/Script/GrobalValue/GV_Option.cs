@@ -25,4 +25,6 @@ public static class OptionValue
     public static SPAWNSPOT SpawnSpot = SPAWNSPOT.DEFAULT;
 
     public static Vector3[] _SpawnPoint = new Vector3[(int)SPAWNSPOT.MAX_SPOT];
+
+    public static bool InStealth = false;
 }

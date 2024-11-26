@@ -1,31 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 //クロスヘア変更用
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(BoxCollider))]
+[RequireComponent(typeof(Animator))]
 public class DoorOpen : MonoBehaviour
 {
     Animator animator;
-    bool IsOpen = false;
+    [Header("ドアが開いているか")]
+    [SerializeField]public bool IsOpen = false;
+    [Header("今このドアが視界に入っているか")]
+    [SerializeField]public bool IsInSight;
     bool IsPlayerClosed = false;
     bool IsEnableDoor = false;
 
     [Header("プレイヤーオブジェクトの名前")]
     public string target_name = "Player(tentative)";
-    //[Header("ドアが作動する距離")]
-    //[SerializeField]
-    private float Active_Distance = 2.0f;
     [Header("プレイヤーとドアの距離の確認用")]
     [SerializeField]
     private float dis;
     [Header("敵によってドアが作動する距離")]
     [SerializeField]
     private float Enemy_Active_Distance = 3.0f;
+    [Header("ドア当たり判定オフセット")]
+    [SerializeField]
+    private Vector3 DoorPosOffset = new Vector3(1.5f, 1.0f, 0.0f);
+
     [Header("プレイヤーが閉めたあと敵が開けられるまでの時間")]
     [SerializeField]
     private float Enemy_CouldOpen_TimeLim = 3.0f;
     private float Enemy_CouldOpen_Time = 0.0f;
+
     GameObject Player;
     [Header("オーディオソース")]
     [SerializeField]
@@ -48,54 +59,32 @@ public class DoorOpen : MonoBehaviour
     private EnemyAI_move[] enemyAImove;
     private float[] Enemy_dis;
 
+    //視線選択用Discover
+    private Discover1 discover;
+
     [Header("音の再生を遅らせる時間")]
     [SerializeField]
     private float delayTime = 0.1f;  // 遅延時間を秒単位で設定
 
-    [Header("クロスヘアUIオブジェクトの名前")]
-    //[SerializeField]
-    private string CrosshairName = "Crosshair";
-
-    [Header("クロスヘアアイコンUI")]
-    private Sprite CrosshairIcon;
-
-    [Header("ドアが開けられる状態を示すアイコンUI")]
-    private Sprite DoorIcon;
-
-    [Header("アイコンサイズ変更用RectTransformエディター")]
-    private RectTransform CrosshairTransform;
-
-    private float CrosshairSizeX = 100.0f;
-    private float CrosshairSizeY = 100.0f;
-
-    private float DoorIconSizeX = 500.0f;
-    private float DoorIconSizeY = 500.0f;
-
-    private Image UICrosshair;  // 遅延時間を秒単位で設定
-
     // すべてのドアをリストで管理
     private DoorOpen[] allDoors;
 
+    [Header("対のドア")]
+    [SerializeField] public DoorOpen PairDoor;
     void Start()
     {
+        //初期化
         animator = GetComponent<Animator>();
         IsOpen = false;
+        IsInSight = false;
         IsPlayerClosed = false;
         IsEnableDoor = false;
         Player = GameObject.Find(target_name);
+        discover = Player.GetComponent<Discover1>();
         audioSource = GetComponent<AudioSource>();
         enemyAImove = new EnemyAI_move[Enemies.Length];
         Enemy_dis = new float[Enemies.Length];
         this.tag = "Door";
-
-        CrosshairTransform = GameObject.Find(CrosshairName).GetComponent<RectTransform>();
-
-
-
-        UICrosshair = GameObject.Find(CrosshairName).GetComponent<Image>();
-        //リソースフォルダから読み込む
-        CrosshairIcon = Resources.Load<Sprite>("Image/Crosshair");
-        DoorIcon = Resources.Load<Sprite>("Image/aikonn_door_01");
 
         for (int i = 0; i < Enemies.Length; i++)
         {
@@ -108,11 +97,11 @@ public class DoorOpen : MonoBehaviour
 
     void Update()
     {
-        dis = Vector3.Distance(Player.transform.position, this.transform.position);
+        dis = Vector3.Distance(Player.transform.position, this.transform.position + DoorPosOffset);
 
         for (int i = 0; i < Enemies.Length; i++)
         {
-            Enemy_dis[i] = Vector3.Distance(Enemies[i].transform.position, this.transform.position);
+            Enemy_dis[i] = Vector3.Distance(Enemies[i].transform.position, this.transform.position + DoorPosOffset);
         }
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -127,59 +116,47 @@ public class DoorOpen : MonoBehaviour
             }
         }
 
-        // 最も近いドアを探す
-        DoorOpen nearestDoor = null;
-        float minDistance = float.MaxValue;
 
-        foreach (var door in allDoors)
+        //目の前にあるドアが自分自身であれば動かす
+        if (this.GameObject() == discover.GetDoorObject())
         {
-            float distance = Vector3.Distance(Player.transform.position, door.transform.position);
-            if (distance < minDistance)
+            //視界に入っている判定
+            IsInSight = true;
+
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                minDistance = distance;
-                nearestDoor = door;
+                //もう片方が空いているか判定
+                if (PairDoor.IsOpen)
+                {
+                    PairDoor.IsOpen = false;
+                    PairDoor.PlayCloseDoorAnim();
+                    PairDoor.PlayCloseDoorSound();
+                }
+                else
+                {
+                    if (!IsOpen)
+                    {
+                        PlayOpenDoorSound();
+                        PlayOpenDoorAnim();
+                        IsOpen = true;
+
+                    }
+                    else
+                    {
+                        PlayCloseDoorSound();
+                        PlayCloseDoorAnim();
+                        IsOpen = false;
+
+                        IsPlayerClosed = true;
+                        Enemy_CouldOpen_Time = 0;
+                    }
+                }
+               
             }
-        }
-
-        // すべてのドアのUIをリセット
-        foreach (var door in allDoors)
-        {
-            door.ResetUI();
-        }
-
-        // 最も近いドアにのみUIを更新
-        if (nearestDoor != null && minDistance <= Active_Distance)
-        {
-            nearestDoor.IsEnableDoor = true;
-            CrosshairTransform.sizeDelta = new Vector2(DoorIconSizeX, DoorIconSizeY);
-            UICrosshair.sprite = DoorIcon;
-            Debug.Log("DoorIcon");
         }
         else
         {
-            IsEnableDoor = false;
-            CrosshairTransform.sizeDelta = new Vector2(CrosshairSizeX, CrosshairSizeY);
-            UICrosshair.sprite = CrosshairIcon;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Mouse0) && IsEnableDoor)
-        {
-            if (!IsOpen)
-            {
-                PlayOpenDoorSound();
-                PlayOpenDoorAnim();
-                IsOpen = true;
-
-            }
-            else
-            {
-                PlayCloseDoorSound();
-                PlayCloseDoorAnim();
-                IsOpen = false;
-
-                IsPlayerClosed = true;
-                Enemy_CouldOpen_Time = 0;
-            }
+            IsInSight = false;
         }
 
         for (int i = 0; i < Enemies.Length; i++)
@@ -201,16 +178,16 @@ public class DoorOpen : MonoBehaviour
                 enemyAImove[i].IsThisOpeningDoor = true;
             }
         }
-        }
+    }
 
-    void PlayOpenDoorSound()
+    public void PlayOpenDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
         audioSource.PlayOneShot(AC_OpenDoor);
     }
 
-    void PlayCloseDoorSound()
+    public void PlayCloseDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
@@ -231,32 +208,20 @@ public class DoorOpen : MonoBehaviour
             audioSource.PlayOneShot(AC_SlumDoor);
     }
 
-    void PlayCloseDoorAnim()
+    public void PlayCloseDoorAnim()
     {
         animator.SetBool("OpenDoor", false);
     }
 
-    void PlayOpenDoorAnim()
+    public void PlayOpenDoorAnim()
     {
         animator.SetBool("OpenDoor", true);
     }
 
-    // UIをリセットするメソッド
-    public void ResetUI()
-    {
-        //IsEnableDoor = false;
-        if (CrosshairTransform == null)
-        {
-            Debug.Log("hey");
-        }
-        CrosshairTransform.sizeDelta = new Vector2(CrosshairSizeX, CrosshairSizeY);
-        UICrosshair.sprite = CrosshairIcon;
-    }
-
-    private void OnDrawGizmos()
-    {
-        // 検索エリア全体を緑色で描画
-        Gizmos.color = new Color(0, 1, 0, 0.2f);
-        Gizmos.DrawSphere(transform.position, Active_Distance);
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    // 検索エリア全体を緑色で描画
+    //    Gizmos.color = new Color(0, 1, 0, 0.2f);
+    //    Gizmos.DrawSphere(transform.position + DoorPosOffset, Active_Distance);
+    //}
 }

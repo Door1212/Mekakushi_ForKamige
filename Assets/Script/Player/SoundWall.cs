@@ -2,6 +2,7 @@ using Cinemachine;
 using DlibFaceLandmarkDetectorExample;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,6 +34,12 @@ public class SoundWall : MonoBehaviour
 
     [Header("ボリューム最小値")]
     [SerializeField] private float SoundMin = 0.01f;
+
+    [Header("音を鳴らす間隔")]
+    [SerializeField] private float SoundInterval = 1.5f;
+
+    //間隔の計測用
+    private float SoundIntervalCount = 0.0f;
 
     [Header("Rayの飛距離")]
     public float rayDistance = 20f;
@@ -84,15 +91,21 @@ public class SoundWall : MonoBehaviour
 
     void Update()
     {
+        //時間更新
+        if (!audioSource.isPlaying) { SoundIntervalCount += Time.deltaTime; }
+        //プレイヤーオブジェクトがなければリターン
         if (_PlayerObj == null) return;
         //目を閉じていなければリターン
         if (face.getEyeOpen()) return;
+        //音を鳴らす間隔を超えていなければリターン
+        if (SoundIntervalCount < SoundInterval) return;
 
         DetectClosestWallAndMoveSoundSource();
     }
 
     private void DetectClosestWallAndMoveSoundSource()
     {
+        //--------------------------------一番近い壁を探索--------------------------------
         Transform playerTransform = _PlayerObj.transform;
         Vector3 playerPosition = playerTransform.position;
 
@@ -123,17 +136,18 @@ public class SoundWall : MonoBehaviour
             }
         }
 
-
-        Debug.Log($"Closest Distance: {closestDistance}");
-
+        // 壁に近くなければリターン
         if (closestDistance > SoundStartDis)
         {
-            audioSource.Stop();
             return;
         }
 
+
+        Debug.Log($"Closest Distance: {closestDistance}");
+        //-----------------------------------------------------------------------------------
+
         // ヒット対象のオブジェクトの中から最も近いオブジェクトのタグで音を変える
-        for(int i = 0;i < selectedTag.Length;i++)
+        for (int i = 0;i < selectedTag.Length;i++)
         {
             if(closestTag == selectedTag[i])
             {
@@ -141,34 +155,42 @@ public class SoundWall : MonoBehaviour
                 break;
             }
         }
-        if(!audioSource.isPlaying)
-        audioSource.Play();
 
         // 音源オブジェクトの位置を設定
         if (SoundSource != null)
         {
+            //壁にオブジェクトを出現する用に修正
             Vector3 newSoundSourcePosition = playerPosition + closestDirection * (closestDistance / SoundStartDis);
             Debug.Log($"Player Distance: {closestDistance / SoundStartDis}");
             SoundSource.transform.position = newSoundSourcePosition;
         }
 
-        // プレイヤーの正面ベクトル
-        Vector3 playerForward = playerTransform.forward;
+        //// プレイヤーの正面ベクトル
+        //Vector3 playerForward = playerTransform.forward;
 
-        // プレイヤーから対象オブジェクトへの方向ベクトル
-        Vector3 toTarget = (SoundSource.transform.position - playerTransform.position).normalized;
+        //// プレイヤーから対象オブジェクトへの方向ベクトル
+        //Vector3 toTarget = (SoundSource.transform.position - playerTransform.position).normalized;
 
-        // プレイヤーの右方向ベクトル
-        Vector3 playerRight = playerTransform.right;
+        //// プレイヤーの右方向ベクトル
+        //Vector3 playerRight = playerTransform.right;
 
-        // 内積でステレオパンを計算
-        float pan = Vector3.Dot(playerRight, toTarget);
+        //// 内積でステレオパンを計算
+        //float pan = Vector3.Dot(playerRight, toTarget);
 
-        // ステレオパンを設定 (-1: 左, 1: 右)
-        audioSource.panStereo = Mathf.Clamp(pan, -1f, 1f);
+        //// ステレオパンを設定 (-1: 左, 1: 右)
+        //audioSource.panStereo = Mathf.Clamp(pan, -1f, 1f);
+        //Debug.Log($"ステレオパン: {audioSource.panStereo}");
 
-        Debug.Log($"ステレオパン: {audioSource.panStereo}");
-        float SoundDistance = Vector3.Distance(playerTransform.position, SoundSource.transform.position);
-        audioSource.volume = Mathf.Clamp(SoundStartDis - SoundDistance / SoundStartDis, SoundMin, SoundMax); ;
+        //音源からの距離で音量を変える
+        //float SoundDistance = Vector3.Distance(playerTransform.position, SoundSource.transform.position);
+        //audioSource.volume = Mathf.Clamp(SoundStartDis - SoundDistance / SoundStartDis, SoundMin, SoundMax);
+
+        if (!audioSource.isPlaying)
+        {
+            audioSource.Play();
+            //音の間隔計測の値をリセット
+            SoundIntervalCount = 0.0f;
+        }
+            
     }
 }
