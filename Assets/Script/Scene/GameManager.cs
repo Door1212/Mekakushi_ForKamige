@@ -89,16 +89,19 @@ public class GameManager : MonoBehaviour
 
         if(Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F1))
         {
+            OptionValue.InStealth = false;
             SceneManager.LoadScene("SchoolMain 1");
         }
 
         if (Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F2))
         {
+            OptionValue.InStealth = false;
             SceneManager.LoadScene("SchoolMain 2");
         }
 
         if (Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F3))
         {
+            OptionValue.InStealth = false;
             SceneManager.LoadScene("SchoolMain 3");
         }
 
@@ -107,6 +110,7 @@ public class GameManager : MonoBehaviour
         //ゲームオーバーでリザルトに移行するやつ(ほんとにそれだけ)
         if (isGameOver)
         {
+            OptionValue.InStealth = false;
             OptionValue.DeathScene =SceneManager.GetActiveScene().name;
             SceneManager.LoadScene("GameOver");
         }

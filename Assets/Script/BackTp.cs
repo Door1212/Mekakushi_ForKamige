@@ -49,7 +49,7 @@ public class BackTp : MonoBehaviour
 
             //出口から元世界に戻る処理
             playerObject_.transform.position = ExitStealthPoint.transform.position;
-
+            OptionValue.InStealth = false;
             //戻ってきた後に敵をプレイヤーから離した所にTPさせる
         }
 

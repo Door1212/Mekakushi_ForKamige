@@ -192,7 +192,7 @@ public class EnemyAI_move : MonoBehaviour
                             audioSource.Play();
                         }
                     }
-                    if (isChased && state == EnemyState.Idle && !face.isEyeOpen)
+                    if (isChased && state == EnemyState.Idle && !face.getEyeOpen())
                     {
                         DisapperTime += Time.deltaTime;
                     }
@@ -215,7 +215,7 @@ public class EnemyAI_move : MonoBehaviour
 
                     break;
                 case EnemType.Footsteps:
-                    if (!face.isEyeOpen)
+                    if (!face.getEyeOpen())
                     {
                         if (!audioSource.isPlaying)
                         {
@@ -237,8 +237,8 @@ public class EnemyAI_move : MonoBehaviour
             if (state == EnemyState.Catch)
             {
                 if(type == EnemType.Blind)
-                {
-                    if(face.isEyeOpen)
+                {   
+                    if(face.getEyeOpen())
                     {
                         gameManager.isGameOver = true;
                         //DoEnemyCatchMotion();
@@ -398,7 +398,7 @@ public class EnemyAI_move : MonoBehaviour
         float EtPDis = Vector3.Distance(playerObj.transform.position,ThisBody.transform.position);
         if (EtPDis < FogEnd)
         {
-            if (face.isEyeOpen && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
+            if (face.getEyeOpen() && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
             {
                 vec.Normalize();
                 if (Vector3.Dot(vec, playerObj.transform.forward.normalized) < dotThreshold)

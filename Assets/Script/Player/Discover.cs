@@ -65,7 +65,7 @@ public class Discover : MonoBehaviour
     void OnDrawGizmos()
     {
         //—LŒø‚©?
-        if (!isEnable || !faceDetector.isEyeOpen)
+        if (!isEnable || !faceDetector.getEyeOpen())
         {
             return;
         }

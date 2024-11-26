@@ -219,7 +219,7 @@ public class EyeSettingSceneController : MonoBehaviour
                     {
                         audiosouce.PlayOneShot(AC_IsAutoSettingStart);
                     }
-                    if (!face.isEyeOpen)
+                    if (!face.getEyeOpen())
                     {
                         CloseEyeCount += Time.deltaTime;
                         Debug.Log(CloseEyeCount);

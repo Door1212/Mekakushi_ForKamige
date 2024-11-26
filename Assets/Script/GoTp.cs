@@ -48,6 +48,7 @@ public class GoTp : MonoBehaviour
             //ì¸å˚Ç©ÇÁTPêÊÇ…à⁄ìÆÇ∑ÇÈ
             playerObject_.transform.position = ToGoTPStealthPoint.transform.position;
             OptionValue.SpawnSpot = SPAWNSPOT.TUTO_STEALTH;
+            OptionValue.InStealth = true;
 
             if (enemyControllers != null)
             {

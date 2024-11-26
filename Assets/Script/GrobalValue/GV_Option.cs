@@ -18,11 +18,13 @@ public static class OptionValue
 {
     // どのシーンからでもアクセスできる変数
     //顏を使うかどうか
-    public static bool IsFaceDetecting = true;
+    public static bool IsFaceDetecting = false;
 
     public static string DeathScene = "SchoolMain 1";
 
     public static SPAWNSPOT SpawnSpot = SPAWNSPOT.DEFAULT;
 
     public static Vector3[] _SpawnPoint = new Vector3[(int)SPAWNSPOT.MAX_SPOT];
+
+    public static bool InStealth = false;
 }

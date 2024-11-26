@@ -32,7 +32,7 @@ namespace DlibFaceLandmarkDetectorExample
 
         string dlibShapePredictorFilePath; // Dlibの形状予測ファイルパス
 
-        public bool isEyeOpen = false; // 目が開いているかどうか
+        private bool isEyeOpen = false; // 目が開いているかどうか
         bool PreisEyeOpen = false; // 前のフレームで目が開いていたかどうか
         private float KeptClosingTime = 0.0f; // 目を閉じ続けた時間
         private float KeptOpeningTime = 0.0f; // 目を開け続けた時間
@@ -58,6 +58,10 @@ namespace DlibFaceLandmarkDetectorExample
         private float TotalKeptClosingTime = 0.0f; // 合計で目を閉じ続けた時間
         public bool IsStartAutoSetting = false; // 自動設定が開始されたかどうか
 
+        [Header("顔認識デバッグオブジェクト")]
+        public GameObject FaceDebugObj;
+
+
 #if UNITY_WEBGL
         IEnumerator getFilePath_Coroutine;
 #endif
@@ -72,25 +76,36 @@ namespace DlibFaceLandmarkDetectorExample
             string dlibShapePredictorFileName = System.IO.Path.Combine(Application.streamingAssetsPath, "/DlibFaceLandmarkDetector/sp_human_face_68.dat"); // ビルド環境用のファイルパス
             Debug.Log("Build Path: " + dlibShapePredictorFileName);
 #endif
+            if(!OptionValue.IsFaceDetecting)
+            {
+                GetComponent<WebCamTextureToMatHelper>().enabled = false;
+                GetComponent<CameraToUIImageWithFaceDetection>().enabled = false;
+                GetComponent<FpsMonitor>().enabled = false;
 
-            fpsMonitor = GetComponent<FpsMonitor>(); // FPSモニターを取得
-            webCamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>(); // カメラ映像ヘルパーを取得
+                return;
+            }
+            else
+            {
+                fpsMonitor = GetComponent<FpsMonitor>(); // FPSモニターを取得
+                webCamTextureToMatHelper = gameObject.GetComponent<WebCamTextureToMatHelper>(); // カメラ映像ヘルパーを取得
 
-            dlibShapePredictorFileName = DlibFaceLandmarkDetectorExample.dlibShapePredictorFileName; // ファイル名の初期化
+                dlibShapePredictorFileName = DlibFaceLandmarkDetectorExample.dlibShapePredictorFileName; // ファイル名の初期化
 
-            // 目の開閉データと設定データを初期化
-            for (int i = 0; i < EyeFrameInterval; i++) { EyeData[i] = false; }
-            for (int i = 0; i < EyeSettingDataNum; i++) { REyeSettingData[i] = 0.0f; LEyeSettingData[i] = 0.0f; }
-            EyeDataCurPos = 0;
+                // 目の開閉データと設定データを初期化
+                for (int i = 0; i < EyeFrameInterval; i++) { EyeData[i] = false; }
+                for (int i = 0; i < EyeSettingDataNum; i++) { REyeSettingData[i] = 0.0f; LEyeSettingData[i] = 0.0f; }
+                EyeDataCurPos = 0;
 
-            // シーンに応じて処理を変更
-            if (SceneManager.GetActiveScene().name == "EyeSettingScene" && !IsDoneSetting) { }
+                // シーンに応じて処理を変更
+                if (SceneManager.GetActiveScene().name == "EyeSettingScene" && !IsDoneSetting) { }
 
-            // Dlibの形状予測ファイルのパスを取得
-            dlibShapePredictorFilePath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath(dlibShapePredictorFileName);
+                // Dlibの形状予測ファイルのパスを取得
+                dlibShapePredictorFilePath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath(dlibShapePredictorFileName);
 
-            // 初期化処理を次のフレームで実行
-            Observable.NextFrame().Subscribe(_ => Run());
+                // 初期化処理を次のフレームで実行
+                Observable.NextFrame().Subscribe(_ => Run());
+            }
+           
         }
 
         private void Run()
@@ -176,53 +191,72 @@ namespace DlibFaceLandmarkDetectorExample
 
         void Update()
         {
-            if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame())
+            if(OptionValue.IsFaceDetecting)
             {
-                // カメラ映像を取得
-                Mat rgbaMat = webCamTextureToMatHelper.GetMat();
-                OpenCVForUnityUtils.SetImage(faceLandmarkDetector, rgbaMat);
-
-                // 別スレッドで顔検出と目の状態を更新
-                Observable.Start(() =>
+                if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame())
                 {
-                    List<UnityEngine.Rect> detectResult = faceLandmarkDetector.DetectClosest(); // 最も近い顔を検出
+                    // カメラ映像を取得
+                    Mat rgbaMat = webCamTextureToMatHelper.GetMat();
+                    OpenCVForUnityUtils.SetImage(faceLandmarkDetector, rgbaMat);
 
-                    foreach (var rect in detectResult)
+                    // 別スレッドで顔検出と目の状態を更新
+                    Observable.Start(() =>
                     {
-                        List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect); // ランドマークポイントを検出
-                        isEyeOpen = UpdateEyeState(points); // 目の状態を更新
-                        currentLandmarkPoints = points; // ランドマークポイントを保存
+                        List<UnityEngine.Rect> detectResult = faceLandmarkDetector.DetectClosest(); // 最も近い顔を検出
+
+                        foreach (var rect in detectResult)
+                        {
+                            List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect); // ランドマークポイントを検出
+                            isEyeOpen = UpdateEyeState(points); // 目の状態を更新
+                            currentLandmarkPoints = points; // ランドマークポイントを保存
+                        }
+                    })
+                    .ObserveOnMainThread() // メインスレッドに戻す
+                    .Subscribe(_ => { });
+
+                    // 目の開閉時間を管理
+                    if (isEyeOpen == true && PreisEyeOpen == true)
+                    {
+                        KeptOpeningTime += Time.deltaTime;
                     }
-                })
-                .ObserveOnMainThread() // メインスレッドに戻す
-                .Subscribe(_ => { });
+                    else
+                    {
+                        KeptOpeningTime = 0.0f;
+                    }
 
-                // 目の開閉時間を管理
-                if (isEyeOpen == true && PreisEyeOpen == true)
-                {
-                    KeptOpeningTime += Time.deltaTime;
-                }
-                else
-                {
-                    KeptOpeningTime = 0.0f;
-                }
+                    if (isEyeOpen == false && PreisEyeOpen == false)
+                    {
+                        KeptClosingTime += Time.deltaTime;
+                    }
+                    else
+                    {
+                        KeptClosingTime = 0.0f;
+                    }
 
-                if (isEyeOpen == false && PreisEyeOpen == false)
-                {
-                    KeptClosingTime += Time.deltaTime;
-                }
-                else
-                {
-                    KeptClosingTime = 0.0f;
-                }
+                    if (isEyeOpen)
+                    {
+                        TotalKeptClosingTime += Time.deltaTime;
+                    }
 
-                if (isEyeOpen)
-                {
-                    TotalKeptClosingTime += Time.deltaTime;
+                    PreisEyeOpen = isEyeOpen;
                 }
-
-                PreisEyeOpen = isEyeOpen;
             }
+            else
+            {
+                FaceDebugObj.SetActive(false);
+                if (Input.GetKeyDown(KeyCode.Q))
+                {
+                    if(isEyeOpen)
+                    {
+                        isEyeOpen = false;
+                    }
+                    else
+                    {
+                        isEyeOpen = true;
+                    }
+                }
+            }
+            
         }
 
         // オブジェクトが破棄される時の処理
