@@ -36,16 +36,16 @@ public class EyeFadeController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        _AnimTime = EyeFade.GetCurrentAnimatorStateInfo(0).normalizedTime;
-        if (EyeFade.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
-        {
-            _EyefadeObj.SetActive(false);
+        //_AnimTime = EyeFade.GetCurrentAnimatorStateInfo(0).normalizedTime;
+        //if (EyeFade.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1)
+        //{
+        //    _EyefadeObj.SetActive(false);
 
-            if(_TitleController.GetIsChangeScene())
-            {
-                _TitleController.SetIsChangeAnimDone(true);
-            }
-        }
+        //    //if(_TitleController.GetIsChangeScene())
+        //    //{
+        //    //    _TitleController.SetIsChangeAnimDone(true);
+        //    //}
+        //}
 
     }
 

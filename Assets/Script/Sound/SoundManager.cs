@@ -1,111 +1,153 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SoundManager : MonoBehaviour
 {
-    public enum BGMList
-    {
-        Normal_BGM,
-        Chasing_BGM,
-    }
-
-    [Header("すべての敵を格納")]
-    [SerializeField]
-    public GameObject[] Enemies;
+    //エネミーオブジェクト
+    private GameObject[] Enemies;
     private EnemyAI_move[] enemyControllers;
     private EnemyAI_move.EnemyState[] enemyStateList;
 
-    public AudioSource a1;
-    public AudioSource a2;
+    private AudioSource audioSource;
 
+    //BGMクリップ
+    [Header("通常BGM")]
     public AudioClip MainBGM;
+    [Header("追われている時のBGM")]
     public AudioClip ChasingBGM;
 
-    public bool IsFade = false;
-    public double FadeInSeconds = 1.0;
-    bool IsFadeIn = true;
-    double FadeDeltaTime = 0;
-    public double FadeOutSeconds = 1.0;
-    bool IsFadeOut = true;
+    [Header("フェードイン/アウトの時間")]
+    public float fadeDuration = 1.0f;
 
-    //[SerializeField]
-    //private bool IsOpen;
+    [Header("平常時の音量")]
+    public float NormalVolume = 1.0f;
+    [Header("目を閉じている時の音量")]
+    public float ClosingVolume = 0.2f;
 
-    [SerializeField]
+    //顔認識
     private DlibFaceLandmarkDetectorExample.FaceDetector face;
+
+    private bool PreEyeOpen = false;
+
     void Start()
     {
-        enemyControllers = new EnemyAI_move[Enemies.Length];
-        enemyStateList = new EnemyAI_move.EnemyState[Enemies.Length];
-
-        for (int i = 0; i < Enemies.Length; i++)
+        if("Title1" != SceneManager.GetActiveScene().name)
         {
-            enemyControllers[i] = Enemies[i].GetComponent<EnemyAI_move>();
-            enemyStateList[i] = enemyControllers[i].state;
+            Enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            enemyControllers = new EnemyAI_move[Enemies.Length];
+            enemyStateList = new EnemyAI_move.EnemyState[Enemies.Length];
+
+            face = GameObject.Find("FaceDetecter").GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
+
+            for (int i = 0; i < Enemies.Length; i++)
+            {
+                enemyControllers[i] = Enemies[i].GetComponent<EnemyAI_move>();
+                enemyStateList[i] = enemyControllers[i].state;
+            }
         }
+       
+    
+        audioSource =GetComponent<AudioSource>();
 
-        AudioSource[] audioSources = GetComponents<AudioSource>();
-        if (audioSources.Length >= 2)
-        {
-            a1 = audioSources[0];
-            a2 = audioSources[1];
-        }
+        audioSource.clip = MainBGM;
 
-        a1.clip = MainBGM;
-        a2.clip = ChasingBGM;
+        audioSource.volume = NormalVolume;
 
-        a1.Play();
+        StartCoroutine(FadeInBGM());
+
+        PreEyeOpen = false;
     }
 
     void Update()
     {
-
-        //追われているか捕まっていると音を止める
-        bool isChasingOrAttacking = false;
-
-        //敵の情報を吸い上げる
-        for (int i = 0; i < Enemies.Length; i++)
+        if(!face)
         {
-            enemyStateList[i] = enemyControllers[i].state;
-
-            if (enemyStateList[i] == EnemyAI_move.EnemyState.Catch || enemyStateList[i] == EnemyAI_move.EnemyState.Chase)
-            {
-                isChasingOrAttacking = true;
-            }
+            return;
         }
 
-        //目が空いていなければBGMを止める
-        if (face.getEyeOpen())
+        //目を閉じ始めた時
+        if (!face.getEyeOpen() && PreEyeOpen)
         {
-            IsFadeIn = true;
-            //追われているときに音を消す。
-            a2.Stop();
-            a1.Stop();
-            //if (isChasingOrAttacking)
-            //{
-            //    //11/5追跡BGMを削除
-            //    //if (!a2.isPlaying)
-            //    //{
-            //    //    a1.Stop();
-            //    //    a2.Play();
-            //    //}
-            //}
-            //else
-            //{
-            if (!a1.isPlaying)
-            {
-                a2.Stop();
-                a1.Play();
-            }
-            //}
+           StartCoroutine(EyeCloseFadeOutBGM());
         }
-        else
-        if (!face.getEyeOpen())
+
+        //目を開き始めた時
+        if (face.getEyeOpen() && !PreEyeOpen)
         {
-            a2.Stop();
-            a1.Stop();
+            StartCoroutine(EyeOpenFadeInBGM());
         }
+
+
+        PreEyeOpen = face.getEyeOpen();
 
     }
+
+    // フェードアウト
+    public IEnumerator FadeOutBGM()
+    {
+        float startVolume = audioSource.volume;
+
+        for (float t = 0; t < fadeDuration; t += Time.deltaTime)
+        {
+            audioSource.volume = Mathf.Lerp(startVolume, 0, t / fadeDuration);
+            yield return null;
+        }
+
+        audioSource.volume = 0;
+        audioSource.Stop();
+    }
+
+    // フェードイン
+    public IEnumerator FadeInBGM()
+    {
+        audioSource.clip = MainBGM;
+
+        if (audioSource.clip == null)
+        {
+            Debug.LogError("AudioSource clip is null. Cannot play BGM.");
+            yield break; // コルーチンを終了
+        }
+
+
+        audioSource.volume = 0;
+        audioSource.Play();
+
+        for (float t = 0; t < fadeDuration; t += Time.deltaTime)
+        {
+            audioSource.volume = Mathf.Lerp(0, NormalVolume, t / fadeDuration);
+            yield return null;
+        }
+
+        audioSource.volume = NormalVolume;
+    }
+
+    // 目を閉じた時のフェードアウト
+    public IEnumerator EyeCloseFadeOutBGM()
+    {
+
+        for (float t = 0; t < fadeDuration; t += Time.deltaTime)
+        {
+            audioSource.volume = Mathf.Lerp(NormalVolume, ClosingVolume, t / fadeDuration);
+            yield return null;
+        }
+
+       audioSource.volume = ClosingVolume;
+    }
+
+    // 目を開けた時のフェードイン
+    public IEnumerator EyeOpenFadeInBGM()
+    {
+        audioSource.volume = ClosingVolume;
+
+        for (float t = 0; t < fadeDuration; t += Time.deltaTime)
+        {
+            audioSource.volume = Mathf.Lerp(ClosingVolume, NormalVolume, t / fadeDuration);
+            yield return null;
+        }
+
+       audioSource.volume = NormalVolume;
+    }
+
 }

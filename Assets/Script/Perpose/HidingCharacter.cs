@@ -8,39 +8,65 @@ public class HidingCharacter : MonoBehaviour
     public string GameMangerName = "GameManager";
     GameManager gameManager;
 
-    [Header("“®‚©‚È‚¢“G")]
-    [SerializeField]
-    private GameObject[] FakeEnemies;
+    //“G‚ğŒÄ‚Ño‚·‚â‚Â
+    EnemyContactEvent enemyContactEvent;
+    //“G‚ğŒÄ‚Ño‚·‚â‚Â‚ªƒAƒ^ƒbƒ`‚³‚ê‚Ä‚¢‚é‚©
+    private bool IsEnemyContactAttach = false;
 
-    [Header("“®‚©‚È‚¢“G")]
-    [SerializeField]
-    private GameObject[] RealEnemies;
+    [Header("Œ©‚Â‚©‚Á‚½‚Æ‚«‚É“G‚ğŒÄ‚Ño‚·‚©?")]
+    [SerializeField]private bool IsEnemySummon;
+
+    //Œ©‚Â‚©‚Á‚½‚©”Û‚©
+    public bool IsCatched;
+    //[Header("“®‚©‚È‚¢“G")]
+    //[SerializeField]
+    //private GameObject[] FakeEnemies;
+
+    //[Header("“®‚©‚È‚¢“G")]
+    //[SerializeField]
+    //private GameObject[] RealEnemies;
     void Start()
     {
         gameManager = GameObject.Find(GameMangerName).GetComponent<GameManager>();
-        if (FakeEnemies != null && RealEnemies != null)
+
+        if (GetComponent<EnemyContactEvent>() != null)
         {
-            for (int i = 0; i < FakeEnemies.Length; i++)
-            {
-                FakeEnemies[i].SetActive(true);
-                RealEnemies[i].SetActive(false);
-            }
+            IsEnemyContactAttach = true;
         }
+        //if (FakeEnemies != null && RealEnemies != null)
+        //{
+        //    for (int i = 0; i < FakeEnemies.Length; i++)
+        //    {
+        //        FakeEnemies[i].SetActive(true);
+        //        RealEnemies[i].SetActive(false);
+        //    }
+        //}
     }
     void Update()
     {
         if(Discover1.instance.FoundObj == this.gameObject)
         {
-            if (FakeEnemies != null && RealEnemies != null)
+            //if (FakeEnemies != null && RealEnemies != null)
+            //{
+            //    for (int i = 0; i < FakeEnemies.Length; i++)
+            //    {
+            //        FakeEnemies[i].SetActive(false);
+            //        RealEnemies[i].SetActive(true);
+            //    }
+            //}
+
+            //Á‚¦•û‚ğl‚¦
+
+            if (IsEnemyContactAttach)
             {
-                for (int i = 0; i < FakeEnemies.Length; i++)
-                {
-                    FakeEnemies[i].SetActive(false);
-                    RealEnemies[i].SetActive(true);
-                }
+                IsCatched = true;
             }
-            gameManager.isFindpeopleNum++;
-            Destroy(this.gameObject);
+            else
+            {
+                gameManager.isFindpeopleNum++;
+                Destroy(this.gameObject);
+            }
+
         }
     }
 }

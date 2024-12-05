@@ -51,6 +51,7 @@ public class OptionController : MonoBehaviour
         SetHolidingEyeValue();
         //マウスカーソルを消す
         Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
@@ -63,15 +64,18 @@ public class OptionController : MonoBehaviour
                 OptionMenu.SetActive(false);
                 EyeOptionMenu.SetActive(false);
                 gameManager.SetStopAll(false);
-                //マウスカーソルを出す
+                //マウスカーソルを消す
                 Cursor.visible = false;
+                Cursor.lockState = CursorLockMode.Locked;
             }
             else if(EyeOptionMenu.activeInHierarchy == true && OptionMenu.activeInHierarchy == false)
             {
                 OptionMenu.SetActive(true);
                 EyeOptionMenu.SetActive(false);
+                gameManager.SetStopAll(true);
                 //マウスカーソルを出す
                 Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
             }
             else
             {
@@ -80,6 +84,7 @@ public class OptionController : MonoBehaviour
                 gameManager.SetStopAll(true);
                 //マウスカーソルを消す
                 Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
             }
                 
         }

@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     //敵タイプ
     EnemyTypeSelector enemyType;
 
+    SceneChangeManager sceneChangeManager;
+
     //制限時間
     [Tooltip("制限時間")]
     [SerializeField]
@@ -64,12 +66,12 @@ public class GameManager : MonoBehaviour
         playerMove.GetComponent<PlayerMove>();
         CameraMove.GetComponent<CameraMove>();
 
+
         //for(int i = 0; i < EnemyAI_Moves.Length; i++)
         //{
         //    EnemyAI_Moves[i] = new EnemyAI_move();
         //    EnemyAI_Moves[i].GetComponent<EnemyAI_move>();
         //}
-
     }
 
     // Update is called once per frame
@@ -87,37 +89,78 @@ public class GameManager : MonoBehaviour
             DoStopAll();
         }
 
+#if UNITY_EDITOR
+
         if(Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F1))
         {
             OptionValue.InStealth = false;
-            SceneManager.LoadScene("SchoolMain 1");
+            if (SceneChangeManager.Instance != null) {
+                SceneChangeManager.Instance.LoadSceneAsyncWithFade("SchoolMain 1");
+            }
+            else
+            {
+                SceneManager.LoadScene("SchoolMain 1");
+            }
         }
 
         if (Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F2))
         {
             OptionValue.InStealth = false;
-            SceneManager.LoadScene("SchoolMain 2");
+            if (SceneChangeManager.Instance != null)
+            {
+                SceneChangeManager.Instance.LoadSceneAsyncWithFade("SchoolMain 2");
+            }
+            else
+            {
+                SceneManager.LoadScene("SchoolMain 2");
+            } 
         }
 
         if (Input.GetKey(KeyCode.Tab) && Input.GetKey(KeyCode.F3))
         {
             OptionValue.InStealth = false;
-            SceneManager.LoadScene("SchoolMain 3");
+            if (SceneChangeManager.Instance != null)
+            {
+                SceneChangeManager.Instance.LoadSceneAsyncWithFade("SchoolMain 3");
+            }
+            else
+            {
+                SceneManager.LoadScene("SchoolMain 3");
+            }
         }
+#endif
 
         UpdatePeopleText();
 
         //ゲームオーバーでリザルトに移行するやつ(ほんとにそれだけ)
         if (isGameOver)
         {
+            Cursor.lockState = CursorLockMode.None;
             OptionValue.InStealth = false;
             OptionValue.DeathScene =SceneManager.GetActiveScene().name;
-            SceneManager.LoadScene("GameOver");
+            if (SceneChangeManager.Instance != null)
+            {
+                SceneChangeManager.Instance.LoadSceneAsyncWithFade("GameOver");
+            }
+            else
+            {
+                SceneManager.LoadScene("GameOver");
+            }
+
         }
 
         if(isGameClear)
         {
-            SceneManager.LoadScene("Result");
+            Cursor.lockState = CursorLockMode.None;
+            if (SceneChangeManager.Instance != null)
+            {
+                SceneChangeManager.Instance.LoadSceneAsyncWithFade("Result");
+            }
+            else
+            {
+                SceneManager.LoadScene("Result");
+            }
+
         }
 
         if (isTimeLim)
@@ -164,6 +207,7 @@ public class GameManager : MonoBehaviour
     {
         playerMove.SetCanMove(!StopAll);
         CameraMove.SetCanMove(!StopAll);
+
         for (int i = 0; i < EnemyAI_Moves.Length; i++)
         {
             EnemyAI_Moves[i].SetCanMove(!StopAll);

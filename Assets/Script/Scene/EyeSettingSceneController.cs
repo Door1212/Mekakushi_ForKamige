@@ -30,43 +30,43 @@ public class EyeSettingSceneController : MonoBehaviour
 
     private Vignette vignette;
 
-    //検知音
-    public AudioClip GoGameScene;
+    //ボタン選択音
+    public AudioClip ButtonSelected;
 
     public AudioClip OnClicked;
 
     AudioSource audiosouce;
 
     [SerializeField]
-    [Tooltip("顔の認知継続時間")]
+    [Header("顔の認知継続時間")]
     private float FaceDetectingLimitTime;
     [SerializeField]
-    [Tooltip("顔が認識できているかを表示")]
+    [Header("顔が認識できているかを表示")]
     private TextMeshProUGUI FaceDetectTMP;
     [SerializeField]
-    [Tooltip("顏が一定時間認識できなかった時に表示する文字群")]
+    [Header("顏が一定時間認識できなかった時に表示する文字群")]
     private GameObject IfCantDetect;
 
     private float FaceDetectingTime;
 
-    [Tooltip("目のオプションメニュー")]
+    [Header("目のオプションメニュー")]
     private GameObject EyeOptionMenu;
     [SerializeField]
-    [Tooltip("目の閾値設定スライドバー")]
+    [Header("目の閾値設定スライドバー")]
     private Slider EyeThresholdBar;
     [SerializeField]
-    [Tooltip("目の閾値のデフォルト")]
+    [Header("目の閾値のデフォルト")]
     private float EyeThresholdDefaultValue;
 
     [SerializeField]
-    [Tooltip("目の閾値を表示")]
+    [Header("目の閾値を表示")]
     private TextMeshProUGUI EyeValueTMP;
 
     //現在の瞬き回数
     private int BlinkCount;
 
     [SerializeField]
-    [Tooltip("ゲームに遷移するのに必要な瞬きの数")]
+    [Header("ゲームに遷移するのに必要な瞬きの数")]
     private int BlinkMaxCount;
 
     [SerializeField]
@@ -79,36 +79,36 @@ public class EyeSettingSceneController : MonoBehaviour
     private bool IsDoneAutoEyeOpenSetting = false;
 
     [SerializeField]
-    [Tooltip("顔の認知継続時間")]
+    [Header("顔の認知継続時間")]
     private float EyeSettingLimitTime;
     [SerializeField]
-    [Tooltip("顔が認識できているかを表示")]
+    [Header("顔が認識できているかを表示")]
     private TextMeshProUGUI EyeSettingTMP;
     [SerializeField]
-    [Tooltip("進捗度合いを表示")]
+    [Header("進捗度合いを表示")]
     private TextMeshProUGUI AutoEyeSettingProcessTMP;
 
     [SerializeField]
-    [Tooltip("自動設定進行音")]
+    [Header("自動設定進行音")]
     private AudioClip AC_OnProcess;
 
     [SerializeField]
-    [Tooltip("自動設定を表示")]
+    [Header("自動設定を表示")]
     private TextMeshProUGUI AutoEyeSettingResultTMP;
 
     [SerializeField]
-    [Tooltip("自動設定を表示")]
+    [Header("自動設定を表示")]
     private TextMeshProUGUI AutoEyeSettingTeachingTMP;
 
     [SerializeField]
-    [Tooltip("自動設定が終わった後に表示するボタン")]
+    [Header("自動設定が終わった後に表示するボタン")]
     private Button AutoEyeSettingDoneButton;
 
     [SerializeField]
-    [Tooltip("目を開けてください")]
+    [Header("目を開けてください")]
     private AudioClip AC_IsAutoSettingDone;
     [SerializeField]
-    [Tooltip("目を閉じてください")]
+    [Header("目を閉じてください")]
     private AudioClip AC_IsAutoSettingStart;
 
     private bool IsStartAutoEyeSetting = false;
@@ -117,7 +117,7 @@ public class EyeSettingSceneController : MonoBehaviour
     private float CloseEyeCount;
 
     [SerializeField]
-    [Tooltip("自動設定に入るまでの猶予")]
+    [Header("自動設定に入るまでの猶予")]
     private float CloseEyeCountLimit;
 
     private bool letsStart;
@@ -145,8 +145,8 @@ public class EyeSettingSceneController : MonoBehaviour
 
         //一ページ目だけアクティブ
         EyeSettingLayers[(int)EyeSettingIdx].SetActive(true);
-        //FaceDetectorのゲットコンポーネント
-        face.GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
+
+
         audiosouce = GetComponent<AudioSource>();
 
         volume.profile.TryGetSettings(out vignette);
@@ -159,9 +159,14 @@ public class EyeSettingSceneController : MonoBehaviour
 
         EyeThresholdBar.GetComponent<Slider>();
 
-        // webCamTextureToMatHelperの初期化を追加
-        webCamTextureToMatHelper.Initialize();
+        if(OptionValue.IsFaceDetecting)
+        {
+            //FaceDetectorのゲットコンポーネント
+            face.GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
 
+            // webCamTextureToMatHelperの初期化を追加
+            webCamTextureToMatHelper.Initialize();
+        }
 
     }
 
@@ -215,10 +220,6 @@ public class EyeSettingSceneController : MonoBehaviour
                 }
             case EyeSettingIndex.AUTO_SETTING_EYE_OPTION:
                 {
-                    if(Input.GetKeyDown(KeyCode.Escape))
-                    {
-                        audiosouce.PlayOneShot(AC_IsAutoSettingStart);
-                    }
                     if (!face.getEyeOpen())
                     {
                         CloseEyeCount += Time.deltaTime;
@@ -295,11 +296,10 @@ public class EyeSettingSceneController : MonoBehaviour
                     UpdateEyeValue();
                     break;
                 }
-
             default:
-                {
-                    break;
-                }
+            {
+                break;
+            }
         }
     }
 
@@ -308,6 +308,8 @@ public class EyeSettingSceneController : MonoBehaviour
     {
         //今のレイヤーを非表示
         EyeSettingLayers[(int)EyeSettingIdx].SetActive(false);
+
+        
         //目の閾値を登録
         if (EyeSettingIdx == EyeSettingIndex.SETTING_EYE_OPTION)
         {
@@ -320,15 +322,18 @@ public class EyeSettingSceneController : MonoBehaviour
         if (EyeSettingIdx + 1 != EyeSettingIndex.EYE_SETTING_MAX)
         {
             EyeSettingIdx++;
+            //次のページの初期化
+            EyeSettingInit(EyeSettingIdx);
+            //次のページをアクティブに
+            EyeSettingLayers[(int)EyeSettingIdx].SetActive(true);
         }
         else 
-        { 
-            EnterMainScene();
+        {
+
+            audiosouce.PlayOneShot(OnClicked);
+            EnterTitleScene();
         }
-        //次のページの初期化
-        EyeSettingInit(EyeSettingIdx);
-        //次のページをアクティブに
-        EyeSettingLayers[(int)EyeSettingIdx].SetActive(true);
+
 
 
     }
@@ -336,6 +341,7 @@ public class EyeSettingSceneController : MonoBehaviour
     //セッティング毎の初期化
     private void EyeSettingInit(EyeSettingIndex idx)
     {
+
         switch (idx)
         {
             case EyeSettingIndex.START_FACE_DETECTION:
@@ -344,10 +350,12 @@ public class EyeSettingSceneController : MonoBehaviour
                 }
             case EyeSettingIndex.CHECK_FACE_DETECTION:
                 {
+
+                    audiosouce.PlayOneShot(OnClicked);
                     vignette.active = true;
                     vignette.color.value = Color.red;
                     CantDetectFaceTime = 0.0f;
-                    IfCantDetect.active = false;
+                    IfCantDetect.SetActive(false);
 
                     break;
                 }
@@ -384,12 +392,12 @@ public class EyeSettingSceneController : MonoBehaviour
 
     private void UpdateFaceDetectTrueTMP()
     {
-        FaceDetectTMP.SetText("顔の認識に成功しています。\nそのままでいてください、残り時間:" + (FaceDetectingLimitTime - FaceDetectingTime).ToString("N0")+"秒");
+        FaceDetectTMP.SetText("顔の認識に成功しています。\nそのままお待ちください。\n残り時間:" + (FaceDetectingLimitTime - FaceDetectingTime).ToString("N0")+"秒");
     }
 
     private void UpdateFaceDetectFalseTMP()
     {
-        FaceDetectTMP.SetText("うまく顔を認識できていません、位置を調節してください");
+        FaceDetectTMP.SetText("うまく顔を認識できていません");
     }
 
     public void SetDefaultEyeValue()
@@ -413,9 +421,21 @@ public class EyeSettingSceneController : MonoBehaviour
         EyeValueTMP.SetText("今の瞬きの回数は"+BlinkCount.ToString()+"です。");
     }
 
-    public void EnterMainScene()
+    public void EnterTitleScene()
     {
-        SceneManager.LoadScene("Title1");
+        SceneChangeManager.Instance.LoadSceneAsyncWithFade("Title1");
+    }
+
+    public void StartWithNoEye()
+    {
+        audiosouce.PlayOneShot(OnClicked);
+        OptionValue.IsFaceDetecting = false;
+        EnterTitleScene();
+    }
+
+    public void PlayButtonSeletedSound()
+    {
+        audiosouce.PlayOneShot(ButtonSelected);
     }
 
     

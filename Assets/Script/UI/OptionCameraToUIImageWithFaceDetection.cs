@@ -87,8 +87,6 @@ public class OptionCameraToUIImageWithFaceDetection : MonoBehaviour
     {
             if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame())
             {
-              
-
                     Mat rgbaMat = webCamTextureToMatHelper.GetMat();
                     DlibFaceLandmarkDetectorExample.OpenCVForUnityUtils.SetImage(faceLandmarkDetector, rgbaMat);
                 Observable.Start(() =>

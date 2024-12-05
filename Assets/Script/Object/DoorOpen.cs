@@ -6,10 +6,13 @@ using UnityEditor;
 using UnityEngine;
 //クロスヘア変更用
 using UnityEngine.UI;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(AudioSource))]
 [RequireComponent(typeof(BoxCollider))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(NavMeshObstacle))]
+
 public class DoorOpen : MonoBehaviour
 {
     Animator animator;
@@ -28,9 +31,9 @@ public class DoorOpen : MonoBehaviour
     [Header("敵によってドアが作動する距離")]
     [SerializeField]
     private float Enemy_Active_Distance = 3.0f;
-    [Header("ドア当たり判定オフセット")]
-    [SerializeField]
-    private Vector3 DoorPosOffset = new Vector3(1.5f, 1.0f, 0.0f);
+    //[Header("ドア当たり判定オフセット")]
+    //[SerializeField]
+    //private Vector3 DoorPosOffset = new Vector3(1.5f, 1.0f, 0.0f);
 
     [Header("プレイヤーが閉めたあと敵が開けられるまでの時間")]
     [SerializeField]
@@ -39,7 +42,7 @@ public class DoorOpen : MonoBehaviour
 
     GameObject Player;
     [Header("オーディオソース")]
-    [SerializeField]
+    //[SerializeField]
     AudioSource audioSource;
     [Header("ドアが開く音")]
     [SerializeField]
@@ -81,7 +84,7 @@ public class DoorOpen : MonoBehaviour
         IsEnableDoor = false;
         Player = GameObject.Find(target_name);
         discover = Player.GetComponent<Discover1>();
-        audioSource = GetComponent<AudioSource>();
+        audioSource = this.GetComponent<AudioSource>();
         enemyAImove = new EnemyAI_move[Enemies.Length];
         Enemy_dis = new float[Enemies.Length];
         this.tag = "Door";
@@ -97,11 +100,11 @@ public class DoorOpen : MonoBehaviour
 
     void Update()
     {
-        dis = Vector3.Distance(Player.transform.position, this.transform.position + DoorPosOffset);
+        dis = Vector3.Distance(Player.transform.position, this.transform.position/* + DoorPosOffset*/);
 
         for (int i = 0; i < Enemies.Length; i++)
         {
-            Enemy_dis[i] = Vector3.Distance(Enemies[i].transform.position, this.transform.position + DoorPosOffset);
+            Enemy_dis[i] = Vector3.Distance(Enemies[i].transform.position, this.transform.position/* + DoorPosOffset*/);
         }
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -162,16 +165,17 @@ public class DoorOpen : MonoBehaviour
         for (int i = 0; i < Enemies.Length; i++)
         {
 
-            if (!IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance)
+            if (!IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance && !PairDoor.IsOpen)
             {
 
                 PlayOpenDoorAnim();
                 IsOpen = true;
                 enemyAImove[i].IsThisOpeningDoor = false;
+
                 audioSource.Stop();
                 PlaySlumDoorSound();
             }
-            else if (IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance)
+            else if (IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance && !PairDoor.IsOpen)
             {
                 PlayTryOpenDoorSound();
 

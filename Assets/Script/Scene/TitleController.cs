@@ -35,6 +35,9 @@ public class TitleController : MonoBehaviour
     [Header("目の閾値を表示")]
     private TextMeshProUGUI EyeValueTMP;
 
+    //シーン変更マネージャー
+    private SceneChangeManager sceneChangeManager;
+
     public float REyeValue = 0;
     public float LEyeValue = 0;
 
@@ -151,7 +154,7 @@ public class TitleController : MonoBehaviour
 
         if (TutorialPanel.active == false)
         {
-            if (Input.GetKeyUp(KeyCode.Escape))
+            if (Input.GetKeyUp(KeyCode.Escape) && !EyeOptionMenu.active)
             {
                 if (confirmationPanel.activeSelf == true)
                 {
@@ -165,9 +168,10 @@ public class TitleController : MonoBehaviour
             }
         }
 
-        if(IsChangeScene && IsChangeAnimDone)
+        if(IsChangeScene)
         {
-            SceneManager.LoadScene("SchoolMain 1");
+            IsChangeScene = false;
+            SceneChangeManager.Instance.LoadSceneAsyncWithFade("SchoolMain 1");
         }
         
     }
@@ -181,8 +185,7 @@ public class TitleController : MonoBehaviour
         //    IsEndTutorial.IsEyeTutorial = true;
         //    SceneManager.LoadScene("EyeSettingScene");
         //}
-        _EyeFadeController.SetClose();
-
+        PlayClickedSound();
         IsChangeScene =true;
         
     }
@@ -274,6 +277,7 @@ public class TitleController : MonoBehaviour
     //ゲームをやめる処理
     public void QuitGame()
     {
+        audiosouce.PlayOneShot(OnClicked);
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;//ゲームプレイ終了
 #else
@@ -285,6 +289,8 @@ public class TitleController : MonoBehaviour
     public void OpenEyeOption()
     {
         EyeOptionMenu.SetActive(true);
+        PlayClickedSound();
+        
         Time.timeScale = 0.0f;
         //マウスカーソルを出す
         Cursor.visible = true;
@@ -293,6 +299,7 @@ public class TitleController : MonoBehaviour
     //目のオプションを終了と設定した値を代入
     public void CloseEyeOption()
     {
+        PlayClickedSound();
         EyeOptionMenu.SetActive(false);
         Time.timeScale = 1.0f;
         EyeClosingLevel.REyeClosingLevelValue = EyeThresholdBar.value;
@@ -320,6 +327,6 @@ public class TitleController : MonoBehaviour
 
     //チェンジシーン状態に入っているかのじぇんち
     public bool GetIsChangeScene() { return IsChangeScene; }
-    //チェンジシーン状態に入っているかのじぇんち
-    public void SetIsChangeAnimDone(bool _Done) {IsChangeAnimDone = _Done; }
+    ////チェンジシーン状態に入っているかのじぇんち
+    //public void SetIsChangeAnimDone(bool _Done) {IsChangeAnimDone = _Done; }
 }

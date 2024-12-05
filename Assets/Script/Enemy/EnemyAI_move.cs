@@ -32,7 +32,9 @@ public class EnemyAI_move : MonoBehaviour
     private Transform targetTransform; // ターゲットの情報
     private NavMeshAgent navMeshAgent; // NavMeshAgentコンポーネント
     private DlibFaceLandmarkDetectorExample.FaceDetector face; // FaceDetectorコンポーネント
-    
+    public GameObject TPPointParent;
+    public Transform[] TPPoint;
+
     [Header("ジャンプスケアモーション格納用 1つめ:KeepLook、2つめ:Blind、3つめFootSteps")]
     public PlayableDirector[] JumpScareTimeLines;
     [Header("FaceDetectorの名前")]
@@ -56,7 +58,7 @@ public class EnemyAI_move : MonoBehaviour
     private float StartingHeartBeatSound = 15.0f;
     [SerializeField]
     [Header("心音")]
-    private AudioClip AC_HeartBeat ;
+    private AudioClip AC_HeartBeat;
     [SerializeField]
     [Header("敵とプレイヤーの距離")]
     private float EtPDis;
@@ -83,12 +85,12 @@ public class EnemyAI_move : MonoBehaviour
 
 
     [Header("見失ってから消えるまでの時間")]
-    [SerializeField]
-    private float LimitDisappearTime = 5.0f;
+    [SerializeField]private float LimitDisappearTime = 5.0f;
     public float DisapperTime = 0f;
 
     private bool isRendered = false;
-    private bool isStopping = false;
+    [Header("停止状態にあるか")]
+    [SerializeField]private bool isStopping = false;
     private bool isChased = false;
     public string playerTag = "Player";
     public string bodyName = "EnemyBody";
@@ -109,6 +111,7 @@ public class EnemyAI_move : MonoBehaviour
 
 
     //動けるかどうか
+    [SerializeField]
     private bool CanMove = true;
 
     [Header("心音操作用のオーディオミキサー")]
@@ -125,8 +128,8 @@ public class EnemyAI_move : MonoBehaviour
     void awake()
     {
         //ムービーのゲットコンポーネント
-        for(int i = 0; i < (int)EnemType.TYPE_MAX - 1; i++)
-        JumpScareTimeLines[i] = GetComponent<PlayableDirector>();
+        for (int i = 0; i < (int)EnemType.TYPE_MAX - 1; i++)
+            JumpScareTimeLines[i] = GetComponent<PlayableDirector>();
     }
 
     void Start()
@@ -142,9 +145,13 @@ public class EnemyAI_move : MonoBehaviour
         soundManager = GameObject.Find(SoundManager_name).GetComponent<SoundManager>();
         eSearch = GetComponentInChildren<EnemyAI_Search>();
         playerObj = GameObject.FindWithTag(playerTag);
+        if (playerObj == null)
+        {
+            Debug.LogWarning("プレイヤーが存在していません");
+        }
         CanMove = true;
         FogEnd = RenderSettings.fogEndDistance;//fogの終端を取得
-        BindTimelineToPlayer();
+        //BindTimelineToPlayer();
         for (int i = 0; i < (int)EnemType.TYPE_MAX - 1; i++)
         {
             if (JumpScareTimeLines[i] != null)
@@ -158,160 +165,54 @@ public class EnemyAI_move : MonoBehaviour
         {
             ThisBody.SetActive(false);
         }
+
+
+        //// 子オブジェクトをリストとして取得
+        //List<Transform> childrenList = new List<Transform>();
+
+        //foreach (Transform child in TPPointParent.transform)
+        //{
+        //    childrenList.Add(child);
+        //    Debug.Log("Child Name: " + child.name);
+        //}
+
+        //// 配列に変換
+        //TPPoint = childrenList.ToArray();
+
     }
 
     void Update()
     {
-        if (CanMove)
+        if(!CanMove)
         {
-            DistanceSoundUpdate();
-            //pitchに併せて音程が変わらないように心音を鳴らす
-            heartAudioMixer.SetFloat("HeartBeat",1.0f / audioHeartBeat.pitch);
-
-
-            switch (type)
-            {
-                case EnemType.KeepLook:
-                    KeepLookCheck();
-                    break;
-                case EnemType.Blind:
-                    if (!face.GetAverageEyeState())
-                    {
-                        SetState(EnemyState.Idle);
-                        if (!audioSource.isPlaying)
-                        {
-                            audioSource.Play();
-                        }
-                        eSearch.SetUnrecognized(true);
-                    }
-                    else
-                    {
-                        eSearch.SetUnrecognized(false);
-                        if (!audioSource.isPlaying)
-                        {
-                            audioSource.Play();
-                        }
-                    }
-                    if (isChased && state == EnemyState.Idle && !face.getEyeOpen())
-                    {
-                        DisapperTime += Time.deltaTime;
-                    }
-                    else
-                    {
-                        DisapperTime = 0;
-                    }
-
-                    //LimitDisappearTime（目を閉じ続けている時間）を超えると追跡をやめさせる
-                    if(DisapperTime >= LimitDisappearTime)
-                    {
-                        isChased = false;
-                        if (!audioByeBye.isPlaying)
-                        {
-                            //敵が去る音(11/5に削除)
-                            //audioByeBye.Play();
-                        }
-                        ResetEnemy();
-                    }
-
-                    break;
-                case EnemType.Footsteps:
-                    if (!face.getEyeOpen())
-                    {
-                        if (!audioSource.isPlaying)
-                        {
-                            audioSource.Play();
-                        }
-                    }
-                    float dis = Vector3.Distance(this.transform.position, playerObj.transform.position);
-                    if (dis <= AbleToSeeDis)
-                    {
-                        ThisBody.SetActive(true);
-                    }
-                    else
-                    {
-                        ThisBody.SetActive(false);
-                    }
-                    break;
-            }
-
-            if (state == EnemyState.Catch)
-            {
-                if(type == EnemType.Blind)
-                {   
-                    if(face.getEyeOpen())
-                    {
-                        gameManager.isGameOver = true;
-                        //DoEnemyCatchMotion();
-                    }
-                }
-                else
-                {
-                    gameManager.isGameOver = true;
-                    //DoEnemyCatchMotion();
-                }
-
-            }
-
-            if (state == EnemyState.Chase)
-            {
-                if (targetTransform == null)
-                {
-                    SetState(EnemyState.Idle);
-                }
-                else
-                {
-                    SetDestination(targetTransform.position);
-                    if (navMeshAgent.isOnNavMesh)
-                    {
-                        navMeshAgent.SetDestination(GetDestination());
-                    }
-                }
-                var dir = (GetDestination() - transform.position).normalized;
-                dir.y = 0;
-                Quaternion setRotation = Quaternion.LookRotation(dir);
-                transform.rotation = Quaternion.Slerp(transform.rotation, setRotation, navMeshAgent.angularSpeed * 0.1f * Time.deltaTime);
-
-            }
-
-            if (!isStopping)
-            {
-                if (state == EnemyState.Idle)
-                {
-                    if (navMeshAgent.remainingDistance < 0.5f)
-                    {
-                        SetRandomPoint();
-                    }
-
-                    if (PrePos == transform.position)
-                    {
-                        Debug.Log("止まりすぎちゃう?");
-                        StoppingTime += Time.deltaTime;
-                    }
-                    else
-                    {
-                        StoppingTime = 0;
-                    }
-
-                    if (StoppingTime > LimitStoppingTime)
-                    {
-                        ResetEnemy();
-                    }
-                }
-            }
-
-            if (IsThisOpeningDoor == true && PreIsThisOpeningDoor == false)
-            {
-                navMeshAgent.isStopped = true;
-            }
-
-            if (PreIsThisOpeningDoor == true && IsThisOpeningDoor == false)
-            {
-                navMeshAgent.isStopped = false;
-            }
-
-            PrePos = transform.position;
-            PreIsThisOpeningDoor = IsThisOpeningDoor;
+            navMeshAgent.isStopped = true;
+            return;
         }
+        else
+        {
+            navMeshAgent.isStopped = false;
+        }
+
+        DistanceSoundUpdate();
+        //pitchに併せて音程が変わらないように心音を鳴らす
+        heartAudioMixer.SetFloat("HeartBeat", 1.0f / audioHeartBeat.pitch);
+
+        //敵タイプごとのアップデート
+        switch (type)
+        {
+            case EnemType.KeepLook:
+                EnemyKeepLookUpdate();
+                break;
+            case EnemType.Blind:
+                EnemyBlindUpdate();
+                break;
+            case EnemType.Footsteps:
+                EnemyFootStepUpdate();
+                break;
+        }
+
+        EnemyUpdate();
+
     }
 
     public void SetState(EnemyState tempState, Transform targetObject = null)
@@ -366,7 +267,7 @@ public class EnemyAI_move : MonoBehaviour
         }
     }
 
-    private void ResetEnemy()
+    public void ResetEnemy()
     {
         Vector3 newPosition;
         float distanceToPlayer;
@@ -392,10 +293,46 @@ public class EnemyAI_move : MonoBehaviour
         EnemyBodyCollider.enabled = true;
     }
 
-    private void KeepLookCheck()
+    /// <summary>
+    /// プレイヤーからNearNum番目に近いポイントにTPさせる
+    /// </summary>
+    /// <param name="NearNum"></param>
+    public void EnemyTpNear(int NearNum)
+    {
+        //TP先がないか、NearNumに満たない数であればnullを返す
+        if (TPPoint == null || TPPoint.Length < NearNum)
+        {
+            Debug.Log("TP失敗");
+            return;
+        }
+
+        // 各ポイントとの距離を計算し、小さい順にソート
+        var sortedPoints = TPPoint
+            .OrderBy(point => Vector3.Distance(playerObj.transform.position, point.transform.position))
+            .ToArray();
+
+        // NearNum番目に近いポイントを返す
+        if (NearNum == 0)
+        {
+            this.transform.position = sortedPoints[NearNum].transform.position;
+        }
+        else
+        {
+            this.transform.position = sortedPoints[NearNum - 1].transform.position;
+        }
+
+
+        // 状態をリセット
+        ResetState();
+
+        // 敵のコライダーを有効にする
+        EnemyBodyCollider.enabled = true;
+    }
+
+    private void EnemyKeepLookUpdate()
     {
         var vec = playerObj.transform.position - ThisBody.transform.position;
-        float EtPDis = Vector3.Distance(playerObj.transform.position,ThisBody.transform.position);
+        float EtPDis = Vector3.Distance(playerObj.transform.position, ThisBody.transform.position);
         if (EtPDis < FogEnd)
         {
             if (face.getEyeOpen() && Physics.Raycast(ThisBody.transform.position, vec, out RaycastHit hit, Mathf.Infinity) && hit.transform.tag == playerTag)
@@ -448,6 +385,159 @@ public class EnemyAI_move : MonoBehaviour
         }
 
     }
+
+    private void EnemyBlindUpdate()
+    {
+        //足音の再生
+        if (!face.getEyeOpen())
+        {
+            SetState(EnemyState.Idle);
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
+            eSearch.SetUnrecognized(true);
+        }
+        else
+        {
+            eSearch.SetUnrecognized(false);
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
+        }
+
+        //追跡をやめる時間を計測
+        if (isChased && state == EnemyState.Idle && !face.getEyeOpen())
+        {
+            DisapperTime += Time.deltaTime;
+        }
+        else
+        {
+            DisapperTime = 0;
+        }
+
+        //LimitDisappearTime（目を閉じ続けている時間）を超えると追跡をやめさせる
+        if (DisapperTime >= LimitDisappearTime)
+        {
+            isChased = false;
+            if (!audioByeBye.isPlaying)
+            {
+                //敵が去る音(11/5に削除)
+                //audioByeBye.Play();
+            }
+            ResetEnemy();
+        }
+
+    }
+
+    private void EnemyFootStepUpdate()
+    {
+        if (!face.getEyeOpen())
+        {
+            if (!audioSource.isPlaying)
+            {
+                audioSource.Play();
+            }
+        }
+        float dis = Vector3.Distance(this.transform.position, playerObj.transform.position);
+        if (dis <= AbleToSeeDis)
+        {
+            ThisBody.SetActive(true);
+        }
+        else
+        {
+            ThisBody.SetActive(false);
+        }
+    }
+    private void EnemyUpdate()
+    {
+        //プレイヤーを捕まえた状態
+        if (state == EnemyState.Catch)
+        {
+            //目を閉じないといけない敵であるか
+            if (type == EnemType.Blind)
+            {
+                //目が開いているか
+                if (face.getEyeOpen())
+                {
+                    gameManager.isGameOver = true;
+                    //DoEnemyCatchMotion();
+                }
+            }
+            else
+            {
+                gameManager.isGameOver = true;
+                //DoEnemyCatchMotion();
+            }
+
+        }
+
+        if (state == EnemyState.Chase)
+        {
+            if (targetTransform == null)
+            {
+                SetState(EnemyState.Idle);
+            }
+            else
+            {
+                SetDestination(targetTransform.position);
+                if (navMeshAgent.isOnNavMesh)
+                {
+                    navMeshAgent.SetDestination(GetDestination());
+                }
+            }
+            var dir = (GetDestination() - transform.position).normalized;
+            dir.y = 0;
+            Quaternion setRotation = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, setRotation, navMeshAgent.angularSpeed * 0.1f * Time.deltaTime);
+
+        }
+
+        //停止状態にあれば
+        if (!isStopping)
+        {
+            if (state == EnemyState.Idle)
+            {
+                if (navMeshAgent.remainingDistance < 0.5f)
+                {
+                    SetRandomPoint();
+                }
+
+                if (PrePos == transform.position)
+                {
+                    Debug.Log("止まりすぎちゃう?");
+                    StoppingTime += Time.deltaTime;
+                }
+                else
+                {
+                    StoppingTime = 0;
+                }
+
+                if (StoppingTime > LimitStoppingTime)
+                {
+                    ResetEnemy();
+                }
+            }
+        }
+
+        if (IsThisOpeningDoor == true && PreIsThisOpeningDoor == false)
+        {
+            ResetEnemy();
+            navMeshAgent.isStopped = true;
+        }
+
+        if (PreIsThisOpeningDoor == true && IsThisOpeningDoor == false)
+        {
+            ResetEnemy();
+            navMeshAgent.isStopped = false;
+        }
+
+        //値を更新
+        PrePos = transform.position;
+        PreIsThisOpeningDoor = IsThisOpeningDoor;
+    }
+
     public void SetCanMove(bool Set)
     {
         CanMove = Set;

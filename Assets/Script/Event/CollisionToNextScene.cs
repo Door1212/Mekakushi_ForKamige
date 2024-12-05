@@ -7,10 +7,13 @@ public class CollisionToNextScene : MonoBehaviour
     [Header("変えたいシーン名")]
     public string SceneName;
 
+    SceneChangeManager sceneChangeManager;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        //シーンロード用コンポーネント
+        sceneChangeManager = GameObject.Find("SceneChangeManager").GetComponent<SceneChangeManager>();
     }
 
     // Update is called once per frame
@@ -30,7 +33,7 @@ public class CollisionToNextScene : MonoBehaviour
 
             if (other.CompareTag("Player"))//各自タグに付けた名前を()の中に入れてください
             {
-            SceneManager.LoadScene(SceneName);
+            sceneChangeManager.LoadSceneAsyncWithFade(SceneName);
             }
 
     }

@@ -73,10 +73,15 @@ namespace DlibFaceLandmarkDetectorExample
 #if UNITY_EDITOR
             string dlibShapePredictorFileName = "DlibFaceLandmarkDetector/sp_human_face_68.dat"; // エディタ環境用のファイル名
 #else
-            string dlibShapePredictorFileName = System.IO.Path.Combine(Application.streamingAssetsPath, "/DlibFaceLandmarkDetector/sp_human_face_68.dat"); // ビルド環境用のファイルパス
+            string dlibShapePredictorFileName = System.IO.Path.Combine(Application.streamingAssetsPath, "DlibFaceLandmarkDetector/sp_human_face_68.dat"); // ビルド環境用のファイルパス
+            //  StreamingAssetsフォルダからの相対パス
+            // string relativePath = "DlibFaceLandmarkDetector/sp_human_face_68.dat";
+
+            //  絶対パス
+            //string absolutePath = System.IO.Path.Combine(Application.streamingAssetsPath, relativePath);
             Debug.Log("Build Path: " + dlibShapePredictorFileName);
 #endif
-            if(!OptionValue.IsFaceDetecting)
+            if (!OptionValue.IsFaceDetecting)
             {
                 GetComponent<WebCamTextureToMatHelper>().enabled = false;
                 GetComponent<CameraToUIImageWithFaceDetection>().enabled = false;
@@ -243,7 +248,11 @@ namespace DlibFaceLandmarkDetectorExample
             }
             else
             {
-                FaceDebugObj.SetActive(false);
+                if (FaceDebugObj != null)
+                {
+                    FaceDebugObj.SetActive(false);
+                }
+
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
                     if(isEyeOpen)
