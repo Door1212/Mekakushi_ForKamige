@@ -66,7 +66,8 @@ public class CameraMove : MonoBehaviour
         dist = dist.normalized * distance_to_charcter;
         cam_transform.position = target_position + dist;
         cam_transform.LookAt(target_position);
-        if(Enemies[0] == null)
+
+        if(Enemies == null)
         {
             UsingEnemy = false;
         }

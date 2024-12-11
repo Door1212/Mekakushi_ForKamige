@@ -1,4 +1,4 @@
-using Cinemachine;
+ï»¿using Cinemachine;
 using DlibFaceLandmarkDetectorExample;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,42 +9,42 @@ using UnityEngine;
 
 public class SoundWall : MonoBehaviour
 {
-    //ƒvƒŒƒCƒ„[ƒIƒuƒWƒFƒNƒg
+    //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
     private GameObject _PlayerObj;
 
-    [Header("‰¹‚ğo‚·ƒIƒuƒWƒFƒNƒg")]
+    [Header("éŸ³ã‚’å‡ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ")]
     [SerializeField] private GameObject SoundSource;
 
-    private AudioSource audioSource; // ‰¹‚ğo‚·ƒIƒuƒWƒFƒNƒg‚ÌAudioSourceƒRƒ“ƒ|[ƒlƒ“ƒg
+    private AudioSource audioSource; // éŸ³ã‚’å‡ºã™ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®AudioSourceã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 
-    private FaceDetector face;       // Šç”F¯ƒRƒ“ƒ|[ƒlƒ“ƒg
+    private FaceDetector face;       // é¡”èªè­˜ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ
 
     [TagField]
-    [Header("‚Ô‚Â‚©‚Á‚½‚±‚Æ‚ğ”»’è‚·‚éƒ^ƒO")]
+    [Header("ã¶ã¤ã‹ã£ãŸã“ã¨ã‚’åˆ¤å®šã™ã‚‹ã‚¿ã‚°")]
     public string[] selectedTag;
     [SerializeField]
-    [Header("ƒ^ƒO‚É‘Î‰‚µ‚½‰¹")]
+    [Header("ã‚¿ã‚°ã«å¯¾å¿œã—ãŸéŸ³")]
     private AudioClip[] _hitSound;
 
-    [Header("‰¹‚ªon‚ß‚é‹——£")]
+    [Header("éŸ³ãŒå‡ºå§‹ã‚ã‚‹è·é›¢")]
     [SerializeField] private float SoundStartDis = 1.0f;
 
-    [Header("ƒ{ƒŠƒ…[ƒ€Å‘å’l")]
+    [Header("ãƒœãƒªãƒ¥ãƒ¼ãƒ æœ€å¤§å€¤")]
     [SerializeField] private float SoundMax = 0.5f;
 
-    [Header("ƒ{ƒŠƒ…[ƒ€Å¬’l")]
+    [Header("ãƒœãƒªãƒ¥ãƒ¼ãƒ æœ€å°å€¤")]
     [SerializeField] private float SoundMin = 0.01f;
 
-    [Header("‰¹‚ğ–Â‚ç‚·ŠÔŠu")]
+    [Header("éŸ³ã‚’é³´ã‚‰ã™é–“éš”")]
     [SerializeField] private float SoundInterval = 1.5f;
 
-    //ŠÔŠu‚ÌŒv‘ª—p
+    //é–“éš”ã®è¨ˆæ¸¬ç”¨
     private float SoundIntervalCount = 0.0f;
 
-    [Header("Ray‚Ì”ò‹——£")]
+    [Header("Rayã®é£›è·é›¢")]
     public float rayDistance = 20f;
 
-    [Header("Ray‚Ì•ûŒü")]
+    [Header("Rayã®æ–¹å‘")]
     private Vector3[] directions = new Vector3[]
     {
         Vector3.forward,
@@ -57,16 +57,36 @@ public class SoundWall : MonoBehaviour
         new Vector3(-1, 0, -1).normalized
     };
 
+    //æ•µé–¢é€£
+    // "Enemy"ã‚¿ã‚°ã‚’æŒã¤ã™ã¹ã¦ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
+    public GameObject[] enemies;
+    public EnemyAI_move[] enemyAI_Moves;
+
+    [Header("æ•µã‚’TPã•ã›ã‚‹ã‹å¼·åˆ¶ã«æ°—ã¥ãçŠ¶æ…‹ã«ã•ã›ã‚‹ã‹")]
+    [SerializeField] private bool DoTP;
+
+    [Header("ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‹ã‚‰ä½•ç•ªç›®ã«è¿‘ã„ãƒã‚¤ãƒ³ãƒˆã«TPã•ã›ã‚‹")]
+    [SerializeField] private int NearNum;
+
+    [Header("ç™ºç”Ÿã™ã‚‹ç¢ºç‡")]
+    [SerializeField][Range(0.01f, 1.00f)] private float Probability = 1.00f;
+
+    //å‹•ã‘ã‚‹ã‹ã©ã†ã‹
+    [SerializeField]
+    private bool CanMove = true;
+
     void Start()
     {
-        // ƒvƒŒƒCƒ„[ƒIƒuƒWƒFƒNƒg‚Ìæ“¾
+        //å¤‰æ•°ã®åˆæœŸåŒ–
+        CanMove = true;
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å–å¾—
         _PlayerObj = GameObject.Find("Player(tentative)");
         if (_PlayerObj == null)
         {
             Debug.LogError("Player object not found!");
             return;
         }
-        //ŠçŒŸ’mŠíƒRƒ“ƒ|[ƒlƒ“ƒg‚Ìæ“¾
+        //é¡”æ¤œçŸ¥å™¨ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã®å–å¾—
         face = GameObject.Find("FaceDetecter").GetComponent<FaceDetector>();
         if (face == null)
         {
@@ -74,30 +94,47 @@ public class SoundWall : MonoBehaviour
             return;
         }
 
-        // ‰¹Œ¹ƒIƒuƒWƒFƒNƒg‚Ì‰Šú‰»
+        // éŸ³æºã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®åˆæœŸåŒ–
         if (SoundSource == null)
         {
             Debug.LogError("SoundSource is not assigned!");
             return;
         }
-        //‰¹Œ¹ƒIƒuƒWƒFƒNƒg‚ÌƒI[ƒfƒBƒIƒ\[ƒX‚ğæ“¾
+        //éŸ³æºã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚ªãƒ¼ãƒ‡ã‚£ã‚ªã‚½ãƒ¼ã‚¹ã‚’å–å¾—
         audioSource = SoundSource.GetComponent<AudioSource>();
         if (audioSource == null)
         {
-            Debug.LogError("AudioSource‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+            Debug.LogError("AudioSourceãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
+        }
+
+        //ã‚¨ãƒãƒŸãƒ¼ã‚¿ã‚°ã‚’æŒã¤ã™ã¹ã¦ã®ã‚²ãƒ¼ãƒ ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–å¾—
+        enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        // é…åˆ—ã®åˆæœŸåŒ–
+        enemyAI_Moves = new EnemyAI_move[enemies.Length];
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            enemyAI_Moves[i] = enemies[i].GetComponent<EnemyAI_move>();
         }
 
     }
 
     void Update()
     {
-        //ŠÔXV
+        //ã‚ªãƒ—ã‚·ãƒ§ãƒ³çŠ¶æ…‹ãªã‚‰ãƒªã‚¿ãƒ¼ãƒ³
+        if(!CanMove)
+        {
+            return;
+        }
+
+        //æ™‚é–“æ›´æ–°
         if (!audioSource.isPlaying) { SoundIntervalCount += Time.deltaTime; }
-        //ƒvƒŒƒCƒ„[ƒIƒuƒWƒFƒNƒg‚ª‚È‚¯‚ê‚ÎƒŠƒ^[ƒ“
+        //ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒãªã‘ã‚Œã°ãƒªã‚¿ãƒ¼ãƒ³
         if (_PlayerObj == null) return;
-        //–Ú‚ğ•Â‚¶‚Ä‚¢‚È‚¯‚ê‚ÎƒŠƒ^[ƒ“
+        //ç›®ã‚’é–‰ã˜ã¦ã„ãªã‘ã‚Œã°ãƒªã‚¿ãƒ¼ãƒ³
         if (face.getEyeOpen()) return;
-        //‰¹‚ğ–Â‚ç‚·ŠÔŠu‚ğ’´‚¦‚Ä‚¢‚È‚¯‚ê‚ÎƒŠƒ^[ƒ“
+        //éŸ³ã‚’é³´ã‚‰ã™é–“éš”ã‚’è¶…ãˆã¦ã„ãªã‘ã‚Œã°ãƒªã‚¿ãƒ¼ãƒ³
         if (SoundIntervalCount < SoundInterval) return;
 
         DetectClosestWallAndMoveSoundSource();
@@ -105,7 +142,7 @@ public class SoundWall : MonoBehaviour
 
     private void DetectClosestWallAndMoveSoundSource()
     {
-        //--------------------------------ˆê”Ô‹ß‚¢•Ç‚ğ’Tõ--------------------------------
+        //--------------------------------ä¸€ç•ªè¿‘ã„å£ã‚’æ¢ç´¢--------------------------------
         Transform playerTransform = _PlayerObj.transform;
         Vector3 playerPosition = playerTransform.position;
 
@@ -113,15 +150,15 @@ public class SoundWall : MonoBehaviour
         Vector3 closestDirection = Vector3.zero;
         string closestTag = string.Empty;
 
-        // ”ª•ûŒü‚ğ‘{õ
+        // å…«æ–¹å‘ã‚’æœç´¢
         foreach (var direction in directions)
         {
-            // Ray‚ğ”ò‚Î‚·
+            // Rayã‚’é£›ã°ã™
             if (Physics.Raycast(playerPosition, direction, out RaycastHit hit, rayDistance))
             {
                 for (int i = 0; i < selectedTag.Length; i++)
                 {
-                    // Õ“Ë‚µ‚½ƒIƒuƒWƒFƒNƒg‚ª“Á’è‚Ìƒ^ƒO‚ğ‚Âê‡
+                    // è¡çªã—ãŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãŒç‰¹å®šã®ã‚¿ã‚°ã‚’æŒã¤å ´åˆ
                     if (hit.collider.CompareTag(selectedTag[i]))
                     {
                         float distance = hit.distance;
@@ -136,7 +173,7 @@ public class SoundWall : MonoBehaviour
             }
         }
 
-        // •Ç‚É‹ß‚­‚È‚¯‚ê‚ÎƒŠƒ^[ƒ“
+        // å£ã«è¿‘ããªã‘ã‚Œã°ãƒªã‚¿ãƒ¼ãƒ³
         if (closestDistance > SoundStartDis)
         {
             return;
@@ -146,9 +183,10 @@ public class SoundWall : MonoBehaviour
         Debug.Log($"Closest Distance: {closestDistance}");
         //-----------------------------------------------------------------------------------
 
-        // ƒqƒbƒg‘ÎÛ‚ÌƒIƒuƒWƒFƒNƒg‚Ì’†‚©‚çÅ‚à‹ß‚¢ƒIƒuƒWƒFƒNƒg‚Ìƒ^ƒO‚Å‰¹‚ğ•Ï‚¦‚é
+        // ãƒ’ãƒƒãƒˆå¯¾è±¡ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä¸­ã‹ã‚‰æœ€ã‚‚è¿‘ã„ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ã‚¿ã‚°ã§éŸ³ã‚’å¤‰ãˆã‚‹
         for (int i = 0;i < selectedTag.Length;i++)
         {
+
             if(closestTag == selectedTag[i])
             {
                 audioSource.clip = _hitSound[i];
@@ -156,41 +194,68 @@ public class SoundWall : MonoBehaviour
             }
         }
 
-        // ‰¹Œ¹ƒIƒuƒWƒFƒNƒg‚ÌˆÊ’u‚ğİ’è
+        //æ•µãŒå­˜åœ¨ã—ã¦ã„ã‚Œã°
+        if (enemies != null)
+        {
+            if(closestTag == "Barricade")
+            {
+                TriggerEvent(Probability);
+            }
+        }
+
+        // éŸ³æºã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä½ç½®ã‚’è¨­å®š
         if (SoundSource != null)
         {
-            //•Ç‚ÉƒIƒuƒWƒFƒNƒg‚ğoŒ»‚·‚é—p‚ÉC³
             Vector3 newSoundSourcePosition = playerPosition + closestDirection * (closestDistance / SoundStartDis);
             Debug.Log($"Player Distance: {closestDistance / SoundStartDis}");
             SoundSource.transform.position = newSoundSourcePosition;
         }
 
-        //// ƒvƒŒƒCƒ„[‚Ì³–ÊƒxƒNƒgƒ‹
-        //Vector3 playerForward = playerTransform.forward;
-
-        //// ƒvƒŒƒCƒ„[‚©‚ç‘ÎÛƒIƒuƒWƒFƒNƒg‚Ö‚Ì•ûŒüƒxƒNƒgƒ‹
-        //Vector3 toTarget = (SoundSource.transform.position - playerTransform.position).normalized;
-
-        //// ƒvƒŒƒCƒ„[‚Ì‰E•ûŒüƒxƒNƒgƒ‹
-        //Vector3 playerRight = playerTransform.right;
-
-        //// “àÏ‚ÅƒXƒeƒŒƒIƒpƒ“‚ğŒvZ
-        //float pan = Vector3.Dot(playerRight, toTarget);
-
-        //// ƒXƒeƒŒƒIƒpƒ“‚ğİ’è (-1: ¶, 1: ‰E)
-        //audioSource.panStereo = Mathf.Clamp(pan, -1f, 1f);
-        //Debug.Log($"ƒXƒeƒŒƒIƒpƒ“: {audioSource.panStereo}");
-
-        //‰¹Œ¹‚©‚ç‚Ì‹——£‚Å‰¹—Ê‚ğ•Ï‚¦‚é
-        //float SoundDistance = Vector3.Distance(playerTransform.position, SoundSource.transform.position);
-        //audioSource.volume = Mathf.Clamp(SoundStartDis - SoundDistance / SoundStartDis, SoundMin, SoundMax);
-
         if (!audioSource.isPlaying)
         {
             audioSource.Play();
-            //‰¹‚ÌŠÔŠuŒv‘ª‚Ì’l‚ğƒŠƒZƒbƒg
+            //éŸ³ã®é–“éš”è¨ˆæ¸¬ã®å€¤ã‚’ãƒªã‚»ãƒƒãƒˆ
             SoundIntervalCount = 0.0f;
         }
             
     }
+
+    //æ•µã‚’
+    void TriggerEvent(float probability)
+    {
+        // 0.0ã€œ1.0ã®é–“ã§ä¹±æ•°ã‚’ç”Ÿæˆã—ã€ç¢ºç‡ã«åŸºã¥ã„ã¦ã‚¤ãƒ™ãƒ³ãƒˆã‚’ç™ºç”Ÿ
+        if (Random.value <= probability)
+        {
+            if (DoTP)
+            {
+                for (int i = 0; i < enemyAI_Moves.Length; i++)
+                {
+                    //æ•µã‚’è‡ªåˆ†ã®è¿‘ãã«TPã•ã›ã‚‹
+                    enemyAI_Moves[i].EnemyTpNear(NearNum);
+                    Debug.Log("TP Event triggered!");
+                }
+            }
+            else
+            {
+                for (int i = 0; i < enemyAI_Moves.Length; i++)
+                {
+                    //æ•µã‚’ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã«æ°—ã¥ã‹ã›ã‚‹
+                    enemyAI_Moves[i].SetState(EnemyAI_move.EnemyState.Chase, this.transform);
+                    Debug.Log("Notice Event triggered!");
+                }
+            }
+
+            // ã‚¤ãƒ™ãƒ³ãƒˆå‡¦ç†
+        }
+        else
+        {
+            Debug.Log("Event not triggered.");
+        }
+    }
+
+    public void SetCanMove(bool Set)
+    {
+        CanMove = Set;
+    }
+
 }

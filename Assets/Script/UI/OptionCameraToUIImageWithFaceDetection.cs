@@ -85,7 +85,7 @@ public class OptionCameraToUIImageWithFaceDetection : MonoBehaviour
 
     void Update()
     {
-            if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame())
+            if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame() && face.UseFaceInitDone)
             {
                     Mat rgbaMat = webCamTextureToMatHelper.GetMat();
                     DlibFaceLandmarkDetectorExample.OpenCVForUnityUtils.SetImage(faceLandmarkDetector, rgbaMat);
@@ -96,6 +96,7 @@ public class OptionCameraToUIImageWithFaceDetection : MonoBehaviour
                 })
                 .ObserveOnMainThread() // メインスレッドに戻す
                 .Subscribe(_ => { });
+
                 foreach (var rect in detectResult)
                 {
                     List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect);

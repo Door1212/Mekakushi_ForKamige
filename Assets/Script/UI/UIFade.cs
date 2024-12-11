@@ -72,5 +72,7 @@ public class UIFade : MonoBehaviour
 
         // ÅI“I‚ÉŠ®‘S‚É“§–¾‚É‚·‚é
         canvasGroup.alpha = 0f;
+
+        this.gameObject.SetActive(false);
     }
 }

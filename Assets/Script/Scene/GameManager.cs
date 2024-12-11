@@ -26,8 +26,8 @@ public class GameManager : MonoBehaviour
 
     public int isFindpeopleNum;
 
-    [SerializeField]
-    TextMeshProUGUI PeopleNumTMP;
+    //[SerializeField]
+    //TextMeshProUGUI PeopleNumTMP;
 
     [Tooltip("制限時間で終わるならチェック")]
     public bool isTimeLim = false;
@@ -40,6 +40,8 @@ public class GameManager : MonoBehaviour
     //これがtrueになるとゲームクリア
     public bool isGameClear = false;
 
+    //シーン繊維に入ったことを判定
+    private bool isGameOverClear = false;
     [SerializeField]
     //一括でいろいろ止める為の変数
     private bool StopAll = false;
@@ -56,22 +58,39 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private EnemyAI_move[] EnemyAI_Moves;
 
+    private DoorOpen[] AllDoor;
+
+    private playSound PlaySound;
+
+    private DirectionalSound[] directionalSound; 
+
+    private SoundWall soundWall;
+
     // Start is called before the first frame update
     void Start()
     {
+        isGameOverClear = false;
         isGameOver = false;
         isGameClear = false;
         //テキストの色を変える
-        PeopleNumTMP.color = Color.red;
+        //PeopleNumTMP.color = Color.red;
         playerMove.GetComponent<PlayerMove>();
         CameraMove.GetComponent<CameraMove>();
-
-
+   
         //for(int i = 0; i < EnemyAI_Moves.Length; i++)
         //{
         //    EnemyAI_Moves[i] = new EnemyAI_move();
         //    EnemyAI_Moves[i].GetComponent<EnemyAI_move>();
         //}
+
+        // シーン内のすべてのドアを取得
+        AllDoor = FindObjectsOfType<DoorOpen>();
+
+        PlaySound = FindObjectOfType<playSound>();
+        
+        //子供と鐘の音
+        directionalSound = FindObjectsOfType<DirectionalSound>();
+        soundWall = FindObjectOfType<SoundWall>();
     }
 
     // Update is called once per frame
@@ -130,39 +149,42 @@ public class GameManager : MonoBehaviour
         }
 #endif
 
-        UpdatePeopleText();
-
-        //ゲームオーバーでリザルトに移行するやつ(ほんとにそれだけ)
-        if (isGameOver)
+        //UpdatePeopleText();
+        if (!isGameOverClear)
         {
-            Cursor.lockState = CursorLockMode.None;
-            OptionValue.InStealth = false;
-            OptionValue.DeathScene =SceneManager.GetActiveScene().name;
-            if (SceneChangeManager.Instance != null)
+            //ゲームオーバーでリザルトに移行するやつ(ほんとにそれだけ)
+            if (isGameOver)
             {
-                SceneChangeManager.Instance.LoadSceneAsyncWithFade("GameOver");
-            }
-            else
-            {
-                SceneManager.LoadScene("GameOver");
+                Cursor.lockState = CursorLockMode.None;
+                OptionValue.InStealth = false;
+                OptionValue.DeathScene = SceneManager.GetActiveScene().name;
+                isGameOverClear = true;
+                if (SceneChangeManager.Instance != null)
+                {
+                    SceneChangeManager.Instance.LoadSceneAsyncWithFade("GameOver");
+                }
+                else
+                {
+                    SceneManager.LoadScene("GameOver");
+                }
+
             }
 
+            if (isGameClear)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                isGameOverClear = true;
+                if (SceneChangeManager.Instance != null)
+                {
+                    SceneChangeManager.Instance.LoadSceneAsyncWithFade("Result");
+                }
+                else
+                {
+                    SceneManager.LoadScene("Result");
+                }
+
+            }
         }
-
-        if(isGameClear)
-        {
-            Cursor.lockState = CursorLockMode.None;
-            if (SceneChangeManager.Instance != null)
-            {
-                SceneChangeManager.Instance.LoadSceneAsyncWithFade("Result");
-            }
-            else
-            {
-                SceneManager.LoadScene("Result");
-            }
-
-        }
-
         if (isTimeLim)
         {
             //指定時間経つとゲームクリア
@@ -192,7 +214,7 @@ public class GameManager : MonoBehaviour
     //上記のGet関数を利用したUIのtext更新関数
     void UpdatePeopleText()
     {
-        PeopleNumTMP.SetText(GetPeopleNum().ToString());
+       // PeopleNumTMP.SetText(GetPeopleNum().ToString());
 
     }
 
@@ -207,10 +229,22 @@ public class GameManager : MonoBehaviour
     {
         playerMove.SetCanMove(!StopAll);
         CameraMove.SetCanMove(!StopAll);
+        PlaySound.SetCanMove(!StopAll);
+        soundWall.SetCanMove(!StopAll);
 
         for (int i = 0; i < EnemyAI_Moves.Length; i++)
         {
             EnemyAI_Moves[i].SetCanMove(!StopAll);
+        }
+
+        for(int i = 0; i < AllDoor.Length; i++)
+        {
+            AllDoor[i].SetCanMove(!StopAll);
+        }
+
+        for (int i = 0; i < directionalSound.Length; i++)
+        {
+            directionalSound[i].SetCanMove(!StopAll);
         }
     }
 }

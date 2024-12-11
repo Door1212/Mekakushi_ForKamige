@@ -5,18 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class SoundManager : MonoBehaviour
 {
-    //エネミーオブジェクト
-    private GameObject[] Enemies;
-    private EnemyAI_move[] enemyControllers;
-    private EnemyAI_move.EnemyState[] enemyStateList;
-
     private AudioSource audioSource;
 
     //BGMクリップ
     [Header("通常BGM")]
     public AudioClip MainBGM;
-    [Header("追われている時のBGM")]
-    public AudioClip ChasingBGM;
 
     [Header("フェードイン/アウトの時間")]
     public float fadeDuration = 1.0f;
@@ -32,23 +25,8 @@ public class SoundManager : MonoBehaviour
     private bool PreEyeOpen = false;
 
     void Start()
-    {
-        if("Title1" != SceneManager.GetActiveScene().name)
-        {
-            Enemies = GameObject.FindGameObjectsWithTag("Enemy");
-            enemyControllers = new EnemyAI_move[Enemies.Length];
-            enemyStateList = new EnemyAI_move.EnemyState[Enemies.Length];
-
-            face = GameObject.Find("FaceDetecter").GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
-
-            for (int i = 0; i < Enemies.Length; i++)
-            {
-                enemyControllers[i] = Enemies[i].GetComponent<EnemyAI_move>();
-                enemyStateList[i] = enemyControllers[i].state;
-            }
-        }
-       
-    
+    {       
+   
         audioSource =GetComponent<AudioSource>();
 
         audioSource.clip = MainBGM;

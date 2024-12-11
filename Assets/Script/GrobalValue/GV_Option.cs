@@ -18,7 +18,7 @@ public static class OptionValue
 {
     // どのシーンからでもアクセスできる変数
     //顏を使うかどうか
-    public static bool IsFaceDetecting = true;
+    public static bool IsFaceDetecting = false;
 
     public static string DeathScene = "SchoolMain 1";
 

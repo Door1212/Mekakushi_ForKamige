@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DlibFaceLandmarkDetectorExample;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(AudioSource))]
 public class DirectionalSound : MonoBehaviour
@@ -23,12 +24,17 @@ public class DirectionalSound : MonoBehaviour
     [Header("音を鳴らす間隔")]
     [SerializeField] private float SoundInterval = 5.0f;
 
+    //動けるかどうか
+    [SerializeField]
+    private bool CanMove = true;
+
     //間隔の計測用
     private float SoundIntervalCount = 0.0f;
 
     // Start is called before the first frame update
     void Start()
     {
+        CanMove = true;
         _PlayerObj = GameObject.Find("Player(tentative)");
         if (_PlayerObj == null)
         {
@@ -42,11 +48,23 @@ public class DirectionalSound : MonoBehaviour
         {
             Debug.LogError("AudioSourceが見つかりません。");
         }
+
+        face = FindObjectOfType<FaceDetector>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!CanMove)
+        {
+            return;
+        }
+
+        if(face.getEyeOpen())
+        {
+            return;
+        }
+
         //時間更新
         if (!audioSource.isPlaying) { SoundIntervalCount += Time.deltaTime; }
 
@@ -68,5 +86,10 @@ public class DirectionalSound : MonoBehaviour
             SoundIntervalCount = 0.0f;
         }
     }
+    public void SetCanMove(bool Set)
+    {
+        CanMove = Set;
+    }
+
 }
 

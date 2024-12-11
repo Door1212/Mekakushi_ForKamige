@@ -72,8 +72,14 @@ public class DoorOpen : MonoBehaviour
     // すべてのドアをリストで管理
     private DoorOpen[] allDoors;
 
+    //動けるかどうか
+    [SerializeField]
+    private bool CanMove = true;
+
     [Header("対のドア")]
     [SerializeField] public DoorOpen PairDoor;
+
+    NavMeshObstacle obstacles;
     void Start()
     {
         //初期化
@@ -96,10 +102,15 @@ public class DoorOpen : MonoBehaviour
 
         // シーン内のすべてのドアを取得
         allDoors = FindObjectsOfType<DoorOpen>();
+
+        obstacles = GetComponent<NavMeshObstacle>();
     }
 
     void Update()
     {
+        if(!CanMove)
+        {  return; }
+
         dis = Vector3.Distance(Player.transform.position, this.transform.position/* + DoorPosOffset*/);
 
         for (int i = 0; i < Enemies.Length; i++)
@@ -162,26 +173,31 @@ public class DoorOpen : MonoBehaviour
             IsInSight = false;
         }
 
+        //ここを改良------------------------------------------------------------------
         for (int i = 0; i < Enemies.Length; i++)
         {
 
-            if (!IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance && !PairDoor.IsOpen)
+            if (!IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance && !PairDoor.IsOpen && !PairDoor.IsPlayerClosed)
             {
 
                 PlayOpenDoorAnim();
                 IsOpen = true;
                 enemyAImove[i].IsThisOpeningDoor = false;
-
                 audioSource.Stop();
                 PlaySlumDoorSound();
             }
-            else if (IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance && !PairDoor.IsOpen)
+            else if (IsPlayerClosed && !IsOpen && Enemy_dis[i] <= Enemy_Active_Distance && !PairDoor.IsOpen&& !PairDoor.IsPlayerClosed)
             {
                 PlayTryOpenDoorSound();
-
                 enemyAImove[i].IsThisOpeningDoor = true;
             }
-        }
+
+            if(Enemy_dis[i] <= Enemy_Active_Distance)
+            {
+                SetObstacle(true);
+            }
+        }   
+        //---------------------------------------------------------------------------
     }
 
     public void PlayOpenDoorSound()
@@ -220,6 +236,16 @@ public class DoorOpen : MonoBehaviour
     public void PlayOpenDoorAnim()
     {
         animator.SetBool("OpenDoor", true);
+    }
+
+    public void SetCanMove(bool Set)
+    {
+        CanMove = Set;
+    }
+
+    public void SetObstacle(bool isEnable)
+    {
+        obstacles.carving = isEnable;
     }
 
     //private void OnDrawGizmos()

@@ -127,7 +127,7 @@ public class GakiMitsukeAndOpen : MonoBehaviour
             {
                 UIObject[i].SetActive(true);
             }
-            //Destroy(this); // スクリプトを破棄
+            Destroy(this); // スクリプトを破棄
         }
     }
 

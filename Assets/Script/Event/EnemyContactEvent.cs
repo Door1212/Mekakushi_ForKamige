@@ -16,8 +16,7 @@ public class EnemyContactEvent : MonoBehaviour
     //ガキオブジェクト
     HidingCharacter Gaki;
 
-    //[Header("GameManager.csがアタッチされているオブジェクトの名前")]
-    private string GameMangerName = "GameManager";
+    //ゲームマネージャー
     GameManager gameManager;
 
     // "Enemy"タグを持つすべてのオブジェクトを取得
@@ -44,6 +43,8 @@ public class EnemyContactEvent : MonoBehaviour
     [Header("プレイヤーから何番目に近いポイントにTPさせる")]
     [SerializeField] private int NearNum;
 
+    private DoorOpen[] Alldoor;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -51,7 +52,7 @@ public class EnemyContactEvent : MonoBehaviour
         IsFirstTime = true;
 
         //ゲームマネージャーのゲット
-        gameManager = GameObject.Find(GameMangerName).GetComponent<GameManager>();
+        gameManager = FindObjectOfType<GameManager>().GetComponent<GameManager>();
 
         //プレイヤーオブジェクトのゲット
         playerObj = GameObject.FindWithTag(playerTag);
@@ -85,89 +86,97 @@ public class EnemyContactEvent : MonoBehaviour
 
         }
 
-        // Update is called once per frame
-        void Update()
+        Alldoor = FindObjectsOfType<DoorOpen>();
+    }
+    // Update is called once per frame
+    void Update()
+    {
+        //敵が存在しているか
+        if (enemies == null)
         {
-            //敵が存在しているか
-            if (enemies == null)
+            return;
+        }
+
+        if (door)
+        {
+            //アタッチされているのがドアならで
+            if (door.IsOpen && IsDoorOpenFirstTime && IsFirstTime)
+            {
+                IsDoorOpenFirstTime = false;
+
+                //確率でイベントを起こす
+                TriggerEvent(Probability);
+            }
+            else
+            {
+                //ドア開けてから一度閉めたのを判定
+                if (!door.IsOpen && !IsDoorOpenFirstTime)
+                {
+                    IsDoorOpenFirstTime = true;
+                }
+                return;
+            }
+        }
+
+        if (Gaki)
+        {
+            //ガキが存在しているか
+            if (Gaki.IsCatched && IsFirstTime)
+            {
+                //確率でイベントを起こす
+                TriggerEvent(Probability);
+                //見つかった数をプラス
+                gameManager.isFindpeopleNum++;
+                //自身を破棄
+                Destroy(this.gameObject);
+            }
+            else
             {
                 return;
             }
 
-            if (door)
+            //初回のみでなければ
+            if (IsOnce)
             {
-                //アタッチされているのがドアならで
-                if (door.IsOpen && IsDoorOpenFirstTime && IsFirstTime)
-                {
-                    IsDoorOpenFirstTime = false;
-
-                    //確率でイベントを起こす
-                    TriggerEvent(Probability);
-                }
-                else
-                {
-                    //ドア開けてから一度閉めたのを判定
-                    if (!door.IsOpen && !IsDoorOpenFirstTime)
-                    {
-                        IsDoorOpenFirstTime = true;
-                    }
-                    return;
-                }
-            }
-
-            if (Gaki)
-            {
-                //ガキが存在しているか
-                if (Gaki.IsCatched && IsFirstTime)
-                {
-                    //確率でイベントを起こす
-                    TriggerEvent(Probability);
-                    //見つかった数をプラス
-                    gameManager.isFindpeopleNum++;
-                    //自身を破棄
-                    Destroy(this.gameObject);
-                }
-                else
-                {
-                    return;
-                }
-
-                //初回のみでなければ
-                if (IsOnce)
-                {
-                    IsFirstTime = false;
-                }
-            }
-        }
-
-        void TriggerEvent(float probability)
-        {
-            // 0.0〜1.0の間で乱数を生成し、確率に基づいてイベントを発生
-            if (Random.value <= probability)
-            {
-                if (DoTP)
-                {
-                    for (int i = 0; i < enemyAI_Moves.Length; i++)
-                    {
-                        //敵を自分の近くにTPさせる
-                        enemyAI_Moves[i].EnemyTpNear(NearNum);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < enemyAI_Moves.Length; i++)
-                    {
-                        //敵をプレイヤーに気づかせる
-                        enemyAI_Moves[i].SetState(EnemyAI_move.EnemyState.Chase, playerObj.transform);
-                    }
-                }
-                Debug.Log("Event triggered!");
-                // イベント処理
-            }
-            else
-            {
-                Debug.Log("Event not triggered.");
+                IsFirstTime = false;
             }
         }
     }
+
+    void TriggerEvent(float probability)
+    {
+        // 0.0〜1.0の間で乱数を生成し、確率に基づいてイベントを発生
+        if (Random.value <= probability)
+        {
+            if (DoTP)
+            {
+                for (int i = 0; i < enemyAI_Moves.Length; i++)
+                {
+                    //敵を自分の近くにTPさせる
+                    enemyAI_Moves[i].EnemyTpNear(NearNum);
+                    Debug.Log("TP Event triggered!");
+                }
+            }
+            else
+            {
+                for (int i = 0; i < enemyAI_Moves.Length; i++)
+                {
+                    //敵をプレイヤーに気づかせる
+                    enemyAI_Moves[i].SetState(EnemyAI_move.EnemyState.Chase, playerObj.transform);
+                    for(int j = 0; j < Alldoor.Length; j++)
+                    {
+                        Alldoor[j].SetObstacle(false);
+                    }
+                    Debug.Log("Notice Event triggered!");
+                }
+            }
+
+            // イベント処理
+        }
+        else
+        {
+            Debug.Log("Event not triggered.");
+        }
+    }
+
 }

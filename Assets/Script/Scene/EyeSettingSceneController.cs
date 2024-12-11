@@ -309,6 +309,18 @@ public class EyeSettingSceneController : MonoBehaviour
         //今のレイヤーを非表示
         EyeSettingLayers[(int)EyeSettingIdx].SetActive(false);
 
+        if(EyeSettingIdx == EyeSettingIndex.START_FACE_DETECTION)
+        {
+            //FaceDetectorのゲットコンポーネント
+            face.GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
+
+            // webCamTextureToMatHelperの初期化を追加
+            webCamTextureToMatHelper.Initialize();
+
+            face.SwitchEyeUsing(true);
+
+
+        }
         
         //目の閾値を登録
         if (EyeSettingIdx == EyeSettingIndex.SETTING_EYE_OPTION)
@@ -329,7 +341,6 @@ public class EyeSettingSceneController : MonoBehaviour
         }
         else 
         {
-
             audiosouce.PlayOneShot(OnClicked);
             EnterTitleScene();
         }

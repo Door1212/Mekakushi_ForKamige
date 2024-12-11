@@ -58,6 +58,9 @@ namespace DlibFaceLandmarkDetectorExample
         private float TotalKeptClosingTime = 0.0f; // 合計で目を閉じ続けた時間
         public bool IsStartAutoSetting = false; // 自動設定が開始されたかどうか
 
+        //顔認識機能の切り替えが完了したか
+        public bool UseFaceInitDone = false;
+
         [Header("顔認識デバッグオブジェクト")]
         public GameObject FaceDebugObj;
 
@@ -70,6 +73,8 @@ namespace DlibFaceLandmarkDetectorExample
 
         void Start()
         {
+
+            UseFaceInitDone = false;
 #if UNITY_EDITOR
             string dlibShapePredictorFileName = "DlibFaceLandmarkDetector/sp_human_face_68.dat"; // エディタ環境用のファイル名
 #else
@@ -83,9 +88,27 @@ namespace DlibFaceLandmarkDetectorExample
 #endif
             if (!OptionValue.IsFaceDetecting)
             {
-                GetComponent<WebCamTextureToMatHelper>().enabled = false;
-                GetComponent<CameraToUIImageWithFaceDetection>().enabled = false;
-                GetComponent<FpsMonitor>().enabled = false;
+                if(GetComponent<WebCamTextureToMatHelper>())
+                {
+                    GetComponent<WebCamTextureToMatHelper>().enabled = false;
+                }
+
+                if (GetComponent<CameraToUIImageWithFaceDetection>())
+                {
+                    GetComponent<CameraToUIImageWithFaceDetection>().enabled = false;
+                }
+
+                if (GetComponent<FpsMonitor>())
+                {
+                    GetComponent<FpsMonitor>().enabled = false;
+                }
+
+                if (GetComponent<OptionCameraToUIImageWithFaceDetection>())
+                {
+                    GetComponent<OptionCameraToUIImageWithFaceDetection>().enabled = false;
+                }
+
+
 
                 return;
             }
@@ -100,9 +123,6 @@ namespace DlibFaceLandmarkDetectorExample
                 for (int i = 0; i < EyeFrameInterval; i++) { EyeData[i] = false; }
                 for (int i = 0; i < EyeSettingDataNum; i++) { REyeSettingData[i] = 0.0f; LEyeSettingData[i] = 0.0f; }
                 EyeDataCurPos = 0;
-
-                // シーンに応じて処理を変更
-                if (SceneManager.GetActiveScene().name == "EyeSettingScene" && !IsDoneSetting) { }
 
                 // Dlibの形状予測ファイルのパスを取得
                 dlibShapePredictorFilePath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath(dlibShapePredictorFileName);
@@ -125,6 +145,10 @@ namespace DlibFaceLandmarkDetectorExample
             Observable.Start(() =>
             {
                 faceLandmarkDetector = new FaceLandmarkDetector(dlibShapePredictorFilePath);
+                if (faceLandmarkDetector == null)
+                {
+                    Debug.LogError(faceLandmarkDetector.ToString());
+                }
             })
             .ObserveOnMainThread() // メインスレッドに戻す
             .Subscribe(x =>
@@ -133,6 +157,9 @@ namespace DlibFaceLandmarkDetectorExample
 
                 // Webカメラの初期化
                 Observable.NextFrame().Subscribe(_ => webCamTextureToMatHelper.Initialize());
+
+                UseFaceInitDone = true;
+
             });
         }
 
@@ -198,7 +225,7 @@ namespace DlibFaceLandmarkDetectorExample
         {
             if(OptionValue.IsFaceDetecting)
             {
-                if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame())
+                if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame() && UseFaceInitDone)
                 {
                     // カメラ映像を取得
                     Mat rgbaMat = webCamTextureToMatHelper.GetMat();
@@ -481,6 +508,80 @@ namespace DlibFaceLandmarkDetectorExample
         public List<Vector2> GetLandmarkPoints()
         {
             return currentLandmarkPoints;
+        }
+
+        /// <summary>
+        /// 顔認識機能を使うかを切り替える
+        /// </summary>
+        public void SwitchEyeUsing(bool IsUseEye)
+        {
+            if (IsUseEye)
+            {
+
+                if (GetComponent<WebCamTextureToMatHelper>())
+                {
+                    GetComponent<WebCamTextureToMatHelper>().enabled = true;
+                }
+
+                if (GetComponent<CameraToUIImageWithFaceDetection>())
+                {
+                    GetComponent<CameraToUIImageWithFaceDetection>().enabled = true;
+                }
+
+                if (GetComponent<FpsMonitor>())
+                {
+                    GetComponent<FpsMonitor>().enabled = true;
+                }
+
+                if (GetComponent<OptionCameraToUIImageWithFaceDetection>())
+                {
+                    GetComponent<OptionCameraToUIImageWithFaceDetection>().enabled = true;
+                }
+                webCamTextureToMatHelper = GetComponent<WebCamTextureToMatHelper>();
+                if (webCamTextureToMatHelper == null) Debug.LogError("WebCamTextureToMatHelper component not found!");
+
+
+                dlibShapePredictorFileName = DlibFaceLandmarkDetectorExample.dlibShapePredictorFileName; // ファイル名の初期化
+
+                if (string.IsNullOrEmpty(dlibShapePredictorFileName))
+                    Debug.LogError("Shape predictor file path is invalid!");
+
+                // 目の開閉データと設定データを初期化
+                for (int i = 0; i < EyeFrameInterval; i++) { EyeData[i] = false; }
+                for (int i = 0; i < EyeSettingDataNum; i++) { REyeSettingData[i] = 0.0f; LEyeSettingData[i] = 0.0f; }
+                EyeDataCurPos = 0;
+
+                // Dlibの形状予測ファイルのパスを取得
+                dlibShapePredictorFilePath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath(dlibShapePredictorFileName);
+
+                // 初期化処理を次のフレームで実行
+                Observable.NextFrame().Subscribe(_ => Run());
+            }
+            else
+            {
+                if (GetComponent<WebCamTextureToMatHelper>())
+                {
+                    GetComponent<WebCamTextureToMatHelper>().enabled = false;
+                }
+
+                if (GetComponent<CameraToUIImageWithFaceDetection>())
+                {
+                    GetComponent<CameraToUIImageWithFaceDetection>().enabled = false;
+                }
+
+                if (GetComponent<FpsMonitor>())
+                {
+                    GetComponent<FpsMonitor>().enabled = false;
+                }
+
+                if (GetComponent<OptionCameraToUIImageWithFaceDetection>())
+                {
+                    GetComponent<OptionCameraToUIImageWithFaceDetection>().enabled = false;
+                }
+            }
+
+            OptionValue.IsFaceDetecting = IsUseEye;
+
         }
     }
 }

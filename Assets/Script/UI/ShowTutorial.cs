@@ -25,8 +25,6 @@ public class ShowTutorial : MonoBehaviour
     {
         uifade = TutorialUI.GetComponent<UIFade>();
         Trigger.GetComponent<BoxCollider>();
-        //アルファ値を0に
-        uifade.SetAlphaZero();
 
         if(IsStart)
         {
@@ -37,12 +35,11 @@ public class ShowTutorial : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player")&& TutorialUI.activeInHierarchy)
         {
             uifade.StartFadeIn();
         }
@@ -51,7 +48,7 @@ public class ShowTutorial : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && TutorialUI.activeInHierarchy)
         {
             uifade.StartFadeOut();
         }

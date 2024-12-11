@@ -22,18 +22,11 @@ public class TitleController : MonoBehaviour
     public Sprite[] TutorialImages;
 
     [SerializeField]
-    [Header("目のオプションメニュー")]
-    private GameObject EyeOptionMenu;
-    [SerializeField]
-    [Header("目の閾値設定スライドバー")]
-    private Slider EyeThresholdBar;
+    [Header("オプションメニュー")]
+    private GameObject OptionMenu;
     [SerializeField]
     [Header("目の閾値のデフォルト")]
     private float EyeThresholdDefaultValue;
-
-    [SerializeField]
-    [Header("目の閾値を表示")]
-    private TextMeshProUGUI EyeValueTMP;
 
     //シーン変更マネージャー
     private SceneChangeManager sceneChangeManager;
@@ -92,10 +85,9 @@ public class TitleController : MonoBehaviour
         TutorialPanel.SetActive(false);
         TutorialImage.GetComponent<Image>();
 
-        EyeOptionMenu.SetActive(false);
+        OptionMenu.SetActive(false);
         audiosouce = GetComponent<AudioSource>();
-        EyeThresholdBar.GetComponent<Slider>();
-        SetHolidingEyeValue();
+        //SetHolidingEyeValue();
         //ピッチを初期値に
         audiosouce.pitch = 1.0f;
         CountFrame = 0;
@@ -106,69 +98,35 @@ public class TitleController : MonoBehaviour
 
         //EyeControllerのゲット
         _EyeFadeController = this.GetComponent<EyeFadeController>();
+        //マウスカーソルを出す
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        //6/17ゲームスタートをボタンに変更
-        //ゲームやめますか画面が開かれていない場合
-        //if (!confirmationPanel.activeSelf)
+        //マウスカーソルを出す
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        //if (TutorialPanel.active == false)
         //{
-        //    if (!face.isEyeOpen)
+        //    if (Input.GetKeyUp(KeyCode.Escape) && !OptionMenu.activeInHierarchy)
         //    {
-        //        if (CountFrame == 20)
+        //        if (confirmationPanel.activeSelf == true)
         //        {
-        //            audiosouce.PlayOneShot(GoGameScene);
-        //        }
-
-        //        if (CountFrame >= 20)
-        //        {
-        //            CountFrame = 0;
+        //            Unconfirmation();
         //        }
         //        else
         //        {
-        //            CountFrame++;
+        //            confirmation();
         //        }
-        //    }
-        //    else
-        //    {
-        //        CountFrame = 0;
-        //    }
 
-        //    if (face.GetKeptEyeClosingTime() >= 5.0f)
-        //    {
-        //        //シーン遷移
-        //        ChangeScene();
         //    }
         //}
 
-
-        //目のオプション画面が開いている間だけアップデート
-        if (EyeOptionMenu.active == true)
-        {
-            UpdateEyeValue();
-        }
-
-
-        if (TutorialPanel.active == false)
-        {
-            if (Input.GetKeyUp(KeyCode.Escape) && !EyeOptionMenu.active)
-            {
-                if (confirmationPanel.activeSelf == true)
-                {
-                    Unconfirmation();
-                }
-                else
-                {
-                    confirmation();
-                }
-
-            }
-        }
-
-        if(IsChangeScene)
+        if (IsChangeScene)
         {
             IsChangeScene = false;
             SceneChangeManager.Instance.LoadSceneAsyncWithFade("SchoolMain 1");
@@ -272,7 +230,11 @@ public class TitleController : MonoBehaviour
         audiosouce.PlayOneShot(OnClicked);
     }
 
-    
+    public void OpenOption()
+    {
+        PlayClickedSound();
+        OptionMenu.SetActive(true);
+    }
 
     //ゲームをやめる処理
     public void QuitGame()
@@ -285,44 +247,44 @@ public class TitleController : MonoBehaviour
 #endif
     }
 
-    //目のオプションを開く処理
-    public void OpenEyeOption()
-    {
-        EyeOptionMenu.SetActive(true);
-        PlayClickedSound();
+    ////目のオプションを開く処理
+    //public void OpenEyeOption()
+    //{
+    //    EyeOptionMenu.SetActive(true);
+    //    PlayClickedSound();
         
-        Time.timeScale = 0.0f;
-        //マウスカーソルを出す
-        Cursor.visible = true;
-    }
+    //    Time.timeScale = 0.0f;
+    //    //マウスカーソルを出す
+    //    Cursor.visible = true;
+    //}
 
-    //目のオプションを終了と設定した値を代入
-    public void CloseEyeOption()
-    {
-        PlayClickedSound();
-        EyeOptionMenu.SetActive(false);
-        Time.timeScale = 1.0f;
-        EyeClosingLevel.REyeClosingLevelValue = EyeThresholdBar.value;
-        EyeClosingLevel.LEyeClosingLevelValue = EyeThresholdBar.value;
-        //マウスカーソルを出す
-        Cursor.visible = true;
-    }
+    ////目のオプションを終了と設定した値を代入
+    //public void CloseEyeOption()
+    //{
+    //    PlayClickedSound();
+    //    EyeOptionMenu.SetActive(false);
+    //    Time.timeScale = 1.0f;
+    //    EyeClosingLevel.REyeClosingLevelValue = EyeThresholdBar.value;
+    //    EyeClosingLevel.LEyeClosingLevelValue = EyeThresholdBar.value;
+    //    //マウスカーソルを出す
+    //    Cursor.visible = true;
+    //}
 
-    //デフォルトの値を適用する関数
-    public void SetDefaultEyeValue()
-    {
-        EyeThresholdBar.value = EyeThresholdDefaultValue;
-    }
+    ////デフォルトの値を適用する関数
+    //public void SetDefaultEyeValue()
+    //{
+    //    EyeThresholdBar.value = EyeThresholdDefaultValue;
+    //}
 
-    public void SetHolidingEyeValue()
-    {
-        EyeThresholdBar.value = EyeClosingLevel.REyeClosingLevelValue;
-        EyeThresholdBar.value = EyeClosingLevel.LEyeClosingLevelValue;
-    }
+    //public void SetHolidingEyeValue()
+    //{
+    //    EyeThresholdBar.value = EyeClosingLevel.REyeClosingLevelValue;
+    //    EyeThresholdBar.value = EyeClosingLevel.LEyeClosingLevelValue;
+    //   }
     //Update中で目の値をEyeOptionのTMPに反映する変数
     private void UpdateEyeValue()
     {
-        EyeValueTMP.SetText("現在の右目の値は" + face.REyeValue.ToString("N2") + "で、" + "\n現在の左目の値は" + face.LEyeValue.ToString("N2") + "で、" + "\n右の値を超えると目が開いている判定になります:" + EyeThresholdBar.value.ToString("N2"));
+       // EyeValueTMP.SetText("現在の右目の値は" + face.REyeValue.ToString("N2") + "で、" + "\n現在の左目の値は" + face.LEyeValue.ToString("N2") + "で、" + "\n右の値を超えると目が開いている判定になります:" + EyeThresholdBar.value.ToString("N2"));
     }
 
     //チェンジシーン状態に入っているかのじぇんち

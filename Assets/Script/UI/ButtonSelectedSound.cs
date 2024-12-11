@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(EventTrigger))]
+[RequireComponent(typeof(AudioSource))]
 
 public class ButtonSelectedSound : MonoBehaviour
 {
