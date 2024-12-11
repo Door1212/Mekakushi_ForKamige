@@ -77,7 +77,7 @@ public class TextTalk : MonoBehaviour
         for (int i = currentText.Length; i >= 0; i--)
         {
             textMeshPro.text = currentText.Substring(0, i); // 先頭からi文字目までを設定
-            yield return new WaitForSeconds(TypingTime/4); // 指定した間隔を待つ
+            yield return new WaitForSeconds(TypingTime / fullText.Length); // 指定した間隔を待つ
         }
 
         typingCoroutine = null; // コルーチンが終了したことを示す
@@ -93,7 +93,7 @@ public class TextTalk : MonoBehaviour
         for (int i = 0; i <= fullText.Length; i++)
         {
             textMeshPro.text = fullText.Substring(0, i); // 先頭からi文字目までを設定
-            yield return new WaitForSeconds(TypingTime); // 指定した間隔を待つ
+            yield return new WaitForSeconds(TypingTime / fullText.Length); // 指定した間隔を待つ
         }
 
         //リセット時間待ってから
@@ -104,7 +104,7 @@ public class TextTalk : MonoBehaviour
     }
 
     // テキストを外部から設定する
-    public void SetText(string newText,float TimeForReset,float TypingTime = 0.1f)
+    public void SetText(string newText,float TimeForReset,float TypingTime =1)
     {
         fullText = newText;
 

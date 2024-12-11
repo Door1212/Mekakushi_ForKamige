@@ -66,7 +66,7 @@ public class FirstHorrorEvent: MonoBehaviour
         Distance = Vector3.Distance(_PlayerObj.transform.position,this.transform.position);
 
         //近づくとイベント発動
-        if(Distance < TriggerDistance && !IsFirst)
+        if(Distance < TriggerDistance)
         {
             StartEvent();
         }
@@ -84,20 +84,25 @@ public class FirstHorrorEvent: MonoBehaviour
         {
             StopCoroutine(EventCoroutine); // 既存のコルーチンを停止
         }
+
         EventCoroutine = StartCoroutine(DoEvent());
     }
 
     private IEnumerator DoEvent()
     {
+        Debug.Log("Event started.");
 
 
-        // 敵を消す
-        EnemySkin.SetActive(false);
+
+        if(!_AudioSource.isPlaying)
+        _AudioSource.PlayOneShot(HorrorSound);
 
         // VHSエフェクトを有効化
         try
         {
+            Debug.Log("Enabling VHS effect.");
             EnableVHSEffect(true);
+            Debug.Log("VHS effect enabled.");
         }
         catch (Exception ex)
         {
@@ -106,12 +111,20 @@ public class FirstHorrorEvent: MonoBehaviour
         }
 
         // 待機
-        //yield return new WaitForSeconds();
+        Debug.Log("Waiting for 0.3 seconds.");
+        yield return new WaitForSecondsRealtime(0.3f); // Realtimeで待機
+
+        // 敵を消す
+        EnemySkin.SetActive(false);
+
+        _AudioSource.Stop();
 
         // VHSエフェクトを無効化
         try
         {
+            Debug.Log("Disabling VHS effect.");
             EnableVHSEffect(false);
+            Debug.Log("VHS effect disabled.");
         }
         catch (Exception ex)
         {
@@ -120,9 +133,11 @@ public class FirstHorrorEvent: MonoBehaviour
 
         // コルーチンの終了
         EventCoroutine = null;
-
         IsFirst = true;
+
+        Debug.Log("Event completed.");
     }
+
 
     public void EnableVHSEffect(bool enable)
     {

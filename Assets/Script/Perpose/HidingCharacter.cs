@@ -26,7 +26,7 @@ public class HidingCharacter : MonoBehaviour
     [Header("リセットまでの時間")]
     public float TimeForReset;
 
-    [Header("一文字ごとの表示間隔")]
+    [Header("表示しきるまでの時間")]
     [SerializeField] private float TypingSpeed;
 
     [Header("見つかったときに敵を呼び出すか?")]
