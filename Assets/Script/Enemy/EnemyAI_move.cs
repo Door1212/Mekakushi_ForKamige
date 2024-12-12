@@ -36,6 +36,9 @@ public class EnemyAI_move : MonoBehaviour
     public GameObject TPPointParent;
     private Transform[] TPPoint;
 
+    [Header("目を閉じた後に消えるか")]
+    [SerializeField] public bool IsCloseAndGone = false;
+
     [Header("ジャンプスケアモーション格納用 1つめ:KeepLook、2つめ:Blind、3つめFootSteps")]
     public PlayableDirector[] JumpScareTimeLines;
 
@@ -437,10 +440,11 @@ public class EnemyAI_move : MonoBehaviour
         //    eSearch.SetUnrecognized(false);
         //}
 
-        if (!playerMove.IsStop)
+        if (playerMove.IsStop)
         {
+
             //追跡をやめる時間を計測
-            if (isChased && state == EnemyState.Idle && !face.getEyeOpen())
+            if (isChased && !face.getEyeOpen())
             {
                 DisapperTime += Time.deltaTime;
             }
@@ -452,13 +456,22 @@ public class EnemyAI_move : MonoBehaviour
             //LimitDisappearTime（目を閉じ続けている時間）を超えると追跡をやめさせる
             if (DisapperTime >= LimitDisappearTime)
             {
-                isChased = false;
-                if (!audioByeBye.isPlaying)
+                Debug.LogError("IsCloseAndGone"+IsCloseAndGone);
+                if(IsCloseAndGone)
                 {
-                    //敵が去る音(11/5に削除)
-                    //audioByeBye.Play();
+                    this.gameObject.SetActive(false);
                 }
-                ResetEnemy();
+                else
+                {
+                    isChased = false;
+                    if (!audioByeBye.isPlaying)
+                    {
+                        //敵が去る音(11/5に削除)
+                        //audioByeBye.Play();
+                    }
+                    ResetEnemy();
+                }
+
             }
         }
 

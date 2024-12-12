@@ -169,6 +169,11 @@ public class OptionController : MonoBehaviour
 #endif
     }
 
+    public void BackToTitle()
+    {
+        SceneChangeManager.Instance.LoadSceneAsyncWithFade("Title1");
+    }
+
     public void OpenEyeOption()
     {
         SetOptionState(OPTION_STATE.EYE_OPTION);

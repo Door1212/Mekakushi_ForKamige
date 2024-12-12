@@ -248,6 +248,17 @@ public class DoorOpen : MonoBehaviour
         obstacles.carving = isEnable;
     }
 
+    public void ForceCloseDoor()
+    {
+        if (!IsOpen)
+        {
+            PlayOpenDoorSound();
+            PlayOpenDoorAnim();
+            IsOpen = true;
+
+        }
+    }
+
     //private void OnDrawGizmos()
     //{
     //    // 検索エリア全体を緑色で描画

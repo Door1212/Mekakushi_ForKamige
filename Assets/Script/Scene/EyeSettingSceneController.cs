@@ -317,7 +317,10 @@ public class EyeSettingSceneController : MonoBehaviour
             // webCamTextureToMatHelper‚Ì‰Šú‰»‚ğ’Ç‰Á
             webCamTextureToMatHelper.Initialize();
 
-            face.SwitchEyeUsing(true);
+            if(!OptionValue.IsFaceDetecting)
+            {
+                face.SwitchEyeUsing(true);
+            }
 
 
         }

@@ -1,3 +1,4 @@
+using DlibFaceLandmarkDetectorExample;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,8 +26,9 @@ public class SoundManager : MonoBehaviour
     private bool PreEyeOpen = false;
 
     void Start()
-    {       
-   
+    {
+        face = FindObjectOfType<FaceDetector>();
+
         audioSource =GetComponent<AudioSource>();
 
         audioSource.clip = MainBGM;

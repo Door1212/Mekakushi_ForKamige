@@ -74,11 +74,14 @@ public class HidingCharacter : MonoBehaviour
     }
     void Update()
     {
-        if (textTalk.EraseDone && IsStartTalk)
+        if (IsTalkKids)
         {
-            textTalk.EraseDone = false;
-            gameManager.isFindpeopleNum++;
-            Destroy(this.gameObject);
+            if (textTalk.EraseDone && IsStartTalk)
+            {
+                textTalk.EraseDone = false;
+                gameManager.isFindpeopleNum++;
+                Destroy(this.gameObject);
+            }
         }
 
         if (Discover1.instance.FoundObj == this.gameObject)
@@ -91,6 +94,9 @@ public class HidingCharacter : MonoBehaviour
             //        RealEnemies[i].SetActive(true);
             //    }
             //}
+
+            //É^ÉOÇÇ»Ç≠ÇµÇƒDiscoverÇ™îΩâûÇµÇ»Ç¢ÇÊÇ§Ç…
+            this.gameObject.tag = "Untagged";
 
             //è¡Ç¶ï˚ÇçlÇ¶
             if (!IsTalkKids)
@@ -107,15 +113,12 @@ public class HidingCharacter : MonoBehaviour
             }
             else
             {
-                if(!IsStartTalk)
+                if (!IsStartTalk)
                 {
-                    IsStartTalk=true;
+                    IsStartTalk = true;
                     textTalk.EraseDone = false;
                     DoTalk();
                 }
-
-
-
             }
         }
     }

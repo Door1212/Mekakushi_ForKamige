@@ -66,7 +66,7 @@ public class FirstHorrorEvent: MonoBehaviour
         Distance = Vector3.Distance(_PlayerObj.transform.position,this.transform.position);
 
         //近づくとイベント発動
-        if(Distance < TriggerDistance)
+        if(Distance < TriggerDistance && !IsFirst)
         {
             StartEvent();
         }
@@ -80,10 +80,10 @@ public class FirstHorrorEvent: MonoBehaviour
 
     private void StartEvent()
     {
-        if (EventCoroutine != null)
-        {
-            StopCoroutine(EventCoroutine); // 既存のコルーチンを停止
-        }
+        //if (EventCoroutine != null)
+        //{
+        //    StopCoroutine(EventCoroutine); // 既存のコルーチンを停止
+        //}
 
         EventCoroutine = StartCoroutine(DoEvent());
     }

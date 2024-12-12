@@ -34,6 +34,9 @@ namespace DlibFaceLandmarkDetectorExample
 
         private bool isEyeOpen = false; // 目が開いているかどうか
         bool PreisEyeOpen = false; // 前のフレームで目が開いていたかどうか
+
+        public bool isKeyEyeClose;//キーを使って目を閉じたか
+
         private float KeptClosingTime = 0.0f; // 目を閉じ続けた時間
         private float KeptOpeningTime = 0.0f; // 目を開け続けた時間
 
@@ -73,7 +76,7 @@ namespace DlibFaceLandmarkDetectorExample
 
         void Start()
         {
-
+            isKeyEyeClose = false;
             UseFaceInitDone = false;
 #if UNITY_EDITOR
             string dlibShapePredictorFileName = "DlibFaceLandmarkDetector/sp_human_face_68.dat"; // エディタ環境用のファイル名
@@ -224,7 +227,22 @@ namespace DlibFaceLandmarkDetectorExample
         void Update()
         {
             if(OptionValue.IsFaceDetecting)
-            {
+            {                //キーで目を閉じる
+
+
+                if (Input.GetKeyDown(KeyCode.Q))
+                {
+                    if (isEyeOpen)
+                    {
+                        isKeyEyeClose = true;
+                    }
+                    else
+                    {
+                        isKeyEyeClose = false;
+
+                    }
+                }
+
                 if (webCamTextureToMatHelper.IsPlaying() && webCamTextureToMatHelper.DidUpdateThisFrame() && UseFaceInitDone)
                 {
                     // カメラ映像を取得
@@ -239,39 +257,24 @@ namespace DlibFaceLandmarkDetectorExample
                         foreach (var rect in detectResult)
                         {
                             List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect); // ランドマークポイントを検出
-                            isEyeOpen = UpdateEyeState(points); // 目の状態を更新
+
+                            if (isKeyEyeClose)
+                            {
+                                isEyeOpen = false;
+                            }
+                            else
+                            {
+                                isEyeOpen = UpdateEyeState(points); // 目の状態を更新
+                            }
+
                             currentLandmarkPoints = points; // ランドマークポイントを保存
                         }
                     })
                     .ObserveOnMainThread() // メインスレッドに戻す
                     .Subscribe(_ => { });
-
-                    // 目の開閉時間を管理
-                    if (isEyeOpen == true && PreisEyeOpen == true)
-                    {
-                        KeptOpeningTime += Time.deltaTime;
-                    }
-                    else
-                    {
-                        KeptOpeningTime = 0.0f;
-                    }
-
-                    if (isEyeOpen == false && PreisEyeOpen == false)
-                    {
-                        KeptClosingTime += Time.deltaTime;
-                    }
-                    else
-                    {
-                        KeptClosingTime = 0.0f;
-                    }
-
-                    if (isEyeOpen)
-                    {
-                        TotalKeptClosingTime += Time.deltaTime;
-                    }
-
-                    PreisEyeOpen = isEyeOpen;
                 }
+
+                PreisEyeOpen = isEyeOpen;
             }
             else
             {

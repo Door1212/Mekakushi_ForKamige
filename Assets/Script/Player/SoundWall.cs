@@ -59,8 +59,14 @@ public class SoundWall : MonoBehaviour
 
     //敵関連
     // "Enemy"タグを持つすべてのオブジェクトを取得
-    public GameObject[] enemies;
-    public EnemyAI_move[] enemyAI_Moves;
+    //public GameObject[] enemies;
+    //public EnemyAI_move[] enemyAI_Moves;
+
+    public GameObject enemies;
+    public EnemyAI_move enemyAI_Moves;
+
+    [Header("敵を使うか")]
+    [SerializeField] private bool UseEnemy;
 
     [Header("敵をTPさせるか強制に気づき状態にさせるか")]
     [SerializeField] private bool DoTP;
@@ -107,16 +113,11 @@ public class SoundWall : MonoBehaviour
             Debug.LogError("AudioSourceが見つかりません。");
         }
 
-        //エネミータグを持つすべてのゲームオブジェクトを取得
-        enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        //エネミーを初期化
+        enemies = null;
 
         // 配列の初期化
-        enemyAI_Moves = new EnemyAI_move[enemies.Length];
-
-        for (int i = 0; i < enemies.Length; i++)
-        {
-            enemyAI_Moves[i] = enemies[i].GetComponent<EnemyAI_move>();
-        }
+        enemyAI_Moves = null;
 
     }
 
@@ -195,7 +196,7 @@ public class SoundWall : MonoBehaviour
         }
 
         //敵が存在していれば
-        if (enemies != null)
+        if (enemyAI_Moves != null)
         {
             if(closestTag == "Barricade")
             {
@@ -223,39 +224,52 @@ public class SoundWall : MonoBehaviour
     //敵を
     void TriggerEvent(float probability)
     {
-        // 0.0〜1.0の間で乱数を生成し、確率に基づいてイベントを発生
-        if (Random.value <= probability)
-        {
-            if (DoTP)
+             // 0.0〜1.0の間で乱数を生成し、確率に基づいてイベントを発生
+            if (Random.value <= probability)
             {
-                for (int i = 0; i < enemyAI_Moves.Length; i++)
+                if (DoTP)
                 {
                     //敵を自分の近くにTPさせる
-                    enemyAI_Moves[i].EnemyTpNear(NearNum);
+                    enemyAI_Moves.EnemyTpNear(NearNum);
                     Debug.Log("TP Event triggered!");
                 }
+                else
+                {
+                    //敵をプレイヤーに気づかせる
+                    enemyAI_Moves.SetState(EnemyAI_move.EnemyState.Chase, this.transform);
+                    Debug.Log("Notice Event triggered!");
+                }
+
+                // イベント処理
             }
             else
             {
-                for (int i = 0; i < enemyAI_Moves.Length; i++)
-                {
-                    //敵をプレイヤーに気づかせる
-                    enemyAI_Moves[i].SetState(EnemyAI_move.EnemyState.Chase, this.transform);
-                    Debug.Log("Notice Event triggered!");
-                }
+                Debug.Log("Event not triggered.");
             }
+        
 
-            // イベント処理
-        }
-        else
-        {
-            Debug.Log("Event not triggered.");
-        }
     }
 
     public void SetCanMove(bool Set)
     {
         CanMove = Set;
+    }
+
+    public void SetEnemy(EnemyAI_move enemy =null)
+    {
+        if(enemy != null)
+        {
+            enemyAI_Moves = enemy;
+            Probability = 1.0f;
+            UseEnemy = true;
+        }
+        else
+        {
+            enemyAI_Moves = null;
+            Probability = 0.0f;
+            UseEnemy = false;
+        }
+
     }
 
 }
