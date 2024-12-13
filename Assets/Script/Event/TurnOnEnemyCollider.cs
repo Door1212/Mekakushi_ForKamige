@@ -11,6 +11,9 @@ public class TurnOnEnemyCollider : MonoBehaviour
     //子供オブジェクト
     private HidingCharacter Kids;
 
+    [Header("ロックするドア")]
+    [SerializeField]public DoorOpen[] doors;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,6 +30,13 @@ public class TurnOnEnemyCollider : MonoBehaviour
         {
             Kids = (HidingCharacter)GetComponent<HidingCharacter>();
         }
+
+        for (int i = 0; i < doors.Length; i++)
+        {
+            doors[i].Doorlock = true;
+        }
+
+
     }
 
     // Update is called once per frame
@@ -36,9 +46,16 @@ public class TurnOnEnemyCollider : MonoBehaviour
         {
             if(Kids.IsStartTalk)
             {
+                for (int i = 0; i < doors.Length; i++)
+                {
+                    doors[i].Doorlock = false;
+                }
+
                 ToTurnOn.SetActive(true);
                 this.enabled = false;
             }
+
+
         }
     }
 }

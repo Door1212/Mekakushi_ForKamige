@@ -38,13 +38,6 @@ public class HidingCharacter : MonoBehaviour
     //˜bŽn‚ß‚½‚©
     public bool IsStartTalk = false;
 
-    //[Header("“®‚©‚È‚¢“G")]
-    //[SerializeField]
-    //private GameObject[] FakeEnemies;
-
-    //[Header("“®‚©‚È‚¢“G")]
-    //[SerializeField]
-    //private GameObject[] RealEnemies;
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
@@ -62,15 +55,6 @@ public class HidingCharacter : MonoBehaviour
             IsEnemyContactAttach = true;
         }
 
-
-        //if (FakeEnemies != null && RealEnemies != null)
-        //{
-        //    for (int i = 0; i < FakeEnemies.Length; i++)
-        //    {
-        //        FakeEnemies[i].SetActive(true);
-        //        RealEnemies[i].SetActive(false);
-        //    }
-        //}
     }
     void Update()
     {
@@ -78,6 +62,7 @@ public class HidingCharacter : MonoBehaviour
         {
             if (textTalk.EraseDone && IsStartTalk)
             {
+                gameManager.SetStopAll(false);
                 textTalk.EraseDone = false;
                 gameManager.isFindpeopleNum++;
                 Destroy(this.gameObject);
@@ -86,15 +71,6 @@ public class HidingCharacter : MonoBehaviour
 
         if (Discover1.instance.FoundObj == this.gameObject)
         {
-            //if (FakeEnemies != null && RealEnemies != null)
-            //{
-            //    for (int i = 0; i < FakeEnemies.Length; i++)
-            //    {
-            //        FakeEnemies[i].SetActive(false);
-            //        RealEnemies[i].SetActive(true);
-            //    }
-            //}
-
             //ƒ^ƒO‚ð‚È‚­‚µ‚ÄDiscover‚ª”½‰ž‚µ‚È‚¢‚æ‚¤‚É
             this.gameObject.tag = "Untagged";
 
@@ -115,6 +91,7 @@ public class HidingCharacter : MonoBehaviour
             {
                 if (!IsStartTalk)
                 {
+                    gameManager.SetStopAll(true);
                     IsStartTalk = true;
                     textTalk.EraseDone = false;
                     DoTalk();

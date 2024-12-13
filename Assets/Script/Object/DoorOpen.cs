@@ -22,6 +22,7 @@ public class DoorOpen : MonoBehaviour
     [SerializeField]public bool IsInSight;
     bool IsPlayerClosed = false;
     bool IsEnableDoor = false;
+    public bool Doorlock = false;
 
     [Header("プレイヤーオブジェクトの名前")]
     public string target_name = "Player(tentative)";
@@ -56,6 +57,9 @@ public class DoorOpen : MonoBehaviour
     [Header("ドアを無理やり開けた音")]
     [SerializeField]
     private AudioClip AC_SlumDoor;
+    [Header("ドアが開かない音")]
+    [SerializeField]
+    private AudioClip AC_LockDoor;
     [Header("敵オブジェクト")]
     [SerializeField]
     private GameObject[] Enemies;
@@ -64,6 +68,17 @@ public class DoorOpen : MonoBehaviour
 
     //視線選択用Discover
     private Discover1 discover;
+    //話す用のコンポーネント
+    TextTalk textTalk;
+
+    [Header("話させたいセリフ")]
+    public string TalkText;
+
+    [Header("リセットまでの時間")]
+    public float TimeForReset;
+
+    [Header("表示しきるまでの時間")]
+    [SerializeField] private float TypingSpeed;
 
     [Header("音の再生を遅らせる時間")]
     [SerializeField]
@@ -95,12 +110,15 @@ public class DoorOpen : MonoBehaviour
         Enemy_dis = new float[Enemies.Length];
         this.tag = "Door";
 
+        Doorlock = false;
+        textTalk = FindObjectOfType<TextTalk>();
+
         for (int i = 0; i < Enemies.Length; i++)
         {
             enemyAImove[i] = Enemies[i].GetComponent<EnemyAI_move>();
         }
 
-        // シーン内のすべてのドアを取得
+        // シーン内のすべてのドアを取得textTalk = FindObjectOfType<TextTalk>();
         allDoors = FindObjectsOfType<DoorOpen>();
 
         obstacles = GetComponent<NavMeshObstacle>();
@@ -137,7 +155,7 @@ public class DoorOpen : MonoBehaviour
             //視界に入っている判定
             IsInSight = true;
 
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !Doorlock)
             {
                 //もう片方が空いているか判定
                 if (PairDoor.IsOpen)
@@ -165,7 +183,11 @@ public class DoorOpen : MonoBehaviour
                         Enemy_CouldOpen_Time = 0;
                     }
                 }
-               
+            }
+            else if(Input.GetKeyDown(KeyCode.Mouse0) && Doorlock)
+            {
+                PlayLockDoorSound();
+                textTalk.SetText(TalkText,TimeForReset,TypingSpeed);
             }
         }
         else
@@ -226,6 +248,13 @@ public class DoorOpen : MonoBehaviour
         audioSource.Stop();
         if (!audioSource.isPlaying)
             audioSource.PlayOneShot(AC_SlumDoor);
+    }
+
+    void PlayLockDoorSound()
+    {
+        audioSource.Stop();
+        if (!audioSource.isPlaying)
+            audioSource.PlayOneShot(AC_LockDoor);
     }
 
     public void PlayCloseDoorAnim()

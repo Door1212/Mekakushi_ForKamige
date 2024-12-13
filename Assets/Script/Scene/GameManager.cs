@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
     //これがtrueになるとゲームクリア
     public bool isGameClear = false;
 
+    //オプションが使用可能であるか?
+    public bool isEnableToOpenOption;
+
     //シーン繊維に入ったことを判定
     private bool isGameOverClear = false;
     [SerializeField]
@@ -72,9 +75,12 @@ public class GameManager : MonoBehaviour
         isGameOverClear = false;
         isGameOver = false;
         isGameClear = false;
-        //テキストの色を変える
-        //PeopleNumTMP.color = Color.red;
-        playerMove.GetComponent<PlayerMove>();
+        //オプションが使用可能であるか?
+        isEnableToOpenOption = true;
+
+    //テキストの色を変える
+    //PeopleNumTMP.color = Color.red;
+    playerMove.GetComponent<PlayerMove>();
         CameraMove.GetComponent<CameraMove>();
    
         //for(int i = 0; i < EnemyAI_Moves.Length; i++)

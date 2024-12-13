@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GakiMitsukeAndOpen : MonoBehaviour
 {
@@ -29,16 +30,41 @@ public class GakiMitsukeAndOpen : MonoBehaviour
     [SerializeField]
     private HidingCharacter[] Gakis; // 必要なガキの配列
 
-    [Header("フェード表示用オブジェクト")]
-    /*[SerializeField] */private GameObject FadeUI;
-    private UIFade uifade;
+    [Header("フェード用イメージ")]
+    [SerializeField] public Image fadeImage; // フェード用のImageコンポーネント
+    [Header("フェード時間")]
+    [SerializeField] public float fadeDuration = 1f; // フェードの時間
 
+    [Header("動き切ったのを待つ時間")]
+    [SerializeField] public float WaitDuration = 2.0f;
+
+    [Header("TPするのを待つ時間")]
+    [SerializeField] public float WaitTPDuration = 5.0f;
+
+    [Header("プレイヤーのTP先トランスフォーム")]
+    [SerializeField] private Transform ForTP;
+
+    [Header("話させたいセリフ")]
+    public string TalkText;
+
+    [Header("リセットまでの時間")]
+    public float TimeForReset;
+
+    [Header("表示しきるまでの時間")]
+    [SerializeField] private float TypingSpeed;
+
+    //プレイヤーオブジェクト
+    private GameObject _playerObj;
+
+    //ゲームマネージャー
     private GameManager gameManager;
 
     // ガキが見つかったことを格納するbool配列
     private bool[] IsGakiFind;
     bool alltrue = true; // すべてのガキが見つかったかどうかのフラグ
     bool DoFindAll = false; // ガキを全て見つけた後の処理を行ったかどうかのフラグ
+
+    private bool IsFirst = false;
 
     private GameObject mainCamera;      //メインカメラ格納用
     private GameObject subCamera;       //サブカメラ格納用 
@@ -47,12 +73,16 @@ public class GakiMitsukeAndOpen : MonoBehaviour
     [SerializeField]private GameObject[] UIObject;
 
 
+    private TextTalk Talk;
+
+
     // Start is called before the first frame update
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
         IsGakiFind = new bool[Gakis.Length]; // IsGakiFind配列をGakisの長さで初期化
         enemy = BeforeEnemy.GetComponent<EnemyAI_move>();
+
         for (int i = 0; i < Gakis.Length; i++)
         {
             Gakis[i].GetComponent<HidingCharacter>(); // ガキのコンポーネントを取得
@@ -65,20 +95,23 @@ public class GakiMitsukeAndOpen : MonoBehaviour
         mainCamera = GameObject.Find("PlayerCamera");
         subCamera = GameObject.Find("CoboCamera");
 
+        _playerObj = GameObject.FindGameObjectWithTag("Player");
+
+        Talk = FindObjectOfType<TextTalk>();
+
         //サブカメラを非アクティブにする
         subCamera.SetActive(false);
 
-        FadeUI = GameObject.Find("Fade");
+        fadeImage.gameObject.SetActive(true);
+        fadeImage = GameObject.Find("GlovalFade").GetComponent<Image>();
 
-        uifade = GameObject.Find("Fade").GetComponent<UIFade>();
+        if (fadeImage == null)
+        {
+            Debug.LogError("Why");
+        }
 
-        //アルファ値を0に
-        //uifade.SetAlphaZero();
+        IsFirst = false;
 
-
-
-
-        
     }
 
     // Update is called once per frame
@@ -99,69 +132,136 @@ public class GakiMitsukeAndOpen : MonoBehaviour
             }
         }
 
-        if (alltrue && !DoFindAll)
+        if (alltrue && !IsFirst)
         {
-            for(int i =0;i< UIObject.Length;i++)
-            {
-                UIObject[i].SetActive(false);
-            }
-            gameManager.SetStopAll(true);
-            enemy.SetState(EnemyAI_move.EnemyState.Idle);
-            BeforeEnemy.SetActive(false);
-            mainCamera.SetActive(false);
-            subCamera.SetActive(true);
-            // 道を開ける
-            uifade.StartFadeIn();
-            StartCoroutine("FindAll",0.5f); // すべてのガキが見つかった場合の処理
-        }
-
-         if (DoFindAll && !audioSource.isPlaying) // すべてのガキが見つかりかつ音が鳴り終わっていれば
-        {
-
-            gameManager.SetStopAll(false);
-            mainCamera.SetActive(true);
-            subCamera.SetActive(false);
-            Debug.Log("戻したよ");
-            uifade.StartFadeOut();
-            for (int i = 0; i < UIObject.Length; i++)
-            {
-                UIObject[i].SetActive(true);
-            }
-            Destroy(this); // スクリプトを破棄
+            IsFirst = true;
+            StartCoroutine(FoundEvent());
         }
     }
 
-    // すべてのガキが見つかった場合の処理
-    private void FindAll()
+    //次のステージに進むのに必要な敵をすべて見つけた時のイベント 
+    private IEnumerator FoundEvent()
     {
+        //暗転
+        yield return FadeOut();
 
-        // 音を鳴らす
-        if (!audioSource.isPlaying)
-        {
-            audioSource.PlayOneShot(Gomadare);
-            Debug.Log("開いとる！");
-        }
+        //カメラの切り替え
+        ChangeCamera(true);
+
+        //明転
+        yield return FadeIn();
+
+        yield return new WaitForSeconds(WaitDuration);
+
+        //暗転
+        yield return FadeOut();
+
+        //ふさいでいるオブジェクトの切り替え
         SmallCobo.SetActive(true);
         BigCobo.SetActive(false);
 
-        StartCoroutine("Dofadeout",0.5f);
+        //動いている音を鳴らす
+        // 音を鳴らす
+        if (!audioSource.isPlaying)
+        {
+            audioSource.clip  = Gomadare;
+            audioSource.Play();
+            Debug.Log("開いとる！");
+        }
+
+        // 再生終了を待機
+        while (audioSource.isPlaying)
+        {
+            yield return null; // 1フレーム待機
+        }
+
+        //明転
+        yield return FadeIn();
+
+        //見せる
+        yield return new WaitForSeconds(WaitDuration);
+
+        //暗転
+        yield return FadeOut();
+
+        //カメラ切り替え
+        ChangeCamera(false);
+
+
+        //明転
+        yield return FadeIn();
+
+        //しゃべる
+        Talk.SetText(TalkText,TimeForReset,TypingSpeed);
+
+        //TPまで少し待つ
+        yield return new WaitForSeconds(WaitTPDuration);
+
+        //暗転
+        yield return FadeOut();
+
+        //プレイヤーのTP処理
+        _playerObj.transform.position = ForTP.position;
+
+        //明転
+        yield return FadeIn();
+
+        Destroy(this); // スクリプトを破棄
 
 
     }
 
-    private void Dofadeout()
+    private IEnumerator FadeOut()
     {
-        uifade.StartFadeOut();
-        DoFindAll = true; // フラグを更新
+        fadeImage.gameObject.SetActive(true);
+        float elapsedTime = 0f;
+        Color color = fadeImage.color;
 
-        StartCoroutine("Dofadeout", 0.5f);
-        
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            color.a = Mathf.Clamp01(elapsedTime / fadeDuration);
+            fadeImage.color = color;
+            yield return null;
+        }
+
+        color.a = 1f;
+        fadeImage.color = color;
     }
-    private void DofadeIn()
+
+    private IEnumerator FadeIn()
     {
-        uifade.StartFadeIn();
+        float elapsedTime = 0f;
+        Color color = fadeImage.color;
 
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            color.a = 1f - Mathf.Clamp01(elapsedTime / fadeDuration);
+            fadeImage.color = color;
+            yield return null;
+        }
+
+        color.a = 0f;
+        fadeImage.color = color;
+        fadeImage.gameObject.SetActive(false);
     }
 
+    private void ChangeCamera(bool IsTurnOn)
+    {
+        for (int i = 0; i < UIObject.Length; i++)
+        {
+            UIObject[i].SetActive(!IsTurnOn);
+        }
+        //停止処理
+        gameManager.SetStopAll(IsTurnOn);
+        gameManager.isEnableToOpenOption = !IsTurnOn;
+        //enemy.SetState(EnemyAI_move.EnemyState.Idle);
+        //BeforeEnemy.SetActive(!IsTurnOn);
+        //カメラの切り替え
+        mainCamera.SetActive(!IsTurnOn);
+        subCamera.SetActive(IsTurnOn);
+
+    }
 
 }

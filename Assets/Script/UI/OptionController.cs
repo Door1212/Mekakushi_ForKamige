@@ -83,6 +83,7 @@ public class OptionController : MonoBehaviour
         face = FindObjectOfType<FaceDetector>();
 
         audioSource = GetComponent<AudioSource>();
+
         if(gameManager != null)
         {
             gameManager.GetComponent<GameManager>();
@@ -105,18 +106,43 @@ public class OptionController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyUp(KeyCode.Escape))
+
+        if (gameManager != null)
         {
-            if (Option_State == OPTION_STATE.NONE)
+
+            if (Input.GetKeyUp(KeyCode.Escape) && gameManager.isEnableToOpenOption)
             {
-                SetOptionState(OPTION_STATE.IN_OPTION);
+                if (Option_State == OPTION_STATE.NONE)
+                {
+                    SetOptionState(OPTION_STATE.IN_OPTION);
+                }
+                else
+                {
+                    SetOptionState(OPTION_STATE.NONE);
+                }
+
             }
-            else
+            else if (!gameManager.isEnableToOpenOption)
             {
                 SetOptionState(OPTION_STATE.NONE);
             }
-    
         }
+        else
+        {
+            if (Input.GetKeyUp(KeyCode.Escape))
+            {
+                if (Option_State == OPTION_STATE.NONE)
+                {
+                    SetOptionState(OPTION_STATE.IN_OPTION);
+                }
+                else
+                {
+                    SetOptionState(OPTION_STATE.NONE);
+                }
+
+            }
+        }
+
 
         switch (Option_State)
         {

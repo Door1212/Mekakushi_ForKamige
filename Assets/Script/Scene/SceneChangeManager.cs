@@ -61,7 +61,7 @@ public class SceneChangeManager : MonoBehaviour
 
             if (fadeImage == null)
             {
-                Debug.LogError("Why");
+                Debug.LogError(fadeImage +"is Missing");
             }
         }
 

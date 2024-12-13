@@ -456,7 +456,6 @@ public class EnemyAI_move : MonoBehaviour
             //LimitDisappearTimei–Ú‚ð•Â‚¶‘±‚¯‚Ä‚¢‚éŽžŠÔj‚ð’´‚¦‚é‚Æ’ÇÕ‚ð‚â‚ß‚³‚¹‚é
             if (DisapperTime >= LimitDisappearTime)
             {
-                Debug.LogError("IsCloseAndGone"+IsCloseAndGone);
                 if(IsCloseAndGone)
                 {
                     this.gameObject.SetActive(false);
