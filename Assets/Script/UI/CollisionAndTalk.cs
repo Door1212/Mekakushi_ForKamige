@@ -201,7 +201,7 @@ public class CollisionAndTalk : MonoBehaviour
                     {
                         IsFirst = true;
                         ToActiveObject.SetActive(true);
-                        //enemyAI_Move.gameObject.SetActive(true);
+                        enemyAI_Move.gameObject.SetActive(true);
                         enemyAI_Move.SetState(EnemyAI_move.EnemyState.Chase,playerTransform);
 
                         break ;

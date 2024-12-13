@@ -28,6 +28,9 @@ public class DirectionalSound : MonoBehaviour
     [SerializeField]
     private bool CanMove = true;
 
+    [Header("顔を使うか")]
+    [SerializeField]private bool UseFace = true;
+
     //間隔の計測用
     private float SoundIntervalCount = 0.0f;
 
@@ -59,10 +62,12 @@ public class DirectionalSound : MonoBehaviour
         {
             return;
         }
-
-        if(face.getEyeOpen())
+        if (UseFace)
         {
-            return;
+            if (face.getEyeOpen())
+            {
+                return;
+            }
         }
 
         //時間更新

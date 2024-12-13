@@ -57,6 +57,9 @@ public class DoorOpen : MonoBehaviour
     [Header("ドアを無理やり開けた音")]
     [SerializeField]
     private AudioClip AC_SlumDoor;
+    [Header("ドアを強く閉める音")]
+    [SerializeField]
+    private AudioClip AC_ForceCloseDoor;
     [Header("ドアが開かない音")]
     [SerializeField]
     private AudioClip AC_LockDoor;
@@ -250,6 +253,13 @@ public class DoorOpen : MonoBehaviour
             audioSource.PlayOneShot(AC_SlumDoor);
     }
 
+    void PlayForceCloseDoorSound()
+    {
+        audioSource.Stop();
+        if (!audioSource.isPlaying)
+            audioSource.PlayOneShot(AC_ForceCloseDoor);
+    }
+
     void PlayLockDoorSound()
     {
         audioSource.Stop();
@@ -279,10 +289,10 @@ public class DoorOpen : MonoBehaviour
 
     public void ForceCloseDoor()
     {
-        if (!IsOpen)
+        if (IsOpen)
         {
-            PlayOpenDoorSound();
-            PlayOpenDoorAnim();
+            PlayForceCloseDoorSound();
+            PlayCloseDoorAnim();
             IsOpen = true;
 
         }

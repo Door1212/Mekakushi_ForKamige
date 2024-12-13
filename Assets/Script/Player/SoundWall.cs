@@ -224,11 +224,14 @@ public class SoundWall : MonoBehaviour
     //敵を
     void TriggerEvent(float probability)
     {
-             // 0.0〜1.0の間で乱数を生成し、確率に基づいてイベントを発生
-            if (Random.value <= probability)
+        // 0.0〜1.0の間で乱数を生成し、確率に基づいてイベントを発生
+        if (Random.value <= probability)
+        {
+            if (!UseEnemy)
             {
                 if (DoTP)
                 {
+                    
                     //敵を自分の近くにTPさせる
                     enemyAI_Moves.EnemyTpNear(NearNum);
                     Debug.Log("TP Event triggered!");
@@ -239,13 +242,20 @@ public class SoundWall : MonoBehaviour
                     enemyAI_Moves.SetState(EnemyAI_move.EnemyState.Chase, this.transform);
                     Debug.Log("Notice Event triggered!");
                 }
-
-                // イベント処理
             }
             else
             {
-                Debug.Log("Event not triggered.");
+                enemyAI_Moves.gameObject.SetActive(true);
+                //敵をプレイヤーに気づかせる
+                enemyAI_Moves.SetState(EnemyAI_move.EnemyState.Chase, this.transform);
             }
+
+            // イベント処理
+        }
+        else
+        {
+            Debug.Log("Event not triggered.");
+        }
         
 
     }

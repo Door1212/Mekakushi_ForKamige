@@ -73,10 +73,10 @@ public class SceneChangeManager : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKey(KeyCode.F5))
-        {
-            LoadSceneAsyncWithFade("SchoolMain 1");
-        }
+        //if(Input.GetKey(KeyCode.F5))
+        //{
+        //    LoadSceneAsyncWithFade("SchoolMain 1");
+        //}
     }
 
     public void LoadSceneAsyncWithFade(string sceneName)

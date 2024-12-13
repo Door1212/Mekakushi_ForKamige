@@ -47,6 +47,9 @@ public class GakiMitsukeAndOpen : MonoBehaviour
     [Header("話させたいセリフ")]
     public string TalkText;
 
+    [Header("話させたいセリフ2")]
+    public string TalkText2;
+
     [Header("リセットまでの時間")]
     public float TimeForReset;
 
@@ -205,6 +208,9 @@ public class GakiMitsukeAndOpen : MonoBehaviour
 
         //明転
         yield return FadeIn();
+
+        //しゃべる
+        Talk.SetText(TalkText2, TimeForReset, TypingSpeed);
 
         Destroy(this); // スクリプトを破棄
 

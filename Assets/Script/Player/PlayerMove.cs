@@ -77,13 +77,13 @@ public class PlayerMove : MonoBehaviour
 
     void Update()
     {
+        //カメラと同じ方向を向く
+        this.transform.eulerAngles = new Vector3(this.transform.eulerAngles.x, cam_trans.eulerAngles.y, this.transform.eulerAngles.z);
+
         //オプション中は止める
         if (CanMove)
         {
 
-
-            //カメラと同じ方向を向く
-            this.transform.eulerAngles = new Vector3(this.transform.eulerAngles.x, cam_trans.eulerAngles.y, this.transform.eulerAngles.z);
             if (IsUsingEnemy)
             {
                 if (enemyController.GetState() != EnemyController.EnemyState.Attack)

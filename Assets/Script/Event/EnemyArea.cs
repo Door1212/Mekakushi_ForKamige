@@ -20,11 +20,13 @@ public class EnemyArea : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Trigger = GetComponent<BoxCollider>();
         IsFirst = false;
         IsLast = false;
         _soundWall = FindObjectOfType<SoundWall>();
         enemyAI_Move = UseEnemy.GetComponent<EnemyAI_move>();
         UseEnemy.SetActive(false);
+
     }
 
     // Update is called once per frame

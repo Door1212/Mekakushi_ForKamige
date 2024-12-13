@@ -36,6 +36,11 @@ public class UIFade : MonoBehaviour
         StartCoroutine(FadeOut());
     }
 
+    public void StartFadeOutIn()
+    {
+        StartCoroutine(FadeOutAndIN());
+    }
+
     public void SetAlphaZero()
     {
         canvasGroup.alpha = 0f;
@@ -74,5 +79,14 @@ public class UIFade : MonoBehaviour
         canvasGroup.alpha = 0f;
 
         this.gameObject.SetActive(false);
+    }
+
+    private IEnumerator FadeOutAndIN()
+    {
+        StartFadeIn();
+
+        yield return new WaitForSeconds(3);
+
+        StartFadeOut();
     }
 }

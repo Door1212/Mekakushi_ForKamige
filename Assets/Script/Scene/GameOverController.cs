@@ -19,7 +19,7 @@ public class GameOverController : MonoBehaviour
     {
         //確認パネルを非表示
         confirmationPanel.SetActive(false);
-
+        Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
         //各種ゲットコンポーネント
@@ -30,18 +30,18 @@ public class GameOverController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            if (confirmationPanel.activeSelf == true)
-            {
-                Unconfirmation();
-            }
-            else
-            {
-                confirmation();
-            }
+        //if (Input.GetKeyUp(KeyCode.Escape))
+        //{
+        //    if (confirmationPanel.activeSelf == true)
+        //    {
+        //        Unconfirmation();
+        //    }
+        //    else
+        //    {
+        //        confirmation();
+        //    }
 
-        }
+        //}
     }
 
     public void Retry()
@@ -49,7 +49,7 @@ public class GameOverController : MonoBehaviour
         audiosouce.PlayOneShot(OnClicked);
         //if(!audiosouce.isPlaying)
         //{
-            SceneManager.LoadScene(OptionValue.DeathScene);
+        SceneChangeManager.Instance.LoadSceneAsyncWithFade(OptionValue.DeathScene);
         //}
         
 
@@ -58,11 +58,10 @@ public class GameOverController : MonoBehaviour
     public void GoTitle()
     {
         audiosouce.PlayOneShot(OnClicked);
-        
+
         //if (!audiosouce.isPlaying)
         //{
-            SceneManager.LoadScene("Title1");
-        //}
+        SceneChangeManager.Instance.LoadSceneAsyncWithFade("Title1");
     }
 
     public void PlayClickedSound()
