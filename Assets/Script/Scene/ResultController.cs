@@ -28,6 +28,9 @@ public class ResultController : MonoBehaviour
     [Header("フェードインにかかる時間（秒）")]
     [SerializeField] private float HorrorDuration = 0.1f;
 
+    [Header("フェードインにかかる時間（秒）")]
+    [SerializeField] private float HorrorDuration2 = 2f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -55,16 +58,8 @@ public class ResultController : MonoBehaviour
         image.sprite = sprites[1];
         IsMoji(false);
 
-        yield return new WaitForSeconds(WaitDuration);
+        yield return new WaitForSeconds(WaitDuration - 5);
 
-        Moji.SetActive(false);
-        image.sprite = sprites[2];
-
-        yield return new WaitForSeconds(HorrorDuration);
-        IsMoji(false);
-        image.sprite = sprites[1];
-
-        yield return new WaitForSeconds(WaitDuration);
 
         SceneChangeManager.Instance.LoadSceneAsyncWithFade("Title1");
 

@@ -149,8 +149,8 @@ public class NoiseAndDisappear : MonoBehaviour
         StartCoroutine(BlurFadeIn());
 
 
-        yield return new WaitForSeconds(1.5f);
-        SceneChangeManager.Instance.LoadSceneAsyncWithFade("Result");
+        yield return new WaitForSeconds(3f);
+        SceneChangeManager.Instance.LoadSceneAsyncWithFade("ResultHonBan");
         yield return new WaitForSeconds(SceneChangeManager.Instance.fadeDuration);
         // エフェクトをアクティブ化してインテンシティをフェードイン
         doubleVision.enabled.value = false;

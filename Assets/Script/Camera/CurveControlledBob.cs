@@ -13,17 +13,20 @@ using UnityEngine;
 public class CurveControlledBob : MonoBehaviour
 {
     [Header("•à‚«ó‘Ô‚ÌƒJƒƒ‰‚Ì—h‚ê")]
-        public float kHorizontalBobRange = 0.33f;
-        public float kVerticalBobRange = 0.33f;
+        public float kHorizontalBobRange = 0.033f;
+        public float kVerticalBobRange = 0.033f;
     [Header("~‚Ü‚Á‚Ä‚¢‚éó‘Ô‚ÌƒJƒƒ‰‚Ì—h‚ê")]
     public float kStopHorizontalBobRange = 0.33f;
     public float kStopVerticalBobRange = 0.33f;
     [Header("‘–‚èó‘Ô‚ÌƒJƒƒ‰‚Ì—h‚ê")]
     public float kRunningHorizontalBobRange = 0.33f;
     public float kRunningVerticalBobRange = 0.33f;
-    [Header("“G‚ÉŒ©‚Â‚©‚Á‚½‚ÌƒJƒƒ‰‚Ì—h‚ê")]
-    public float kContactHorizontalBobRange = 0.33f;
-    public float kContactVerticalBobRange = 0.33f;
+    [Header("—h‚êó‘Ô‚ÌƒJƒƒ‰‚Ì—h‚ê")]
+    public float kShakingHorizontalBobRange = 0.099f;
+    public float kShakingVerticalBobRange = 0.099f;
+    //[Header("“G‚ÉŒ©‚Â‚©‚Á‚½‚ÌƒJƒƒ‰‚Ì—h‚ê")]
+    //public float kContactHorizontalBobRange = 0.33f;
+    //public float kContactVerticalBobRange = 0.33f;
     public AnimationCurve Bobcurve = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(0.5f, 1f),
                                                             new Keyframe(1f, 0f), new Keyframe(1.5f, -1f),
                                                             new Keyframe(2f, 0f)); // sin curve for head bob
@@ -51,11 +54,10 @@ public class CurveControlledBob : MonoBehaviour
     }
 
 
-    public Vector3 DoHeadBob(float speed, bool IsStop , bool IsRunning,bool IsEncounting)
+    public Vector3 DoHeadBob(float speed, bool IsStop , bool IsRunning,bool IsShaking)
     {
         float HorizontalBobRange = kHorizontalBobRange;
         float VerticalBobRange = kVerticalBobRange;
-
 
         if (IsStop)
         {
@@ -69,10 +71,12 @@ public class CurveControlledBob : MonoBehaviour
             HorizontalBobRange = IsRunning ? kRunningHorizontalBobRange : kHorizontalBobRange;
             VerticalBobRange = IsRunning ? kRunningVerticalBobRange : kVerticalBobRange;
         }
-        else if(IsEncounting)
+
+        //—h‚êó‘Ô‚ğ—Dæ
+        if (IsShaking)
         {
-            HorizontalBobRange = IsEncounting ? kContactHorizontalBobRange : kHorizontalBobRange;
-            VerticalBobRange = IsEncounting ? kContactVerticalBobRange : kVerticalBobRange;
+            HorizontalBobRange = IsShaking ? kShakingHorizontalBobRange : kHorizontalBobRange;
+            VerticalBobRange = IsShaking ? kShakingVerticalBobRange : kVerticalBobRange;
         }
 
         float xPos = /*m_OriginalCameraPosition.x*/ +(Bobcurve.Evaluate(m_CyclePositionX) * HorizontalBobRange);
@@ -92,5 +96,5 @@ public class CurveControlledBob : MonoBehaviour
 
         return new Vector3(xPos, yPos, 0f);
     }
-    }
-//}
+
+}

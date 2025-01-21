@@ -13,6 +13,10 @@ public class GakiMitsukeAndOpen : MonoBehaviour
     [SerializeField]
     private GameObject SmallCobo; // 道が開けた後のオブジェクト
 
+    [Header("ガキの声")]
+    [SerializeField]
+    private GameObject gakiVoice; // 道が開けた後のオブジェクト
+
     [Header("前の敵を殺す")]
     [SerializeField]
     private GameObject BeforeEnemy; // 
@@ -105,8 +109,11 @@ public class GakiMitsukeAndOpen : MonoBehaviour
         //サブカメラを非アクティブにする
         subCamera.SetActive(false);
 
-        fadeImage.gameObject.SetActive(true);
-        fadeImage = GameObject.Find("GlovalFade").GetComponent<Image>();
+        gakiVoice.SetActive(false);
+
+        //fadeImage =GetComponent<Image>();
+
+        fadeImage.gameObject.SetActive(false);
 
         if (fadeImage == null)
         {
@@ -120,7 +127,12 @@ public class GakiMitsukeAndOpen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        alltrue = true; // フラグのリセット
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            StartCoroutine(FoundEvent());
+        }
+
+       alltrue = true; // フラグのリセット
 
         for (int j = 0; j < Gakis.Length; j++)
         {
@@ -211,6 +223,8 @@ public class GakiMitsukeAndOpen : MonoBehaviour
 
         //しゃべる
         Talk.SetText(TalkText2, TimeForReset, TypingSpeed);
+
+       gakiVoice.SetActive(true);
 
         Destroy(this); // スクリプトを破棄
 

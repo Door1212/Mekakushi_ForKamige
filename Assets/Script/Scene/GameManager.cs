@@ -182,11 +182,11 @@ public class GameManager : MonoBehaviour
                 isGameOverClear = true;
                 if (SceneChangeManager.Instance != null)
                 {
-                    SceneChangeManager.Instance.LoadSceneAsyncWithFade("Result");
+                    SceneChangeManager.Instance.LoadSceneAsyncWithFade("ResultHonban");
                 }
                 else
                 {
-                    SceneManager.LoadScene("Result");
+                    SceneManager.LoadScene("ResultHonban");
                 }
 
             }

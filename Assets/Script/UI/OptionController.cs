@@ -122,10 +122,6 @@ public class OptionController : MonoBehaviour
                 }
 
             }
-            else if (!gameManager.isEnableToOpenOption)
-            {
-                SetOptionState(OPTION_STATE.NONE);
-            }
         }
         else
         {
@@ -286,9 +282,11 @@ public class OptionController : MonoBehaviour
                     {
                         gameManager.SetStopAll(true);
                     }
+
                     OptionMenu.SetActive(true);
                     EyeOptionMenu.SetActive(false);
                     AudioOptionMenu.SetActive(false);
+
                     if (SceneManager.GetActiveScene().ToString() != "Title 1")
                     {
                         //マウスカーソルを出す
@@ -303,6 +301,7 @@ public class OptionController : MonoBehaviour
                     {
                         gameManager.SetStopAll(true);
                     }
+
                     OptionMenu.SetActive(true);
                     EyeOptionMenu.SetActive(true);
                     AudioOptionMenu.SetActive(false);

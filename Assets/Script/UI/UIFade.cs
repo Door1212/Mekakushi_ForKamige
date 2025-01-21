@@ -4,10 +4,10 @@ using System.Collections;
 public class UIFade : MonoBehaviour
 {
     [Header("フェードインにかかる時間（秒）")]
-    [SerializeField] private float fadeInDuration = 1.0f;
+    [SerializeField] public float fadeInDuration = 1.0f;
 
     [Header("フェードアウトにかかる時間（秒）")]
-    [SerializeField] private float fadeOutDuration = 1.0f;
+    [SerializeField] public float fadeOutDuration = 1.0f;
 
     private CanvasGroup canvasGroup;
 

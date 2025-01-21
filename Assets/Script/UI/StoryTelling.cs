@@ -26,6 +26,7 @@ public class StoryTelling : MonoBehaviour
 
     private RectTransform rectTransform; // UIオブジェクトのRectTransform
     private Vector3 initialPosition;    // 初期位置
+    GameManager gameManager;
 
     //計測時間用
     public float Measurement = 0.0f;
@@ -46,7 +47,8 @@ public class StoryTelling : MonoBehaviour
         rectTransform = ArrowImage.rectTransform;
         // 初期位置を保存
         initialPosition = rectTransform.localPosition;
-
+    gameManager = FindObjectOfType<GameManager>();
+        gameManager.SetStopAll(true);
         NowPageNum = 0;
 
     }
@@ -156,6 +158,8 @@ public class StoryTelling : MonoBehaviour
         StoryImage.gameObject.SetActive(false);
         fadeImage.gameObject.SetActive(false);
         ArrowImage.gameObject.SetActive(false);
+
+        gameManager.SetStopAll(false);  
     }
 
 }

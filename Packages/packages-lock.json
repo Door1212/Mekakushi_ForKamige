@@ -7,6 +7,13 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "8042b29ff87dd5506d7aad72bd6d8d7405985f27"
+    },
     "com.merry-yellow.code-assist": {
       "version": "file:com.merry-yellow.code-assist",
       "depth": 0,
@@ -94,8 +101,8 @@
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.timeline": "1.5.2",
-        "com.autodesk.fbx": "4.1.1"
+        "com.autodesk.fbx": "4.1.1",
+        "com.unity.timeline": "1.5.2"
       },
       "url": "https://packages.unity.com"
     },
@@ -189,10 +196,10 @@
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.timeline": "1.5.2",
+        "com.unity.ugui": "1.0.0",
         "com.unity.recorder": "2.5.5",
-        "com.unity.settings-manager": "1.0.3",
-        "com.unity.ugui": "1.0.0"
+        "com.unity.timeline": "1.5.2",
+        "com.unity.settings-manager": "1.0.3"
       },
       "url": "https://packages.unity.com"
     },
@@ -256,9 +263,9 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {
+        "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.director": "1.0.0",
         "com.unity.modules.animation": "1.0.0",
-        "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.particlesystem": "1.0.0"
       },
       "url": "https://packages.unity.com"

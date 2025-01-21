@@ -78,6 +78,15 @@ namespace DlibFaceLandmarkDetectorExample
         {
             isKeyEyeClose = false;
             UseFaceInitDone = false;
+
+            if (isEyeOpen)
+            {
+                isEyeOpen = false;
+            }
+            else
+            {
+                isEyeOpen = true;
+            }
 #if UNITY_EDITOR
             string dlibShapePredictorFileName = "DlibFaceLandmarkDetector/sp_human_face_68.dat"; // エディタ環境用のファイル名
 #else

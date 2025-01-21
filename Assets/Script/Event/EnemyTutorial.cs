@@ -1,10 +1,10 @@
+using DlibFaceLandmarkDetectorExample;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyTutorial : MonoBehaviour
 {
-    public Transform target;            // 視点を向ける対象オブジェクト
     public float rotationSpeed = 2f;   // 回転速度
     private bool isLooking = false;    // 視点移動中かどうか
 
@@ -14,6 +14,8 @@ public class EnemyTutorial : MonoBehaviour
     //一回目かどうか
     private bool IsFirst = false;
     private bool IsLast = false;
+
+    public GameObject camera;
 
     [Header("話させたいセリフ")]
     public string TalkText;
@@ -34,7 +36,16 @@ public class EnemyTutorial : MonoBehaviour
     [SerializeField] private GameObject SmallCobo;
 
     [Header("チュートリアル表示用オブジェクト")]
-    [SerializeField] private GameObject TutorialUI;
+    [SerializeField] private GameObject[] TutorialUI;
+
+
+    [Header("崩れる音用オブジェクト")]
+    [SerializeField] private GameObject Collapse;
+
+    private AudioSource CollapseSource;
+
+    [Header("崩れる音クリップ")]
+    [SerializeField] private AudioClip CollapseClip;
 
     [Header("叫び声用オブジェクト")]
     [SerializeField] private GameObject Scream;
@@ -52,14 +63,56 @@ public class EnemyTutorial : MonoBehaviour
     [Header("叫び声クリップ")]
     [SerializeField] private AudioClip FootNoteClip;
 
-    private UIFade uifade;
+    [Header("叫び声クリップ")]
+    [SerializeField] private AudioClip kimoClip;
+
+    [Header("叫び声クリップ")]
+    [SerializeField] private AudioClip jumpScareClip;
+
+
+    [Header("近づいて来る時間")]
+    [SerializeField] private float ComingTime;
+
+    [Header("近くで待つ時間")]
+    [SerializeField] private float WaitingTime = 5.0f;
+
+    [Header("遠ざかる時間")]
+    [SerializeField] private float ByeByeTime;
+
+    [Header("ターゲットオブジェクト")]
+    [SerializeField] private Transform target; // ターゲット (例: プレイヤー)
+
+    [Header("開始位置")]
+    [SerializeField] private Transform startPoint; // オブジェクトの初期位置
+
+    [Header("終了位置")]
+    [SerializeField] private Transform endPoint; // オブジェクトが遠ざかる位置
+
+    private Vector3 initialPosition;
+
+    [Header("動いたらダメ時間")]
+    [SerializeField]
+    private float PlayerMovingTime = 1.0f;
+
+    private float PlayerMovingTimeCount = 0.0f;
+
+    private UIFade[] uifades;
 
     private BoxCollider Trigger;
 
     private GameManager gameManager;
 
+    private FaceDetector face;
+
+    private PlayerMove move;
+
     //話用コンポーネント
     TextTalk talk;
+
+    private bool IsFirstTutorialDone = false;
+
+    private bool IsSecondTutorialDone = false;
+    private bool isDeath = false;
 
     // Start is called before the first frame update
     void Start()
@@ -68,9 +121,24 @@ public class EnemyTutorial : MonoBehaviour
 
         talk = FindObjectOfType<TextTalk>();
 
-        gameManager = GetComponent<GameManager>();
+        face = FindObjectOfType<FaceDetector>();
 
-        uifade = TutorialUI.GetComponent<UIFade>();
+        gameManager =FindObjectOfType<GameManager>();
+
+        move = FindObjectOfType<PlayerMove>();
+
+        uifades = new UIFade[TutorialUI.Length];
+
+        for(int i= 0;i < TutorialUI.Length;i++)
+        {
+
+            uifades[i] = TutorialUI[i].GetComponent<UIFade>();
+
+        }
+
+        CollapseSource = Collapse.GetComponent<AudioSource>();
+
+        CollapseSource .clip = CollapseClip;
 
         ScreamSource = Scream.GetComponent<AudioSource>();
 
@@ -85,12 +153,69 @@ public class EnemyTutorial : MonoBehaviour
 
         IsFirst = false;
         IsLast = false;
+
+        PlayerMovingTimeCount = 0.0f;
+
+        IsFirstTutorialDone = false;
+        IsSecondTutorialDone = false;
+
+        isDeath =false;
+
+        // 初期位置を保存
+        initialPosition = startPoint.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(isDeath)
+        {
+            return;
+        }
+
+        if(IsFirstTutorialDone&&!IsLast && !face.getEyeOpen())
+        {
+            IsLast = true;
+            StartCoroutine(StartCloseEyetime());
+        }
+
+        if(IsFirstTutorialDone && !IsSecondTutorialDone && IsLast)
+        {
+            if(face.getEyeOpen())
+            {
+                CollapseSource.clip =jumpScareClip;
+                CollapseSource.Play();
+                isDeath = true; 
+                SceneChangeManager.Instance.LoadSceneAsyncWithFade("GameOver");
+                Debug.Log("Death");
+            }
+
+            if (!move.IsStop)
+            {
+                //加算
+                PlayerMovingTimeCount += Time.deltaTime;
+            }
+            else
+            {
+                //リセット
+                PlayerMovingTimeCount = 0;
+            }
+
+            if(PlayerMovingTimeCount >= PlayerMovingTime)
+            {
+                CollapseSource.clip = jumpScareClip;
+                CollapseSource.Play();
+                isDeath=true;
+                SceneChangeManager.Instance.LoadSceneAsyncWithFade("GameOver");
+                Debug.Log("Death");
+            }
+
+        }
+
+        if(IsFirstTutorialDone && IsSecondTutorialDone)
+        {
+            talk.SetText(TalkText2,TimeForReset,TypingSpeed);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -101,78 +226,82 @@ public class EnemyTutorial : MonoBehaviour
             //一回目かどうか
             IsFirst = true;
 
-            cameraMove.SetCanMove(false);
-
+            StartCoroutine(StartEnemyTutorial());
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private IEnumerator StartEnemyTutorial()
     {
-        // 特定のタグ（例: "Player"）を持つオブジェクトとの衝突を検知
-        if (other.gameObject.CompareTag("Player") && !IsLast)
-        {
-            IsLast = true;
+        //行動不能
+        gameManager.SetStopAll(true);
 
-        }
-    }
-
-    private void StartEnemyTutorial()
-    {
         //崩れる音
-
-        //視線変える
+        CollapseSource.Play();
 
         //変え終わったら入れ替え
-
-        //視線戻す
+        BigCobo.SetActive(false);
+        SmallCobo.SetActive(true);
 
         //叫び声
+        ScreamSource.Play();
 
         //しゃべる
         talk.SetText(TalkText, TimeForReset, TypingSpeed);
 
         //走る音
+        FootNoteSource.Play();
+
+        // 怪異は大きな音に反応する
+        uifades[0].StartFadeOutIn();
+        yield return new WaitForSeconds(uifades[0].fadeInDuration + uifades[0].fadeOutDuration + 3.0f);
+        //目を開け続けていると怪異が近づいてくる。
+        uifades[1].StartFadeOutIn();
+        yield return new WaitForSeconds(uifades[0].fadeInDuration + uifades[0].fadeOutDuration + 3.0f);
 
         //行動不能
-
-        //しゃべる
-        talk.SetText(TalkText2, TimeForReset, TypingSpeed);
-
-        //システム表示
-        uifade.StartFadeOutIn();
-
-        //目を閉じていると足音が近くで止まり、呼吸音が聞こえる
-
-        //しばらくするとその場から足音で遠ざかる音が聞こえる。
-
-
+        gameManager.SetStopAll(false);
+        
+        //初チュートリアル終了
+        IsFirstTutorialDone = true;
     }
 
-    private IEnumerator RotateTowardsTargetCoroutine(System.Action onComplete)
+    private IEnumerator StartCloseEyetime()
     {
-        if (target == null) yield break;
+        FootNoteSource.Play();
+        yield return MoveTowardsTarget(target.position, ComingTime);
+        FootNoteSource.Stop();
+        FootNoteSource.clip = kimoClip;
+        FootNoteSource.Play();
+        yield return new WaitForSeconds(WaitingTime);
+        FootNoteSource.Stop();
+        FootNoteSource.clip = FootNoteClip;
+        FootNoteSource.Play();
+        yield return MoveTowardsTarget(endPoint.position, ByeByeTime);
 
-        while (true)
+        Destroy(FootNote);
+
+        IsSecondTutorialDone = true;
+    }
+
+    private IEnumerator MoveTowardsTarget(Vector3 destination, float duration)
+    {
+        Vector3 startPosition = FootNote.transform.position; // 現在の位置
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
         {
-            // ターゲットの方向を計算
-            Vector3 direction = target.position - transform.position;
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            elapsedTime += Time.deltaTime;
 
-            // 現在の回転をターゲットの回転にスムーズに補間
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            // 回転がほぼ完了したら終了
-            if (Quaternion.Angle(transform.rotation, targetRotation) < 0.1f)
-            {
-                transform.rotation = targetRotation; // 最終位置をスナップ
-                break;
-            }
+            // 線形補間で位置を更新
+            FootNote.transform.position = Vector3.Lerp(startPosition, destination, elapsedTime / duration);
 
             yield return null; // 次のフレームまで待機
         }
 
-        // コールバックが設定されている場合、実行
-        onComplete?.Invoke();
+        // 最終位置を明示的に設定
+        FootNote.transform.position = destination;
     }
+
 }
 
