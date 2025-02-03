@@ -1,17 +1,16 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using System;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Rendering;
 
 namespace SCPE
 {
-    [PostProcess(typeof(PixelizeRenderer), PostProcessEvent.BeforeStack, "SC Post Effects/Retro/Pixelize", true)]
-    [Serializable]
-    public sealed class Pixelize : PostProcessEffectSettings
+    [Serializable, VolumeComponentMenu("SC Post Effects/Retro/Pixelize")]
+    [SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAsset))]
+    public sealed class Pixelize : VolumeComponent, IPostProcessComponent
     {
-        [Range(0f, 1f), Tooltip("Amount")]
-        public UnityEngine.Rendering.PostProcessing.FloatParameter amount = new UnityEngine.Rendering.PostProcessing.FloatParameter { value = 0f };
-        [UnityEngine.Rendering.PostProcessing.Min(0f)]
-        public UnityEngine.Rendering.PostProcessing.IntParameter resolution = new UnityEngine.Rendering.PostProcessing.IntParameter { value = 240 };
+        public ClampedFloatParameter amount = new ClampedFloatParameter(0f, 0f, 1f);
+        public IntParameter resolution = new IntParameter(240);
 
         public enum Resolution
         {
@@ -27,27 +26,20 @@ namespace SCPE
             [InspectorName("160p")]
             HundredSixty = 160
         }
-        
+
         [Serializable]
-        public sealed class ResolutionPreset : ParameterOverride<Resolution> { }
-        
+        public sealed class ResolutionPreset : VolumeParameter<Resolution> { }
+
         public ResolutionPreset resolutionPreset = new ResolutionPreset { value = Resolution.Custom };
 
         [Tooltip("When disabled, pixels will retain a square aspect ratio")]
-        public UnityEngine.Rendering.PostProcessing.BoolParameter preserveAspectRatio = new UnityEngine.Rendering.PostProcessing.BoolParameter { value = false };
+        public BoolParameter preserveAspectRatio = new BoolParameter(false);
         [Tooltip("When enabled, pixels are shifted by half. Mostly has a visible effect on extremely low resolutions")]
-        public UnityEngine.Rendering.PostProcessing.BoolParameter centerPixel = new UnityEngine.Rendering.PostProcessing.BoolParameter { value = true };
+        public BoolParameter centerPixel = new BoolParameter(true);
         
-        public override bool IsEnabledAndSupported(PostProcessRenderContext context)
-        {
-            if (enabled.value)
-            {
-                if (amount == 0f) { return false; }
-                return true;
-            }
+        public bool IsActive() => amount.value > 0f && this.active;
 
-            return false;
-        }
+        public bool IsTileCompatible() => false;
         
         [SerializeField]
         public Shader shader;
@@ -56,7 +48,7 @@ namespace SCPE
         {
             SerializeShader();
         }
-        
+
         private bool SerializeShader()
         {
             bool wasSerialized = !shader;

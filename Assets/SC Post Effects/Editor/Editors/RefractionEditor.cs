@@ -1,27 +1,39 @@
 ﻿using UnityEditor;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Refraction))]
-    public sealed class RefractionEditor : PostProcessEffectEditor<Refraction>
+    [EffectSettingsEditor(typeof(Refraction))]
+    sealed class RefractionEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride normalMap;
-        SerializedParameterOverride amount;
-        SerializedParameterOverride tint;
+        SerializedDataParameter normalMap;
+        SerializedDataParameter amount;
+        SerializedDataParameter tint;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            amount = FindParameterOverride(x => x.amount);
-            tint = FindParameterOverride(x => x.tint);
-            normalMap = FindParameterOverride(x => x.normalMap);
+            base.OnEnable();
+
+            var o = new PropertyFetcher<Refraction>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<RefractionRenderer>();
+            
+            normalMap = Unpack(o.Find(x => x.normalMap));
+            amount = Unpack(o.Find(x => x.amount));
+            tint = Unpack(o.Find(x => x.tint));
         }
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("refraction");
 
-            SCPE_GUI.DisplaySetupWarning<RefractionRenderer>();
+            SCPE_GUI.DisplaySetupWarning<RefractionRenderer>(ref isSetup);
 
             PropertyField(amount);
             SCPE_GUI.DisplayIntensityWarning(amount);
@@ -37,9 +49,6 @@ namespace SCPE
             }
 
             PropertyField(tint);
-
-            EditorGUILayout.Space();
-
         }
     }
 }

@@ -1,54 +1,99 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEngine;
 
 namespace SCPE
 {
-    public sealed class TiltShiftRenderer : PostProcessEffectRenderer<TiltShift>
+    public class TiltShiftRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class TiltShiftRenderPass : PostEffectRenderer<TiltShift>
         {
-            shader = Shader.Find(ShaderNames.TiltShift);
-        }
-
-        enum Pass
-        {
-            FragHorizontal,
-            FragHorizontalHQ,
-            FragRadial,
-            FragRadialHQ,
-            FragDebug
-        }
-
-        public override void Render(PostProcessRenderContext context)
-        {
-            PropertySheet sheet = context.propertySheets.Get(shader);
-            CommandBuffer cmd = context.command;
-
-            sheet.properties.SetVector(ShaderParameters.Params, new Vector4(settings.areaSize.value, settings.areaFalloff.value, settings.amount.value, (int)settings.mode.value));
-            sheet.properties.SetFloat("_Offset", settings.offset.value);
-            sheet.properties.SetFloat("_Angle", settings.angle.value);
-
-            //Copy screen contents
-            int pass = (int)settings.mode.value + (int)settings.quality.value;
-
-            switch ((int)settings.mode.value)
+            public TiltShiftRenderPass(EffectBaseSettings settings)
             {
-                case 0:
-                    pass = 0 + (int)settings.quality.value;
-                    break;
-                case 1:
-                    pass = 2 + (int)settings.quality.value;
-                    break;
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.TiltShift;
+                ProfilerTag = GetProfilerTag();
             }
 
-            // Render blurred texture in blend pass
-            cmd.BlitFullscreenTriangle(context.source, context.destination, sheet, TiltShift.debug ? (int)Pass.FragDebug : pass);
+            enum Pass
+            {
+                FragHorizontal,
+                FragHorizontalHQ,
+                FragRadial,
+                FragRadialHQ,
+                FragDebug
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<TiltShift>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetVector(ShaderParameters.Params, new Vector4(volumeSettings.areaSize.value, volumeSettings.areaFalloff.value, volumeSettings.amount.value, (int)volumeSettings.mode.value));
+                Material.SetFloat("_Offset", volumeSettings.offset.value);
+                Material.SetFloat("_Angle", volumeSettings.angle.value);
+                
+                int pass = (int)volumeSettings.mode.value + (int)volumeSettings.quality.value;
+                switch ((int)volumeSettings.mode.value)
+                {
+                    case 0:
+                        pass = 0 + (int)volumeSettings.quality.value;
+                        break;
+                    case 1:
+                        pass = 2 + (int)volumeSettings.quality.value;
+                        break;
+                }
+
+                FinalBlit(this, context, cmd, renderingData, TiltShift.debug ? (int)Pass.FragDebug : pass);
+            }
+
+            public override void OnCameraCleanup(CommandBuffer cmd)
+            {
+                base.OnCameraCleanup(cmd);
+            }
+        }
+
+        TiltShiftRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
+        {
+            m_ScriptablePass = new TiltShiftRenderPass(settings);
+        }
+
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            m_ScriptablePass.Setup(renderer, renderingData);
+        }
+
+        public void OnDestroy()
+        {
+            m_ScriptablePass.Dispose();
         }
     }
 }

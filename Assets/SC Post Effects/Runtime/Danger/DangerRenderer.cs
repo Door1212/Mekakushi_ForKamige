@@ -1,36 +1,69 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
-using TextureParameter = UnityEngine.Rendering.PostProcessing.TextureParameter;
-using ColorParameter = UnityEngine.Rendering.PostProcessing.ColorParameter;
-using FloatParameter = UnityEngine.Rendering.PostProcessing.FloatParameter;
 
 namespace SCPE
 {
-    public sealed class DangerRenderer : PostProcessEffectRenderer<Danger>
+    public class DangerRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class DangerRenderPass : PostEffectRenderer<Danger>
         {
-            shader = Shader.Find(ShaderNames.Danger);
+            public DangerRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.Danger;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<Danger>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetVector("_Params", new Vector4(volumeSettings.intensity.value, volumeSettings.size.value, 0, 0));
+                Material.SetColor("_Color", volumeSettings.color.value);
+                var overlayTexture = volumeSettings.overlayTex.value == null ? Texture2D.blackTexture : volumeSettings.overlayTex.value;
+                Material.SetTexture("_Overlay", overlayTexture);
+
+                FinalBlit(this, context, cmd, renderingData, 0);
+            }
         }
 
-        public override void Release()
+        DangerRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+        
+        public override void Create()
         {
-            base.Release();
+            m_ScriptablePass = new DangerRenderPass(settings);
         }
 
-        public override void Render(PostProcessRenderContext context)
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            var sheet = context.propertySheets.Get(shader);
-
-            sheet.properties.SetVector(ShaderParameters.Params, new Vector4(settings.intensity, settings.size, 0, 0));
-            sheet.properties.SetColor("_Color", settings.color);
-            var overlayTexture = settings.overlayTex.value == null ? RuntimeUtilities.blackTexture : settings.overlayTex.value;
-            sheet.properties.SetTexture("_Overlay", overlayTexture);
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

@@ -1,31 +1,43 @@
 ﻿using UnityEditor;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Pixelize))]
-    public sealed class PixelizeEditor : PostProcessEffectEditor<Pixelize>
+    [EffectSettingsEditor(typeof(Pixelize))]
+    sealed class PixelizeEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride amount;
-        SerializedParameterOverride resolutionPreset;
-        SerializedParameterOverride resolution;
-        SerializedParameterOverride centerPixel;
-        SerializedParameterOverride preserveAspectRatio;
+        SerializedDataParameter amount;
+        SerializedDataParameter resolutionPreset;
+        SerializedDataParameter resolution;
+        SerializedDataParameter centerPixel;
+        SerializedDataParameter preserveAspectRatio;
         
+        private bool isSetup;
+
         public override void OnEnable()
         {
-            amount = FindParameterOverride(x => x.amount);
-            resolutionPreset = FindParameterOverride(x => x.resolutionPreset);
-            resolution = FindParameterOverride(x => x.resolution);
-            centerPixel = FindParameterOverride(x => x.centerPixel);
-            preserveAspectRatio = FindParameterOverride(x => x.preserveAspectRatio);
+            base.OnEnable();
+
+            var o = new PropertyFetcher<Pixelize>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<PixelizeRenderer>();
+
+            amount = Unpack(o.Find(x => x.amount));
+            resolutionPreset = Unpack(o.Find(x => x.resolutionPreset));
+            resolution = Unpack(o.Find(x => x.resolution));
+            centerPixel = Unpack(o.Find(x => x.centerPixel));
+            preserveAspectRatio = Unpack(o.Find(x => x.preserveAspectRatio));
         }
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("pixelize");
 
-            SCPE_GUI.DisplaySetupWarning<PixelizeRenderer>();
+            SCPE_GUI.DisplaySetupWarning<PixelizeRenderer>(ref isSetup);
 
             PropertyField(amount);
             SCPE_GUI.DisplayIntensityWarning(amount);
@@ -37,12 +49,12 @@ namespace SCPE
                 PropertyField(resolution);
                 EditorGUI.indentLevel--;
             }
-
-            EditorGUILayout.Space();
             
-            PropertyField(centerPixel);
-            PropertyField(preserveAspectRatio);
+            EditorGUILayout.Space();
 
+            PropertyField(preserveAspectRatio);
+            PropertyField(centerPixel);
+            
             EditorGUILayout.Space();
         }
     }

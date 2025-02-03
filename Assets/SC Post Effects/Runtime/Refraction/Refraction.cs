@@ -1,46 +1,35 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using System;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Rendering;
 using UnityEngine.Serialization;
-using TextureParameter = UnityEngine.Rendering.PostProcessing.TextureParameter;
-using BoolParameter = UnityEngine.Rendering.PostProcessing.BoolParameter;
-using FloatParameter = UnityEngine.Rendering.PostProcessing.FloatParameter;
-using IntParameter = UnityEngine.Rendering.PostProcessing.IntParameter;
-using ColorParameter = UnityEngine.Rendering.PostProcessing.ColorParameter;
 
 namespace SCPE
 {
-    [PostProcess(typeof(RefractionRenderer), PostProcessEvent.AfterStack, "SC Post Effects/Screen/Refraction", true)]
-    [Serializable]
-    public sealed class Refraction : PostProcessEffectSettings
+    [Serializable, VolumeComponentMenu("SC Post Effects/Screen/Refraction")]
+    [SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAsset))]
+    public sealed class Refraction : VolumeComponent, IPostProcessComponent
     {
         [FormerlySerializedAs("refractionTex")]
         [Tooltip("Takes a normal map to perturb the image")]
-        public TextureParameter normalMap = new TextureParameter { value = null };
-
+        public TextureParameter normalMap = new TextureParameter(null);
+        
         [Range(0f, 1f), Tooltip("Amount")]
-        public FloatParameter amount = new FloatParameter { value = 0f };
-        public ColorParameter tint = new ColorParameter { value = new Color(1,1,1, 0.1f)};
+        public ClampedFloatParameter amount = new ClampedFloatParameter(0f,0f,1f);
+        public ColorParameter tint = new ColorParameter(new Color(1,1,1, 0.1f));
 
-        public override bool IsEnabledAndSupported(PostProcessRenderContext context)
-        {
-            if (enabled.value)
-            {
-                if (amount == 0 || normalMap.value == null) { return false; }
-                return true;
-            }
+        public bool IsActive() => amount.value > 0f && normalMap.value != null && this.active;
 
-            return false;
-        }
+        public bool IsTileCompatible() => false;
         
         [SerializeField]
         public Shader shader;
-        
+
         private void Reset()
         {
             SerializeShader();
         }
-        
+
         private bool SerializeShader()
         {
             bool wasSerialized = !shader;

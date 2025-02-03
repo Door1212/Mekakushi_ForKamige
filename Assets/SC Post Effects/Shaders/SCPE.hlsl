@@ -8,7 +8,11 @@
 
 float4 DebugEyeIndex()
 {
+	#if defined(UNITY_STEREO_INSTANCING_ENABLED)
 	return float4(lerp(float3(1,0,0), float3(0,1,0), unity_StereoEyeIndex), 1.0);
+	#else
+	return 1;
+	#endif
 }
 
 #define ANGLE2RAD_RCP 0.01745329251 //=> Pi / 180

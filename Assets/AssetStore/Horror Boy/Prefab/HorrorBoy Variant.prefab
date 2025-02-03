@@ -55,6 +55,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: HorrorBoy Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 6836426680903516298, guid: 336bf99d625c6fd4da46287603085aba, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 111d7fb2ab19343489d07cf2b97c6f00, type: 2}
+    - target: {fileID: 6836426680903516298, guid: 336bf99d625c6fd4da46287603085aba, type: 3}
+      propertyPath: m_Materials.Array.data[1]
+      value: 
+      objectReference: {fileID: 2100000, guid: f0ebc8f9b66fe2c458ae9dfac8d11b5c, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 336bf99d625c6fd4da46287603085aba, type: 3}
 --- !u!1 &4813574418385834911 stripped
@@ -64,7 +72,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &-3008030887851678231
 Animator:
-  serializedVersion: 3
+  serializedVersion: 4
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -77,6 +85,7 @@ Animator:
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1

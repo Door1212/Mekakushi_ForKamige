@@ -1,32 +1,68 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 namespace SCPE
 {
-    public sealed class SpeedLinesRenderer : PostProcessEffectRenderer<SpeedLines>
+    public class SpeedLinesRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class SpeedLinesRenderPass : PostEffectRenderer<SpeedLines>
         {
-            shader = Shader.Find(ShaderNames.SpeedLines);
+            public SpeedLinesRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.SpeedLines;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<SpeedLines>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                float falloff = 2f + (volumeSettings.falloff.value - 0.0f) * (16.0f - 2f) / (1.0f - 0.0f);
+                Material.SetVector("_Params", new Vector4(volumeSettings.intensity.value, falloff, volumeSettings.size.value * 2, 0));
+                if (volumeSettings.noiseTex.value) Material.SetTexture("_NoiseTex", volumeSettings.noiseTex.value);
+
+                FinalBlit(this, context, cmd, renderingData, 0);
+            }
         }
 
-        public override void Release()
+        SpeedLinesRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
         {
-            base.Release();
+            m_ScriptablePass = new SpeedLinesRenderPass(settings);
         }
 
-        public override void Render(PostProcessRenderContext context)
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            var sheet = context.propertySheets.Get(shader);
-
-            float falloff = 2f + (settings.falloff.value - 0.0f) * (16.0f - 2f) / (1.0f - 0.0f);
-            sheet.properties.SetVector(ShaderParameters.Params, new Vector4(settings.intensity.value, falloff, settings.size.value * 2, 0));
-            if (settings.noiseTex.value) sheet.properties.SetTexture("_NoiseTex", settings.noiseTex.value);
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

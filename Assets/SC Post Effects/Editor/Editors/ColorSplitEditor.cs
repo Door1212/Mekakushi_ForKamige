@@ -1,34 +1,41 @@
 ﻿using UnityEditor;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(ColorSplit))]
-    public sealed class ColorSplitEditor : PostProcessEffectEditor<ColorSplit>
+    [EffectSettingsEditor(typeof(ColorSplit))]
+    sealed class ColorSplitEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride mode;
-        SerializedParameterOverride offset;
-        SerializedParameterOverride edgeMasking;
-        SerializedParameterOverride luminanceThreshold;
+        SerializedDataParameter mode;
+        SerializedDataParameter offset;
+        SerializedDataParameter edgeMasking;
+        SerializedDataParameter luminanceThreshold;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            mode = FindParameterOverride(x => x.mode);
-            offset = FindParameterOverride(x => x.offset);
-            edgeMasking = FindParameterOverride(x => x.edgeMasking);
-            luminanceThreshold = FindParameterOverride(x => x.luminanceThreshold);
-        }
+            base.OnEnable();
 
-        public override string GetDisplayTitle()
-        {
-            return base.GetDisplayTitle() + SCPE_GUI.ModeTitle(mode);
+            var o = new PropertyFetcher<ColorSplit>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<ColorSplitRenderer>();
+
+            mode = Unpack(o.Find(x => x.mode));
+            offset = Unpack(o.Find(x => x.offset));
+            edgeMasking = Unpack(o.Find(x => x.edgeMasking));
+            luminanceThreshold = Unpack(o.Find(x => x.luminanceThreshold));
         }
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("color-split");
 
-            SCPE_GUI.DisplaySetupWarning<ColorSplitRenderer>();
+            SCPE_GUI.DisplaySetupWarning<ColorSplitRenderer>(ref isSetup);
 
             PropertyField(offset);
             SCPE_GUI.DisplayIntensityWarning(offset);

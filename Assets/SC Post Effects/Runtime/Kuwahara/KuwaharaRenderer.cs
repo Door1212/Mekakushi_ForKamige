@@ -1,48 +1,74 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 namespace SCPE
 {
-    public sealed class KuwaharaRenderer : PostProcessEffectRenderer<Kuwahara>
+    public class KuwaharaRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-        private int mode;
-        
-        public override void Init()
+        class KuwaharaRenderPass : PostEffectRenderer<Kuwahara>
         {
-            shader = Shader.Find(ShaderNames.Kuwahara);
-        }
-
-        public override void Release()
-        {
-            base.Release();
-        }
-
-        public override void Render(PostProcessRenderContext context)
-        {
-            mode = (int)settings.mode.value;
-            if (context.camera.orthographic) mode = (int)Kuwahara.KuwaharaMode.FullScreen;
-
-            var sheet = context.propertySheets.Get(shader);
-
-            sheet.properties.SetFloat("_Radius", (float)settings.radius);
-
-            if(mode == (int)Kuwahara.KuwaharaMode.DepthFade) context.command.SetGlobalVector(ShaderParameters.FadeParams, new Vector4(settings.startFadeDistance.value, settings.endFadeDistance.value, 0, 0));
+            private int mode;
             
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, mode);
+            public KuwaharaRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.Kuwahara;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<Kuwahara>();
+                
+                base.Setup(renderer, renderingData);
+                
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                requiresDepth = volumeSettings.mode == Kuwahara.KuwaharaMode.DepthFade;
+
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+                
+                mode = (int)volumeSettings.mode.value;
+                if (renderingData.cameraData.camera.orthographic) mode = (int)Kuwahara.KuwaharaMode.FullScreen;
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetFloat("_Radius", (float)volumeSettings.radius);
+                if(mode == (int)Kuwahara.KuwaharaMode.DepthFade) Material.SetVector("_FadeParams", new Vector4(volumeSettings.startFadeDistance.value, volumeSettings.endFadeDistance.value, 0, 0));
+
+                FinalBlit(this, context, cmd, renderingData, mode);
+            }
         }
 
-        public override DepthTextureMode GetCameraFlags()
+        KuwaharaRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
         {
-            if ((int)settings.mode.value == 1)
-            {
-                return DepthTextureMode.Depth;
-            }
-            else
-            {
-                return DepthTextureMode.None;
-            }
+            m_ScriptablePass = new KuwaharaRenderPass(settings);
+        }
+
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

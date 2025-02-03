@@ -1,33 +1,69 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 namespace SCPE
 {
-    public sealed class RipplesRenderer : PostProcessEffectRenderer<Ripples>
+    public class RipplesRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class RipplesRenderPass : PostEffectRenderer<Ripples>
         {
-            shader = Shader.Find(ShaderNames.Ripples);
+            public RipplesRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.Ripples;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<Ripples>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetFloat("_Strength", (volumeSettings.strength.value * 0.01f));
+                Material.SetFloat("_Distance", (volumeSettings.distance.value * 0.01f));
+                Material.SetFloat("_Speed", volumeSettings.speed.value);
+                Material.SetVector("_Size", new Vector2(volumeSettings.width.value, volumeSettings.height.value));
+
+                FinalBlit(this, context, cmd, renderingData, (int)volumeSettings.mode.value);
+            }
         }
 
-        public override void Release()
+        RipplesRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
         {
-            base.Release();
+            m_ScriptablePass = new RipplesRenderPass(settings);
         }
 
-        public override void Render(PostProcessRenderContext context)
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            var sheet = context.propertySheets.Get(shader);
-
-            sheet.properties.SetFloat("_Strength", (settings.strength * 0.01f));
-            sheet.properties.SetFloat("_Distance", (settings.distance * 0.01f));
-            sheet.properties.SetFloat("_Speed", settings.speed);
-            sheet.properties.SetVector("_Size", new Vector2(settings.width, settings.height));
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)settings.mode.value);
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

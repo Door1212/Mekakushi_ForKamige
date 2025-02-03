@@ -1,30 +1,71 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 namespace SCPE
 {
-    public sealed class SharpenRenderer : PostProcessEffectRenderer<Sharpen>
+    public class SharpenRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class SharpenRenderPass : PostEffectRenderer<Sharpen>
         {
-            shader = Shader.Find(ShaderNames.Sharpen);
+            public SharpenRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.Sharpen;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<Sharpen>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetVector(ShaderParameters.Params, new Vector3(volumeSettings.amount.value, volumeSettings.radius.value, volumeSettings.contrast.value));
+
+                FinalBlit(this, context, cmd, renderingData, (int)volumeSettings.mode.value);
+            }
         }
 
-        public override void Release()
+        SharpenRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
         {
-            base.Release();
+            m_ScriptablePass = new SharpenRenderPass(settings);
         }
 
-        public override void Render(PostProcessRenderContext context)
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            var sheet = context.propertySheets.Get(shader);
-
-            sheet.properties.SetVector(ShaderParameters.Params, new Vector4(settings.amount.value, settings.radius.value, settings.contrast.value, 0f));
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)settings.mode.value);
+            m_ScriptablePass.Setup(renderer, renderingData);
+        }
+        
+        public void OnDestroy()
+        {
+            m_ScriptablePass.Dispose();
         }
     }
 }

@@ -191,6 +191,8 @@ public class GameManager : MonoBehaviour
 
             }
         }
+
+        //制限時間でクリア管理を行う場合
         if (isTimeLim)
         {
             //指定時間経つとゲームクリア
@@ -233,24 +235,24 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private void DoStopAll()
     {
-        playerMove.SetCanMove(!StopAll);
-        CameraMove.SetCanMove(!StopAll);
-        PlaySound.SetCanMove(!StopAll);
-        soundWall.SetCanMove(!StopAll);
+        playerMove?.SetCanMove(!StopAll);
+        CameraMove?.SetCanMove(!StopAll);
+        PlaySound?.SetCanMove(!StopAll);
+        soundWall?.SetCanMove(!StopAll);
 
         for (int i = 0; i < EnemyAI_Moves.Length; i++)
         {
-            EnemyAI_Moves[i].SetCanMove(!StopAll);
+            EnemyAI_Moves[i]?.SetCanMove(!StopAll);
         }
 
         for(int i = 0; i < AllDoor.Length; i++)
         {
-            AllDoor[i].SetCanMove(!StopAll);
+            AllDoor[i]?.SetCanMove(!StopAll);
         }
 
         for (int i = 0; i < directionalSound.Length; i++)
         {
-            directionalSound[i].SetCanMove(!StopAll);
+            directionalSound[i]?.SetCanMove(!StopAll);
         }
     }
 }

@@ -1,31 +1,44 @@
 ﻿using UnityEditor;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Kaleidoscope))]
-    public sealed class KaleidoscopeEditor : PostProcessEffectEditor<Kaleidoscope>
+    [EffectSettingsEditor(typeof(Kaleidoscope))]
+    sealed class KaleidoscopeEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride radialSplits;
-        SerializedParameterOverride horizontalSplits;
-        SerializedParameterOverride verticalSplits;
-        SerializedParameterOverride center;
-        SerializedParameterOverride maintainAspectRatio;
+        SerializedDataParameter radialSplits;
+        SerializedDataParameter horizontalSplits;
+        SerializedDataParameter verticalSplits;
+        SerializedDataParameter center;
+        SerializedDataParameter maintainAspectRatio;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            radialSplits = FindParameterOverride(x => x.radialSplits);
-            horizontalSplits = FindParameterOverride(x => x.horizontalSplits);
-            verticalSplits = FindParameterOverride(x => x.verticalSplits);
-            center = FindParameterOverride(x => x.center);
-            maintainAspectRatio = FindParameterOverride(x => x.maintainAspectRatio);
+            base.OnEnable();
+
+            var o = new PropertyFetcher<Kaleidoscope>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<KaleidoscopeRenderer>();
+
+            radialSplits = Unpack(o.Find(x => x.radialSplits));
+            horizontalSplits = Unpack(o.Find(x => x.horizontalSplits));
+            verticalSplits = Unpack(o.Find(x => x.verticalSplits));
+            center = Unpack(o.Find(x => x.center));
+            maintainAspectRatio = Unpack(o.Find(x => x.maintainAspectRatio));
         }
+
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("kaleidoscope");
 
-            SCPE_GUI.DisplaySetupWarning<KaleidoscopeRenderer>();
+            SCPE_GUI.DisplaySetupWarning<KaleidoscopeRenderer>(ref isSetup);
 
             PropertyField(radialSplits);
             SCPE_GUI.DisplayIntensityWarning(radialSplits);

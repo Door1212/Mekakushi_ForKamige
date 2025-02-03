@@ -33,7 +33,7 @@ public class FirstHorrorEvent: MonoBehaviour
     [Header("ホストプロセス")]
     public PostProcessVolume PostProcess;
 
-    RLProVHSEffect RLProVHSEffect;
+    //RLProVHSEffect RLProVHSEffect;
 
     private Coroutine EventCoroutine; // タイピングエフェクトのコルーチン
 
@@ -51,11 +51,11 @@ public class FirstHorrorEvent: MonoBehaviour
         // VolumeProfileを取得
         if (PostProcess != null && PostProcess.profile != null)
         {
-            // Bloomエフェクトを取得
-            if (PostProcess.profile.TryGetSettings(out RLProVHSEffect))
-            {
-                Debug.Log("RLProVHSEffect xfound.");
-            }
+            //// Bloomエフェクトを取得
+            //if (PostProcess.profile.TryGetSettings(out RLProVHSEffect))
+            //{
+            //    Debug.Log("RLProVHSEffect xfound.");
+            //}
         }
     }
 
@@ -141,10 +141,10 @@ public class FirstHorrorEvent: MonoBehaviour
 
     public void EnableVHSEffect(bool enable)
     {
-        if (RLProVHSEffect != null)
-        {
-            RLProVHSEffect.active = enable; // エフェクト全体の有効化/無効化
-            Debug.Log("VHS Effect is now " + (enable ? "enabled" : "disabled"));
-        }
+        //if (RLProVHSEffect != null)
+        //{
+        //    RLProVHSEffect.active = enable; // エフェクト全体の有効化/無効化
+        //    Debug.Log("VHS Effect is now " + (enable ? "enabled" : "disabled"));
+        //}
     }
 }

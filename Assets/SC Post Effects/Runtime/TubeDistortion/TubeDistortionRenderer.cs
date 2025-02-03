@@ -1,30 +1,65 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 namespace SCPE
 {
-    public sealed class TubeDistortionRenderer : PostProcessEffectRenderer<TubeDistortion>
+    public class TubeDistortionRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class TubeDistortionRenderPass : PostEffectRenderer<TubeDistortion>
         {
-            shader = Shader.Find(ShaderNames.TubeDistortion);
+            public TubeDistortionRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.TubeDistortion;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<TubeDistortion>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetFloat("_Amount", volumeSettings.amount.value);
+
+                FinalBlit(this, context, cmd, renderingData, (int)volumeSettings.mode.value);
+            }
         }
 
-        public override void Release()
+        TubeDistortionRenderPass m_ScriptablePass;
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings(false);
+        
+        public override void Create()
         {
-            base.Release();
+            m_ScriptablePass = new TubeDistortionRenderPass(settings);
         }
 
-        public override void Render(PostProcessRenderContext context)
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            var sheet = context.propertySheets.Get(shader);
-
-            sheet.properties.SetFloat("_Amount", settings.amount.value);
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)settings.mode.value);
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

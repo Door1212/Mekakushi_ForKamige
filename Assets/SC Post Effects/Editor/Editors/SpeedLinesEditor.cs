@@ -1,36 +1,48 @@
 ﻿using UnityEditor;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(SpeedLines))]
-    public sealed class SpeedLinesEditor : PostProcessEffectEditor<SpeedLines>
+    [EffectSettingsEditor(typeof(SpeedLines))]
+    sealed class SpeedLinesEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride intensity;
-        SerializedParameterOverride size;
-        SerializedParameterOverride falloff;
-        SerializedParameterOverride noiseTex;
+        SerializedDataParameter intensity;
+        SerializedDataParameter size;
+        SerializedDataParameter falloff;
+        SerializedDataParameter noiseTex;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            intensity = FindParameterOverride(x => x.intensity);
-            size = FindParameterOverride(x => x.size);
-            falloff = FindParameterOverride(x => x.falloff);
-            noiseTex = FindParameterOverride(x => x.noiseTex);
+            base.OnEnable();
+
+            var o = new PropertyFetcher<SpeedLines>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<SpeedLinesRenderer>();
+
+            intensity = Unpack(o.Find(x => x.intensity));
+            size = Unpack(o.Find(x => x.size));
+            falloff = Unpack(o.Find(x => x.falloff));
+            noiseTex = Unpack(o.Find(x => x.noiseTex));
         }
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("speed-lines");
 
-            SCPE_GUI.DisplaySetupWarning<SpeedLinesRenderer>();
+            SCPE_GUI.DisplaySetupWarning<SpeedLinesRenderer>(ref isSetup);
 
-            PropertyField(intensity);            
+            PropertyField(intensity);
             SCPE_GUI.DisplayIntensityWarning(intensity);
             
             EditorGUILayout.Space();
             
-            PropertyField(noiseTex);                
+            PropertyField(noiseTex);
             SCPE_GUI.DisplayTextureOverrideWarning(noiseTex.overrideState.boolValue);
 
             PropertyField(size);

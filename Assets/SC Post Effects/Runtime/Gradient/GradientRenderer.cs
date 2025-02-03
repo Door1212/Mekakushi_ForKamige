@@ -1,40 +1,72 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 namespace SCPE
 {
-    public sealed class GradientRenderer : PostProcessEffectRenderer<Gradient>
+    public class GradientRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class GradientRenderPass : PostEffectRenderer<Gradient>
         {
-            shader = Shader.Find(ShaderNames.Gradient);
-            //settings.gradient.value = new Gradient();
+            public GradientRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.Gradient;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<Gradient>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                if (volumeSettings.gradientTex.value) Material.SetTexture("_Gradient", volumeSettings.gradientTex.value);
+                Material.SetColor("_Color1", volumeSettings.color1.value);
+                Material.SetColor("_Color2", volumeSettings.color2.value);
+                Material.SetFloat("_Rotation", volumeSettings.rotation.value * 360f);
+                Material.SetFloat("_Intensity", volumeSettings.intensity.value);
+                Material.SetFloat("_BlendMode", (int)volumeSettings.mode.value);
+
+                FinalBlit(this, context, cmd, renderingData, (int)volumeSettings.input.value);
+            }
         }
 
-        public override void Release()
+        GradientRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
         {
-            base.Release();
+            m_ScriptablePass = new GradientRenderPass(settings);
         }
 
-        public override void Render(PostProcessRenderContext context)
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
-            var sheet = context.propertySheets.Get(shader);
-
-            //This should be editor inspector only, but that's not possible currently
-            //Texture2D gradientTexture = settings.GenerateGradient(settings.gradient.value);
-            //if(settings.gradient.value.colorKeys.Length > 0) settings.gradientTex.value = settings.GenerateGradient(settings.gradient);
-
-            if (settings.gradientTex.value) sheet.properties.SetTexture("_Gradient", settings.gradientTex);
-            sheet.properties.SetColor("_Color1", settings.color1);
-            sheet.properties.SetColor("_Color2", settings.color2);
-            sheet.properties.SetFloat("_Rotation", settings.rotation * 360f);
-            sheet.properties.SetFloat("_Intensity", settings.intensity);
-            sheet.properties.SetFloat("_BlendMode", (int)settings.mode.value);
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)settings.input.value);
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

@@ -1,13 +1,13 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using System;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
-using FloatParameter = UnityEngine.Rendering.PostProcessing.FloatParameter;
+using UnityEngine.Rendering;
 
 namespace SCPE
 {
-    [PostProcess(typeof(ColorSplitRenderer), PostProcessEvent.AfterStack, "SC Post Effects/Retro/Color Split", true)]
-    [Serializable]
-    public sealed class ColorSplit : PostProcessEffectSettings
+    [Serializable, VolumeComponentMenu("SC Post Effects/Retro/Color Split")]
+    [SupportedOnRenderPipeline(typeof(UniversalRenderPipelineAsset))]
+    public sealed class ColorSplit : VolumeComponent, IPostProcessComponent
     {
         public enum SplitMode
         {
@@ -18,30 +18,23 @@ namespace SCPE
         }
 
         [Serializable]
-        public sealed class SplitModeParam : ParameterOverride<SplitMode> { }
+        public sealed class SplitModeParam : VolumeParameter<SplitMode> { }
 
-        [DisplayName("Method"), Tooltip("Box filtered methods provide a subtle blur effect and are less efficient")]
+        [Tooltip("Box filtered methods provide a subtle blur effect and are less efficient")]
         public SplitModeParam mode = new SplitModeParam { value = SplitMode.Single };
 
         [Range(0f, 1f), Tooltip("The amount by which the color channels offset")]
-        public FloatParameter offset = new FloatParameter { value = 0f };
+        public FloatParameter offset = new FloatParameter(0f);
         
-        [Range(0f, 1f), Tooltip("0=Full screen. 1=Limit to screen edges")]
-        public FloatParameter edgeMasking = new FloatParameter { value = 0f };
+        [Tooltip("0=Full screen. 1=Limit to screen edges")]
+        public ClampedFloatParameter edgeMasking = new ClampedFloatParameter(0f, 0f, 1f);
 
         [Range(0f, 3f), Tooltip("Luminance threshold, pixels above this threshold will contribute to the effect")]
-        public FloatParameter luminanceThreshold = new FloatParameter { value = 0f };
+        public ClampedFloatParameter luminanceThreshold = new ClampedFloatParameter(0f, 0f, 3f);
         
-        public override bool IsEnabledAndSupported(PostProcessRenderContext context)
-        {
-            if (enabled.value)
-            {
-                if (offset == 0) { return false; }
-                return true;
-            }
+        public bool IsActive() => offset.value > 0f && this.active;
 
-            return false;
-        }
+        public bool IsTileCompatible() => false;
         
         [SerializeField]
         public Shader shader;
@@ -50,7 +43,7 @@ namespace SCPE
         {
             SerializeShader();
         }
-        
+
         private bool SerializeShader()
         {
             bool wasSerialized = !shader;

@@ -1,28 +1,67 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEngine;
 
 namespace SCPE
 {
-    public sealed class RadialBlurRenderer : PostProcessEffectRenderer<RadialBlur>
+    public class RadialBlurRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class RadialBlurRenderPass : PostEffectRenderer<RadialBlur>
         {
-            shader = Shader.Find(ShaderNames.RadialBlur);
+            public RadialBlurRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.RadialBlur;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<RadialBlur>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetVector(ShaderParameters.Params, new Vector4(volumeSettings.amount.value * 0.25f, volumeSettings.center.value.x, volumeSettings.center.value.y, volumeSettings.angle.value));
+                Material.SetFloat("_Iterations", volumeSettings.iterations.value);
+
+                FinalBlit(this, context, cmd, renderingData, 0);
+            }
         }
 
-        public override void Render(PostProcessRenderContext context)
+        RadialBlurRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
         {
-            PropertySheet sheet = context.propertySheets.Get(shader);
+            m_ScriptablePass = new RadialBlurRenderPass(settings);
+        }
 
-            //Rotation angle is divided by the reciprocal of 720 degrees
-            sheet.properties.SetVector(ShaderParameters.Params, new Vector4(settings.amount.value * 0.25f, settings.center.value.x, settings.center.value.y, settings.angle.value));
-            sheet.properties.SetFloat("_Iterations", settings.iterations.value);
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

@@ -1,44 +1,51 @@
 ﻿using UnityEditor;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Sharpen))]
-    public sealed class SharpenEditor : PostProcessEffectEditor<Sharpen>
+    [EffectSettingsEditor(typeof(Sharpen))]
+    sealed class SharpenEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride mode;
-        SerializedParameterOverride amount;
-        SerializedParameterOverride radius;
-        SerializedParameterOverride contrast;
+        SerializedDataParameter mode;
+        SerializedDataParameter amount;
+        SerializedDataParameter radius;
+        SerializedDataParameter contrast;
+        
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            mode = FindParameterOverride(x => x.mode);
-            amount = FindParameterOverride(x => x.amount);
-            radius = FindParameterOverride(x => x.radius);
-            contrast = FindParameterOverride(x => x.contrast);
-        }
-        
-        public override string GetDisplayTitle()
-        {
-            return "Sharpen (" + mode.value.enumDisplayNames[mode.value.intValue] + ")";
+            base.OnEnable();
+
+            var o = new PropertyFetcher<Sharpen>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<SharpenRenderer>();
+
+            mode = Unpack(o.Find(x => x.mode));
+            amount = Unpack(o.Find(x => x.amount));
+            radius = Unpack(o.Find(x => x.radius));
+            contrast = Unpack(o.Find(x => x.contrast));
         }
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("sharpen");
 
-            SCPE_GUI.DisplaySetupWarning<SharpenRenderer>();
+            SCPE_GUI.DisplaySetupWarning<SharpenRenderer>(ref isSetup);
 
             PropertyField(mode);
             
             EditorGUILayout.Space();
-
+            
             PropertyField(amount);
             SCPE_GUI.DisplayIntensityWarning(amount);
             
             PropertyField(radius);
-
+            
             if (mode.value.intValue == (int)Sharpen.Method.ContrastAdaptive)
             {
                 PropertyField(contrast);

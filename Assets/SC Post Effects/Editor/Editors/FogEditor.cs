@@ -1,61 +1,63 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor.SceneManagement;
+using UnityEditor.Rendering;
 using UnityEditor.AnimatedValues;
-using UnityEditor.SceneManagement;
-using UnityEditor.Rendering.PostProcessing;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEditor;
+using UnityEngine;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Fog))]
-    public sealed class FogEditor : PostProcessEffectEditor<Fog>
+    [EffectSettingsEditor(typeof(Fog))]
+    sealed class FogEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride useSceneSettings;
-        SerializedParameterOverride fogMode;
-        SerializedParameterOverride fogDensity;
-        SerializedParameterOverride fogStartDistance;
-        SerializedParameterOverride fogEndDistance;
+        SerializedDataParameter useSceneSettings;
+        SerializedDataParameter fogMode;
+        SerializedDataParameter fogDensity;
+        SerializedDataParameter fogStartDistance;
+        SerializedDataParameter fogEndDistance;
 
-        SerializedParameterOverride colorMode;
-#if PPS_DEV
-        SerializedParameterOverride skyboxMipLevel;
-#endif
-        SerializedParameterOverride fogColor;
-        SerializedParameterOverride fogColorGradient;
-        SerializedParameterOverride gradientDistance;
-        SerializedParameterOverride gradientUseFarClipPlane;
+        SerializedDataParameter colorMode;
 
-        SerializedParameterOverride distanceFog;
-        SerializedParameterOverride distanceDensity;
-        SerializedParameterOverride useRadialDistance;
+        SerializedDataParameter fogColor;
+        SerializedDataParameter fogColorGradient;
+        SerializedDataParameter gradientDistance;
+        SerializedDataParameter gradientUseFarClipPlane;
 
-        SerializedParameterOverride horizonMinMax;
-        SerializedParameterOverride skyboxInfluence;
+        SerializedDataParameter distanceFog;
+        SerializedDataParameter distanceDensity;
+        SerializedDataParameter useRadialDistance;
 
-        SerializedParameterOverride enableDirectionalLight;
-        SerializedParameterOverride useLightDirection;
-        SerializedParameterOverride useLightColor;
-        SerializedParameterOverride useLightIntensity;
-        SerializedParameterOverride lightColor;
-        SerializedParameterOverride lightDirection;
-        SerializedParameterOverride lightIntensity;
-        SerializedParameterOverride lightExponent;
+        SerializedDataParameter horizonMinMax;
+        SerializedDataParameter skyboxInfluence;
 
-        SerializedParameterOverride heightFog;
-        SerializedParameterOverride height;
-        SerializedParameterOverride heightDensity;
+        SerializedDataParameter enableDirectionalLight;
+        SerializedDataParameter useLightDirection;
+        SerializedDataParameter useLightColor;
+        SerializedDataParameter useLightIntensity;
+        SerializedDataParameter lightColor;
+        SerializedDataParameter lightDirection;
+        SerializedDataParameter lightIntensity;
+        SerializedDataParameter lightExponent;
 
-        SerializedParameterOverride heightFogNoise;
-        SerializedParameterOverride heightNoiseTex;
-        SerializedParameterOverride heightNoiseSize;
-        SerializedParameterOverride heightNoiseStrength;
-        SerializedParameterOverride heightNoiseSpeed;
+        SerializedDataParameter heightFog;
+        SerializedDataParameter height;
+        SerializedDataParameter heightDensity;
 
-        SerializedParameterOverride lightScattering;
-        SerializedParameterOverride scatterIntensity;
-        SerializedParameterOverride scatterDiffusion;
-        SerializedParameterOverride scatterThreshold;
-        SerializedParameterOverride scatterSoftKnee;
+        SerializedDataParameter heightFogNoise;
+        SerializedDataParameter heightNoiseTex;
+        SerializedDataParameter heightNoiseSize;
+        SerializedDataParameter heightNoiseStrength;
+        SerializedDataParameter heightNoiseSpeed;
+
+        SerializedDataParameter lightScattering;
+        SerializedDataParameter scatterIntensity;
+        SerializedDataParameter scatterDiffusion;
+        SerializedDataParameter scatterThreshold;
+        SerializedDataParameter scatterSoftKnee;
 
         private float animSpeed = 4f;
         AnimBool m_showControls;
@@ -63,52 +65,56 @@ namespace SCPE
         AnimBool m_showSun;
         AnimBool m_showScattering;
 
+        private bool isSetup;
+
         public override void OnEnable()
         {
-            useSceneSettings = FindParameterOverride(x => x.useSceneSettings);
-            fogMode = FindParameterOverride(x => x.fogMode);
-            fogDensity = FindParameterOverride(x => x.globalDensity);
-            fogStartDistance = FindParameterOverride(x => x.fogStartDistance);
-            fogDensity = FindParameterOverride(x => x.globalDensity);
-            fogEndDistance = FindParameterOverride(x => x.fogEndDistance);
-            colorMode = FindParameterOverride(x => x.colorSource);
-#if PPS_DEV
-            skyboxMipLevel = FindParameterOverride(x => x.skyboxMipLevel);
-#endif
-            fogColor = FindParameterOverride(x => x.fogColor);
-            fogColorGradient = FindParameterOverride(x => x.fogColorGradient);
-            gradientDistance = FindParameterOverride(x => x.gradientDistance);
-            gradientUseFarClipPlane = FindParameterOverride(x => x.gradientUseFarClipPlane);
-            distanceFog = FindParameterOverride(x => x.distanceFog);
-            distanceDensity = FindParameterOverride(x => x.distanceDensity);
-            useRadialDistance = FindParameterOverride(x => x.useRadialDistance);
-            heightFog = FindParameterOverride(x => x.heightFog);
-            height = FindParameterOverride(x => x.height);
-            heightDensity = FindParameterOverride(x => x.heightDensity);
-            heightFogNoise = FindParameterOverride(x => x.heightFogNoise);
-            heightNoiseTex = FindParameterOverride(x => x.heightNoiseTex);
-            heightNoiseSize = FindParameterOverride(x => x.heightNoiseSize);
-            heightNoiseStrength = FindParameterOverride(x => x.heightNoiseStrength);
-            heightNoiseSpeed = FindParameterOverride(x => x.heightNoiseSpeed);
+            base.OnEnable();
 
-            horizonMinMax = FindParameterOverride(x => x.horizonMinMax);
-            skyboxInfluence = FindParameterOverride(x => x.skyboxInfluence);
+            var o = new PropertyFetcher<Fog>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<FogRenderer>();
 
-            enableDirectionalLight = FindParameterOverride(x => x.enableDirectionalLight);
-            useLightDirection = FindParameterOverride(x => x.useLightDirection);
-            useLightColor = FindParameterOverride(x => x.useLightColor);
-            useLightIntensity = FindParameterOverride(x => x.useLightIntensity);
-            lightColor = FindParameterOverride(x => x.lightColor);
-            lightDirection = FindParameterOverride(x => x.lightDirection);
-            lightIntensity = FindParameterOverride(x => x.lightIntensity);
-            lightExponent = FindParameterOverride(x => x.lightExponent);
+            useSceneSettings = Unpack(o.Find(x => x.useSceneSettings));
+            fogMode = Unpack(o.Find(x => x.fogMode));
+            fogDensity = Unpack(o.Find(x => x.globalDensity));
+            fogStartDistance = Unpack(o.Find(x => x.fogStartDistance));
+            fogDensity = Unpack(o.Find(x => x.globalDensity));
+            fogEndDistance = Unpack(o.Find(x => x.fogEndDistance));
+            colorMode = Unpack(o.Find(x => x.colorSource));
 
-            lightScattering = FindParameterOverride(x => x.lightScattering);
-            scatterIntensity = FindParameterOverride(x => x.scatterIntensity);
-            scatterDiffusion = FindParameterOverride(x => x.scatterDiffusion);
-            scatterThreshold = FindParameterOverride(x => x.scatterThreshold);
-            scatterSoftKnee = FindParameterOverride(x => x.scatterSoftKnee);
+            fogColor = Unpack(o.Find(x => x.fogColor));
+            fogColorGradient = Unpack(o.Find(x => x.fogColorGradient));
+            gradientDistance = Unpack(o.Find(x => x.gradientDistance));
+            gradientUseFarClipPlane = Unpack(o.Find(x => x.gradientUseFarClipPlane));
+            distanceFog = Unpack(o.Find(x => x.distanceFog));
+            distanceDensity = Unpack(o.Find(x => x.distanceDensity));
+            useRadialDistance = Unpack(o.Find(x => x.useRadialDistance));
+            heightFog = Unpack(o.Find(x => x.heightFog));
+            height = Unpack(o.Find(x => x.height));
+            heightDensity = Unpack(o.Find(x => x.heightDensity));
+            heightFogNoise = Unpack(o.Find(x => x.heightFogNoise));
+            heightNoiseTex = Unpack(o.Find(x => x.heightNoiseTex));
+            heightNoiseSize = Unpack(o.Find(x => x.heightNoiseSize));
+            heightNoiseStrength = Unpack(o.Find(x => x.heightNoiseStrength));
+            heightNoiseSpeed = Unpack(o.Find(x => x.heightNoiseSpeed));
 
+            horizonMinMax = Unpack(o.Find(x => x.horizonMinMax));
+            skyboxInfluence = Unpack(o.Find(x => x.skyboxInfluence));
+
+            enableDirectionalLight = Unpack(o.Find(x => x.enableDirectionalLight));
+            useLightDirection = Unpack(o.Find(x => x.useLightDirection));
+            useLightColor = Unpack(o.Find(x => x.useLightColor));
+            useLightIntensity = Unpack(o.Find(x => x.useLightIntensity));
+            lightColor = Unpack(o.Find(x => x.lightColor));
+            lightDirection = Unpack(o.Find(x => x.lightDirection));
+            lightIntensity = Unpack(o.Find(x => x.lightIntensity));
+            lightExponent = Unpack(o.Find(x => x.lightExponent));
+            
+            lightScattering = Unpack(o.Find(x => x.lightScattering));
+            scatterIntensity = Unpack(o.Find(x => x.scatterIntensity));
+            scatterDiffusion = Unpack(o.Find(x => x.scatterDiffusion));
+            scatterThreshold = Unpack(o.Find(x => x.scatterThreshold));
+            scatterSoftKnee = Unpack(o.Find(x => x.scatterSoftKnee));
 
             m_showControls = new AnimBool(true);
             m_showControls.valueChanged.AddListener(Repaint);
@@ -127,16 +133,23 @@ namespace SCPE
             m_showScattering.speed = animSpeed;
         }
 
+        #if UNITY_2021_2_OR_NEWER
+        public override GUIContent GetDisplayTitle()
+        {
+            return new GUIContent("Screen-Space Fog (" + colorMode.value.enumDisplayNames[colorMode.value.intValue] + ")");
+        }
+        #else
         public override string GetDisplayTitle()
         {
             return "Screen-Space Fog (" + colorMode.value.enumDisplayNames[colorMode.value.intValue] + ")";
         }
+        #endif
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("fog");
-            
-            SCPE_GUI.DisplaySetupWarning<FogRenderer>();
+
+            SCPE_GUI.DisplaySetupWarning<FogRenderer>(ref isSetup, false);
 
             if (RenderSettings.fog)
             {
@@ -148,7 +161,7 @@ namespace SCPE
                         if (GUILayout.Button("Disable scene fog"))
                         {
                             RenderSettings.fog = false;
-							EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+                            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                         }
                         GUILayout.FlexibleSpace();
                     }
@@ -159,6 +172,7 @@ namespace SCPE
 
                 EditorGUILayout.Space();
             }
+            
             PropertyField(fogDensity);
             SCPE_GUI.DisplayIntensityWarning(fogDensity);
             
@@ -218,9 +232,7 @@ namespace SCPE
                 }
                 else if (colorMode.value.intValue == 2) //Skybox
                 {
-#if PPS_DEV  //Hide parameter, implementation isn't ideal and will cause pixel marching, won't look good in any case
-                    PropertyField(skyboxMipLevel);
-#endif
+
                 }
             }
             EditorGUILayout.EndFadeGroup();
@@ -245,7 +257,8 @@ namespace SCPE
                 // Override checkbox
                 var overrideRect = GUILayoutUtility.GetRect(17f, 17f, GUILayout.ExpandWidth(false));
                 overrideRect.yMin += 4f;
-                EditorUtilities.DrawOverrideCheckbox(overrideRect, horizonMinMax.overrideState);
+                overrideRect.xMin += 8f;
+                horizonMinMax.overrideState.boolValue = GUI.Toggle(overrideRect, horizonMinMax.overrideState.boolValue, EditorGUIUtility.TrTextContent("", "Override this setting for this volume."), CoreEditorStyles.smallTickbox);
 
                 // Property
                 using (new EditorGUI.DisabledScope(!horizonMinMax.overrideState.boolValue))
@@ -263,7 +276,7 @@ namespace SCPE
                     }
                 }
             }
-            
+
             //Always exclude skybox for skybox color mode
             PropertyField(skyboxInfluence, new GUIContent("Influence"));
 
@@ -280,6 +293,7 @@ namespace SCPE
                 if (!useLightColor.value.boolValue) PropertyField(lightColor);
                 PropertyField(useLightIntensity);
                 if (!useLightIntensity.value.boolValue) PropertyField(lightIntensity);
+                
                 PropertyField(lightExponent);
             }
             EditorGUILayout.EndFadeGroup();
@@ -306,6 +320,7 @@ namespace SCPE
             }
             EditorGUILayout.EndFadeGroup();
 
+            /*
             PropertyField(lightScattering);
             m_showScattering.target = lightScattering.value.boolValue;
             if (EditorGUILayout.BeginFadeGroup(m_showScattering.faded))
@@ -316,7 +331,7 @@ namespace SCPE
                 PropertyField(scatterSoftKnee);
             }
             EditorGUILayout.EndFadeGroup();
-
+            */
         }
     }
 }

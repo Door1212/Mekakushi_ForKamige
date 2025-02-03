@@ -1,46 +1,86 @@
-﻿using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
+using UnityEngine;
 
 namespace SCPE
 {
-    public sealed class LUTRenderer : PostProcessEffectRenderer<LUT>
+    public class LUTRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class LUTRenderPass : PostEffectRenderer<LUT>
         {
-            shader = Shader.Find(ShaderNames.LUT);
-        }
-
-        public override void Release()
-        {
-            base.Release();
-        }
-
-        public override void Render(PostProcessRenderContext context)
-        {
-            if (LUT.Bypass) return;
-            
-            var sheet = context.propertySheets.Get(shader);
-
-            sheet.properties.SetVector("_LUT_Params", new Vector4(settings.intensity.value, settings.invert.value));
-            
-            if (settings.lutNear.value)
+            public LUTRenderPass(EffectBaseSettings settings)
             {
-                sheet.properties.SetTexture("_LUT_Near", settings.lutNear);
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.LUT;
+                ProfilerTag = GetProfilerTag();
             }
 
-            if ((int)settings.mode.value == 1)
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
             {
-                context.command.SetGlobalVector(ShaderParameters.FadeParams, new Vector4(settings.startFadeDistance.value, settings.endFadeDistance.value, 0, 0));
+                volumeSettings = VolumeManager.instance.stack.GetComponent<LUT>();
+                
+                base.Setup(renderer, renderingData);
 
-                if (settings.lutFar.value) sheet.properties.SetTexture("_LUT_Far", settings.lutFar);
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
             }
-            
-            sheet.properties.SetVector(ShaderParameters.Params, new Vector4(settings.vibranceRGBBalance.value.r, settings.vibranceRGBBalance.value.g, settings.vibranceRGBBalance.value.b, settings.vibrance.value));
-            
 
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, (int)settings.mode.value);
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                requiresDepth = volumeSettings.mode == LUT.Mode.DistanceBased;
+
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                if (LUT.Bypass) return;
+                
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+
+                Material.SetVector("_LUT_Params", new Vector4(volumeSettings.lutNear.value ? volumeSettings.intensity.value : 0f, volumeSettings.invert.value));
+                
+                if (volumeSettings.lutNear.value)
+                {
+                    Material.SetTexture("_LUT_Near", volumeSettings.lutNear.value);
+                }
+
+                if ((int)volumeSettings.mode.value == 1)
+                {
+                    Material.SetVector("_FadeParams", new Vector4(volumeSettings.startFadeDistance.value, volumeSettings.endFadeDistance.value, 0, 0));
+
+                    if (volumeSettings.lutFar.value) Material.SetTexture("_LUT_Far", volumeSettings.lutFar.value);
+                }
+                
+                Material.SetVector(ShaderParameters.Params, new Vector4(volumeSettings.vibranceRGBBalance.value.r, volumeSettings.vibranceRGBBalance.value.g, volumeSettings.vibranceRGBBalance.value.b, volumeSettings.vibrance.value));
+                
+                FinalBlit(this, context, cmd, renderingData, (int)volumeSettings.mode.value);
+            }
+        }
+
+        LUTRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
+        {
+            m_ScriptablePass = new LUTRenderPass(settings);
+        }
+
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

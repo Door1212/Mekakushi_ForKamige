@@ -1,88 +1,123 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.PostProcessing;
+using UnityEngine;
 
 namespace SCPE
 {
-    public sealed class LightStreaksRenderer : PostProcessEffectRenderer<LightStreaks>
+    public class LightStreaksRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-        private int emissionTex;
-        RenderTexture aoRT;
-
-        public override void Init()
+        class LightStreaksRenderPass : PostEffectRenderer<LightStreaks>
         {
-            shader = Shader.Find(ShaderNames.LightStreaks);
-            emissionTex = Shader.PropertyToID("_BloomTex");
-        }
+            private readonly int emissionTexID = Shader.PropertyToID("_BloomTex");
+            private RTHandle emissionTex;
+            private RTHandle blurBuffer1;
+            private RTHandle blurBuffer2;
 
-        public override void Release()
-        {
-            base.Release();
-        }
-
-        enum Pass
-        {
-            LuminanceDiff,
-            BlurFast,
-            Blur,
-            Blend,
-            Debug
-        }
-
-        public override void Render(PostProcessRenderContext context)
-        {
-            var sheet = context.propertySheets.Get(shader);
-            CommandBuffer cmd = context.command;
-
-            int blurMode = (settings.quality.value == LightStreaks.Quality.Performance) ? (int)Pass.BlurFast : (int)Pass.Blur;
-
-            float luminanceThreshold = Mathf.GammaToLinearSpace(settings.luminanceThreshold.value);
-
-            sheet.properties.SetVector(ShaderParameters.Params, new Vector4(luminanceThreshold, settings.intensity.value, 0f, 0f));
-
-            cmd.GetTemporaryRT(emissionTex, context.width, context.height, 0, FilterMode.Bilinear, context.sourceFormat);
-
-            //Luminance difference check on RT
-            cmd.BlitFullscreenTriangle(context.source, emissionTex, sheet, (int)Pass.LuminanceDiff);
-
-            int downSamples = settings.downscaling + 1;
-            // get two smaller RTs
-            int blurredID = Shader.PropertyToID("_Temp1");
-            int blurredID2 = Shader.PropertyToID("_Temp2");
-            cmd.GetTemporaryRT(blurredID, context.width / downSamples, context.height / downSamples, 0, FilterMode.Bilinear);
-            cmd.GetTemporaryRT(blurredID2, context.width / downSamples, context.height / downSamples, 0, FilterMode.Bilinear);
-
-            //Pass into blur target texture
-            cmd.BlitFullscreenTriangle(emissionTex, blurredID);
-
-            float ratio = Mathf.Clamp(settings.direction.value, -1, 1);
-            float rw = ratio < 0 ? -ratio * 16 : 0f;
-            float rh = ratio > 0 ? ratio * 8 : 0f;
-
-            int iterations = (settings.quality.value == LightStreaks.Quality.Performance) ? settings.iterations.value * 3 : settings.iterations.value;
-
-            for (int i = 0; i < iterations; i++)
+            enum Pass
             {
-                // vertical blur 1
-                cmd.SetGlobalVector(ShaderParameters.BlurOffsets, new Vector4(rw * settings.blur / context.screenWidth, rh / context.screenHeight, 0, 0));
-                context.command.BlitFullscreenTriangle(blurredID, blurredID2, sheet, blurMode);
-
-                // vertical blur 2
-                cmd.SetGlobalVector(ShaderParameters.BlurOffsets, new Vector4((rw * settings.blur) * 2f / context.screenWidth, rh * 2f / context.screenHeight, 0, 0));
-                context.command.BlitFullscreenTriangle(blurredID2, blurredID, sheet, blurMode);
+                LuminanceDiff,
+                BlurFast,
+                Blur,
+                Blend,
+                Debug
             }
 
-            cmd.SetGlobalTexture("_BloomTex", blurredID);
+            public LightStreaksRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.LightStreaks;
+                ProfilerTag = GetProfilerTag();
+            }
 
-            //Blend AO tex with image
-            cmd.BlitFullscreenTriangle(context.source, context.destination, sheet, (settings.debug) ? (int)Pass.Debug : (int)Pass.Blend);
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<LightStreaks>();
+                
+                base.Setup(renderer, renderingData);
 
-            // release
-            cmd.ReleaseTemporaryRT(blurredID);
-            cmd.ReleaseTemporaryRT(blurredID2);
-            cmd.ReleaseTemporaryRT(emissionTex);
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+                
+                emissionTex = GetTemporaryRT(ref emissionTex, cameraTextureDescriptor, cameraTextureDescriptor.graphicsFormat, FilterMode.Bilinear, "LightStreaks");
+                
+                blurBuffer1 = GetTemporaryRT(ref blurBuffer1, cameraTextureDescriptor, cameraTextureDescriptor.graphicsFormat, FilterMode.Bilinear, "LightStreaksBlurBuffer1", volumeSettings.downscaling.value);
+                blurBuffer2 = GetTemporaryRT(ref blurBuffer2, cameraTextureDescriptor, cameraTextureDescriptor.graphicsFormat, FilterMode.Bilinear, "LightStreaksBlurBuffer2", volumeSettings.downscaling.value);
+            }
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                int blurMode = (volumeSettings.quality.value == LightStreaks.Quality.Performance) ? (int)Pass.BlurFast : (int)Pass.Blur;
+
+                float luminanceThreshold = Mathf.GammaToLinearSpace(volumeSettings.luminanceThreshold.value);
+
+                Material.SetVector(ShaderParameters.Params, new Vector4(luminanceThreshold, volumeSettings.intensity.value, 0f, 0f));
+
+                CopyTargets(cmd, renderingData);
+                
+                Blit(this, cmd, cameraColorTarget, emissionTex, Material, (int)Pass.LuminanceDiff);
+                BlitCopy(cmd, emissionTex, blurBuffer1);
+
+                float ratio = Mathf.Clamp(volumeSettings.direction.value, -1, 1);
+                float rw = ratio < 0 ? -ratio * 1f : 0f;
+                float rh = ratio > 0 ? ratio * 4f : 0f;
+
+                int iterations = (volumeSettings.quality.value == LightStreaks.Quality.Performance) ? volumeSettings.iterations.value * 3 : volumeSettings.iterations.value;
+
+                for (int i = 0; i < iterations; i++)
+                {
+                    // horizontal blur
+                    cmd.SetGlobalVector(ShaderParameters.BlurOffsets, new Vector4(rw * volumeSettings.blur.value / renderingData.cameraData.camera.scaledPixelWidth, rh / renderingData.cameraData.camera.scaledPixelHeight, 0, 0));
+                    Blit(this, cmd, blurBuffer1, blurBuffer2, Material, blurMode);
+
+                    // vertical blur
+                    cmd.SetGlobalVector(ShaderParameters.BlurOffsets, new Vector4((rw * volumeSettings.blur.value) * 2f / renderingData.cameraData.camera.scaledPixelWidth, rh * 2f / renderingData.cameraData.camera.scaledPixelHeight, 0, 0));
+                    Blit(this, cmd, blurBuffer2, blurBuffer1, Material, blurMode);
+                }
+
+                cmd.SetGlobalTexture(emissionTexID, blurBuffer1);
+
+                FinalBlit(this, context, cmd, renderingData, (volumeSettings.debug.value) ? (int)Pass.Debug : (int)Pass.Blend);
+            }
+
+            public override void OnCameraCleanup(CommandBuffer cmd)
+            {
+                base.OnCameraCleanup(cmd);
+
+                if (ShouldReleaseRT())
+                {
+                    ReleaseRT(emissionTex);
+                    ReleaseRT(blurBuffer1);
+                    ReleaseRT(blurBuffer2);
+                }
+            }
+        }
+
+        LightStreaksRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
+        {
+            m_ScriptablePass = new LightStreaksRenderPass(settings);
+        }
+
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
     }
 }

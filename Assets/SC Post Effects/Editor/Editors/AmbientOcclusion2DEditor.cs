@@ -1,39 +1,52 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEditor.Rendering;
 using UnityEditor;
-using UnityEngine.Rendering.PostProcessing;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEngine;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(AmbientOcclusion2D))]
-    public class AmbientOcclusion2DEditor : PostProcessEffectEditor<AmbientOcclusion2D>
+    [EffectSettingsEditor(typeof(AmbientOcclusion2D))]
+    sealed class AmbientOcclusion2DEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride aoOnly;
-        SerializedParameterOverride intensity;
-        SerializedParameterOverride luminanceThreshold;
-        SerializedParameterOverride distance;
-        SerializedParameterOverride blurAmount;
-        SerializedParameterOverride iterations;
-        SerializedParameterOverride downscaling;
+        SerializedDataParameter aoOnly;
+        SerializedDataParameter intensity;
+        SerializedDataParameter luminanceThreshold;
+        SerializedDataParameter distance;
+        SerializedDataParameter blurAmount;
+        SerializedDataParameter iterations;
+        SerializedDataParameter downscaling;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            aoOnly = FindParameterOverride(x => x.aoOnly);
-            intensity = FindParameterOverride(x => x.intensity);
-            luminanceThreshold = FindParameterOverride(x => x.luminanceThreshold);
-            distance = FindParameterOverride(x => x.distance);
-            blurAmount = FindParameterOverride(x => x.blurAmount);
-            iterations = FindParameterOverride(x => x.iterations);
-            downscaling = FindParameterOverride(x => x.downscaling);
-        }
+            base.OnEnable();
 
+            var o = new PropertyFetcher<AmbientOcclusion2D>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<AmbientOcclusion2DRenderer>();
+
+            aoOnly = Unpack(o.Find(x => x.aoOnly));
+            intensity = Unpack(o.Find(x => x.intensity));
+            luminanceThreshold = Unpack(o.Find(x => x.luminanceThreshold));
+            distance = Unpack(o.Find(x => x.distance));
+            blurAmount = Unpack(o.Find(x => x.blurAmount));
+            iterations = Unpack(o.Find(x => x.iterations));
+            downscaling = Unpack(o.Find(x => x.downscaling));
+        }
+        
         public override void OnInspectorGUI()
         {
+            #if !UNITY_2021_2_OR_NEWER && !SCPE_DEV
+            EditorGUILayout.HelpBox("Only compatible with Unity 2021.2.0 or newer", MessageType.Error);
+            #else
             SCPE_GUI.DisplayDocumentationButton("ambient-occlusion-2d");
 
-            SCPE_GUI.DisplaySetupWarning<AmbientOcclusion2DRenderer>();
+            SCPE_GUI.DisplaySetupWarning<AmbientOcclusion2DRenderer>(ref isSetup);
 
             PropertyField(intensity);
             SCPE_GUI.DisplayIntensityWarning(intensity);
@@ -46,7 +59,7 @@ namespace SCPE
             PropertyField(blurAmount);
             PropertyField(iterations);
             PropertyField(downscaling);
-
+            #endif
         }
     }
 }

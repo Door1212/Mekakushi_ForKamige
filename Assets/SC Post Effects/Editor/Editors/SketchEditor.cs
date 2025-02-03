@@ -1,42 +1,51 @@
 ﻿using UnityEditor;
+using UnityEditor.Rendering;
 using UnityEngine;
-using UnityEditor.Rendering.PostProcessing;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Sketch))]
-    public sealed class SketchEditor : PostProcessEffectEditor<Sketch>
+    [EffectSettingsEditor(typeof(Sketch))]
+    sealed class SketchEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride projectionMode;
-        SerializedParameterOverride blendMode;
-        SerializedParameterOverride strokeTex;
-        SerializedParameterOverride intensity;
-        SerializedParameterOverride brightness;
-        SerializedParameterOverride tiling;
+        SerializedDataParameter strokeTex;
+        SerializedDataParameter projectionMode;
+        SerializedDataParameter blendMode;
+        SerializedDataParameter intensity;
+        SerializedDataParameter brightness;
+        SerializedDataParameter tiling;
+        
+        private bool isSetup;
 
         float minBrightness;
         float maxBrightness;
 
         public override void OnEnable()
         {
-            projectionMode = FindParameterOverride(x => x.projectionMode);
-            blendMode = FindParameterOverride(x => x.blendMode);
-            strokeTex = FindParameterOverride(x => x.strokeTex);
-            intensity = FindParameterOverride(x => x.intensity);
-            brightness = FindParameterOverride(x => x.brightness);
-            tiling = FindParameterOverride(x => x.tiling);
-        }
+            base.OnEnable();
 
-        public override string GetDisplayTitle()
-        {
-            return "Sketch (" + projectionMode.value.enumDisplayNames[projectionMode.value.intValue] + ")";
+            var o = new PropertyFetcher<Sketch>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<SketchRenderer>();
+
+            strokeTex = Unpack(o.Find(x => x.strokeTex));
+            projectionMode = Unpack(o.Find(x => x.projectionMode));
+            blendMode = Unpack(o.Find(x => x.blendMode));
+            intensity = Unpack(o.Find(x => x.intensity));
+            brightness = Unpack(o.Find(x => x.brightness));
+            tiling = Unpack(o.Find(x => x.tiling));
         }
 
         public override void OnInspectorGUI()
         {
-            SCPE_GUI.DisplayDocumentationButton("sketch");
-            
-            SCPE_GUI.DisplaySetupWarning<SketchRenderer>();
+            SCPE_GUI.DisplayDocumentationButton("Sketch");
+
+            SCPE_GUI.DisplaySetupWarning<SketchRenderer>(ref isSetup);
+
+            SCPE_GUI.ShowDepthTextureWarning();
 
             PropertyField(intensity);
             SCPE_GUI.DisplayIntensityWarning(intensity);
@@ -45,14 +54,7 @@ namespace SCPE
             
             PropertyField(strokeTex);
             SCPE_GUI.DisplayTextureOverrideWarning(strokeTex.overrideState.boolValue);
-
-            if (strokeTex.overrideState.boolValue && strokeTex.value.objectReferenceValue == null)
-            {
-                EditorGUILayout.HelpBox("Assign a texture", MessageType.Info);
-            }
-
             PropertyField(projectionMode);
-
             PropertyField(blendMode);
 
             minBrightness = brightness.value.vector2Value.x;
@@ -63,7 +65,7 @@ namespace SCPE
                 // Override checkbox
                 var overrideRect = GUILayoutUtility.GetRect(17f, 17f, GUILayout.ExpandWidth(false));
                 overrideRect.yMin += 4f;
-                EditorUtilities.DrawOverrideCheckbox(overrideRect, brightness.overrideState);
+                brightness.overrideState.boolValue = GUI.Toggle(overrideRect, brightness.overrideState.boolValue, EditorGUIUtility.TrTextContent("", "Override this setting for this volume."), CoreEditorStyles.smallTickbox);
 
                 // Property
                 using (new EditorGUI.DisabledScope(!brightness.overrideState.boolValue))

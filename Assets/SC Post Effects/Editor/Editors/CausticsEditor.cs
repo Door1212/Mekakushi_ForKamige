@@ -1,77 +1,87 @@
 ﻿using UnityEditor;
-using SCPE;
-using UnityEngine.Rendering.PostProcessing;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+using UnityEngine;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Caustics))]
-    public class CausticsEditor : PostProcessEffectEditor<Caustics>
+    [EffectSettingsEditor(typeof(Caustics))]
+    sealed class CausticsEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride intensity;
+        SerializedDataParameter intensity;
         
-        SerializedParameterOverride brightness;
-        SerializedParameterOverride causticsTexture;
-        SerializedParameterOverride luminanceThreshold;
-        SerializedParameterOverride projectFromSun;
+        SerializedDataParameter causticsTexture;
+        SerializedDataParameter brightness;
+        SerializedDataParameter luminanceThreshold;
+        SerializedDataParameter projectFromSun;
+
+        SerializedDataParameter minHeight;
+        SerializedDataParameter minHeightFalloff;
+        SerializedDataParameter maxHeight;
+        SerializedDataParameter maxHeightFalloff;
         
-        SerializedParameterOverride minHeight;
-        SerializedParameterOverride minHeightFalloff;
-        SerializedParameterOverride maxHeight;
-        SerializedParameterOverride maxHeightFalloff;
+        SerializedDataParameter size;
+        SerializedDataParameter speed;
         
-        SerializedParameterOverride size;
-        SerializedParameterOverride speed;
-        
-        SerializedParameterOverride distanceFade;
-        SerializedParameterOverride startFadeDistance;
-        SerializedParameterOverride endFadeDistance;
+        SerializedDataParameter distanceFade;
+        SerializedDataParameter startFadeDistance;
+        SerializedDataParameter endFadeDistance;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            intensity = FindParameterOverride(x => x.intensity);
+            base.OnEnable();
+
+            var o = new PropertyFetcher<Caustics>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<CausticsRenderer>();
+
+            intensity = Unpack(o.Find(x =>x.intensity));
             
-            brightness = FindParameterOverride(x => x.brightness);
-            causticsTexture = FindParameterOverride(x => x.causticsTexture);
-            luminanceThreshold = FindParameterOverride(x => x.luminanceThreshold);
-            projectFromSun = FindParameterOverride(x => x.projectFromSun);
+            causticsTexture = Unpack(o.Find(x =>x.causticsTexture));            
+            brightness = Unpack(o.Find(x =>x.brightness));
+
+            luminanceThreshold = Unpack(o.Find(x =>x.luminanceThreshold));
+            projectFromSun = Unpack(o.Find(x =>x.projectFromSun));
+
+            minHeight = Unpack(o.Find(x =>x.minHeight));
+            minHeightFalloff = Unpack(o.Find(x =>x.minHeightFalloff));
+            maxHeight = Unpack(o.Find(x =>x.maxHeight));
+            maxHeightFalloff = Unpack(o.Find(x =>x.maxHeightFalloff));
+
+            size = Unpack(o.Find(x => x.size));
+            speed = Unpack(o.Find(x =>x.speed));
             
-            minHeight = FindParameterOverride(x => x.minHeight);
-            minHeightFalloff = FindParameterOverride(x => x.minHeightFalloff);
-            maxHeight = FindParameterOverride(x => x.maxHeight);
-            maxHeightFalloff = FindParameterOverride(x => x.maxHeightFalloff);
-            
-            size = FindParameterOverride(x => x.size);
-            speed = FindParameterOverride(x => x.speed);
-            
-            distanceFade = FindParameterOverride(x => x.distanceFade);
-            startFadeDistance = FindParameterOverride(x => x.startFadeDistance);
-            endFadeDistance = FindParameterOverride(x => x.endFadeDistance);
+            distanceFade = Unpack(o.Find(x =>x.distanceFade));
+            startFadeDistance = Unpack(o.Find(x =>x.startFadeDistance));
+            endFadeDistance = Unpack(o.Find(x =>x.endFadeDistance));
         }
         
+
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("caustics");
 
-            SCPE_GUI.DisplaySetupWarning<CausticsRenderer>();
-            
+            SCPE_GUI.DisplaySetupWarning<CausticsRenderer>(ref isSetup, false);
+
             PropertyField(intensity);
             SCPE_GUI.DisplayIntensityWarning(intensity);
             
             EditorGUILayout.Space();
-            
+
             PropertyField(causticsTexture);
-            SCPE_GUI.DisplayTextureOverrideWarning(causticsTexture.overrideState.boolValue);
-            
             PropertyField(brightness);
             PropertyField(luminanceThreshold);
             PropertyField(projectFromSun);
-            if(projectFromSun.value.boolValue) SCPE_GUI.DrawSunInfo();
-
+            if (projectFromSun.value.boolValue) SCPE_GUI.DrawSunInfo();
+            
             EditorGUILayout.Space();
             
             EditorGUILayout.LabelField("Height filter", EditorStyles.boldLabel);
-
             PropertyField(minHeight);
             PropertyField(minHeightFalloff);
             PropertyField(maxHeight);

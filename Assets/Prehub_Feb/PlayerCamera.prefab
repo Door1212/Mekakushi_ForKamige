@@ -1,0 +1,457 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &557087674436511476
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_ShowToolkit
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_ShowCustomSorter
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.size
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.size
+      value: 36
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeTransparentBundles.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[0].assemblyQualifiedName
+      value: SCPE.AmbientOcclusion2D, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[1].assemblyQualifiedName
+      value: SCPE.BlackBars, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[2].assemblyQualifiedName
+      value: SCPE.Blur, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[3].assemblyQualifiedName
+      value: SCPE.ColorSplit, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[4].assemblyQualifiedName
+      value: SCPE.Colorize, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[5].assemblyQualifiedName
+      value: SCPE.Danger, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[6].assemblyQualifiedName
+      value: SCPE.Dithering, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[7].assemblyQualifiedName
+      value: SCPE.DoubleVision, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[8].assemblyQualifiedName
+      value: SCPE.Gradient, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[9].assemblyQualifiedName
+      value: SCPE.HueShift3D, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[10].assemblyQualifiedName
+      value: SCPE.Kaleidoscope, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[11].assemblyQualifiedName
+      value: SCPE.Kuwahara, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[12].assemblyQualifiedName
+      value: SCPE.LUT, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[13].assemblyQualifiedName
+      value: SCPE.Mosaic, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[14].assemblyQualifiedName
+      value: SCPE.Overlay, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[15].assemblyQualifiedName
+      value: SCPE.RadialBlur, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[16].assemblyQualifiedName
+      value: SCPE.Refraction, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[17].assemblyQualifiedName
+      value: SCPE.Ripples, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[18].assemblyQualifiedName
+      value: SCPE.Scanlines, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[19].assemblyQualifiedName
+      value: SCPE.Sharpen, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[20].assemblyQualifiedName
+      value: SCPE.SpeedLines, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[21].assemblyQualifiedName
+      value: SCPE.Sunshafts, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[22].assemblyQualifiedName
+      value: SCPE.TiltShift, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[23].assemblyQualifiedName
+      value: SCPE.Transition, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_AfterStackBundles.Array.data[24].assemblyQualifiedName
+      value: SCPE.TubeDistortion, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[0].assemblyQualifiedName
+      value: SCPE.Caustics, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[1].assemblyQualifiedName
+      value: SCPE.CloudShadows, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[2].assemblyQualifiedName
+      value: SCPE.EdgeDetection, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[3].assemblyQualifiedName
+      value: SCPE.LensFlares, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[4].assemblyQualifiedName
+      value: SCPE.LightStreaks, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[5].assemblyQualifiedName
+      value: SCPE.Pixelize, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[6].assemblyQualifiedName
+      value: SCPE.Posterize, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[7].assemblyQualifiedName
+      value: SCPE.Sketch, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[8].assemblyQualifiedName
+      value: RLProAnalogTVNoise, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[9].assemblyQualifiedName
+      value: RLProArtefacts, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[10].assemblyQualifiedName
+      value: RLProBleed, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[11].assemblyQualifiedName
+      value: RLProCinematicBars, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[12].assemblyQualifiedName
+      value: RLProColormapPalette, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[13].assemblyQualifiedName
+      value: RLProCRTAperture, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[14].assemblyQualifiedName
+      value: RLProCustomTexture, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[15].assemblyQualifiedName
+      value: RLProEdgeNoise, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[16].assemblyQualifiedName
+      value: RLProEdgeStretch, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[17].assemblyQualifiedName
+      value: RLProFisheye, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[18].assemblyQualifiedName
+      value: RLProGlitch1, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[19].assemblyQualifiedName
+      value: RLProGlitch2, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[20].assemblyQualifiedName
+      value: RLProGlitch3, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[21].assemblyQualifiedName
+      value: RLProJitter, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[22].assemblyQualifiedName
+      value: RLProLowRes, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[23].assemblyQualifiedName
+      value: RLProNegative, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[24].assemblyQualifiedName
+      value: RLProNoise, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[25].assemblyQualifiedName
+      value: RLProOldFilm, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[26].assemblyQualifiedName
+      value: RLProPhosphor, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[27].assemblyQualifiedName
+      value: RLProPictureCorrection, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[28].assemblyQualifiedName
+      value: RLProPulsatingVignette, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[29].assemblyQualifiedName
+      value: RLProTVEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[30].assemblyQualifiedName
+      value: RLProUltimateVignette, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[31].assemblyQualifiedName
+      value: RLProVHSEffect, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[32].assemblyQualifiedName
+      value: RLProVHSRewind, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[33].assemblyQualifiedName
+      value: RLProVHSScanlines, Assembly-CSharp, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[34].assemblyQualifiedName
+      value: RLProWarp, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeStackBundles.Array.data[35].assemblyQualifiedName
+      value: RLPro_NTSC, Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145766, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_BeforeTransparentBundles.Array.data[0].assemblyQualifiedName
+      value: SCPE.Fog, sc.posteffects.runtime, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145767, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145784, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: kVerticalBobRange
+      value: 0.0099
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145784, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: kHorizontalBobRange
+      value: 0.0099
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145784, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: kContactVerticalBobRange
+      value: 0.033
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145784, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: kContactHorizontalBobRange
+      value: 0.033
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145787, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: ShakeSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145787, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: perspective
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145787, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: offsetDistance
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145787, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: enemyStateStation
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145787, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: Enemies.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145788, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: far clip plane
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145788, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: near clip plane
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 255
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -702
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145789, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5110651081619145790, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+      propertyPath: m_Name
+      value: PlayerCamera
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+--- !u!1 &4708375271876158154 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5110651081619145790, guid: 4e91a0e148dc36b419dea65d2ffeaa11, type: 3}
+  m_PrefabInstance: {fileID: 557087674436511476}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2914123327315872943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4708375271876158154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2

@@ -1,35 +1,81 @@
-﻿using System;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
 
 namespace SCPE
 {
-    public sealed class PixelizeRenderer : PostProcessEffectRenderer<Pixelize>
+    public class PixelizeRenderer : ScriptableRendererFeature
     {
-        Shader shader;
-
-        public override void Init()
+        class PixelizeRenderPass : PostEffectRenderer<Pixelize>
         {
-            shader = Shader.Find(ShaderNames.Pixelize);
+            public PixelizeRenderPass(EffectBaseSettings settings)
+            {
+                this.settings = settings;
+                renderPassEvent = settings.GetInjectionPoint();
+                shaderName = ShaderNames.Pixelize;
+                ProfilerTag = GetProfilerTag();
+            }
+
+            public override void Setup(ScriptableRenderer renderer, RenderingData renderingData)
+            {
+                volumeSettings = VolumeManager.instance.stack.GetComponent<Pixelize>();
+                
+                base.Setup(renderer, renderingData);
+
+                if (!render || !volumeSettings.IsActive()) return;
+                
+                this.cameraColorTarget = GetCameraTarget(renderer);
+                
+                renderer.EnqueuePass(this);
+            }
+
+            protected override void ConfigurePass(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+            {
+                base.ConfigurePass(cmd, cameraTextureDescriptor);
+            }
+            
+            private static readonly int _PixelizeParams = Shader.PropertyToID("_PixelizeParams");
+            private static Vector4 pixelizeParams;
+
+            #pragma warning disable CS0618
+            #pragma warning disable CS0672
+            public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
+            {
+                var cmd = GetCommandBuffer(ref renderingData);
+
+                CopyTargets(cmd, renderingData);
+                
+                var resolution = volumeSettings.resolutionPreset.value == Pixelize.Resolution.Custom ? volumeSettings.resolution.value : (int)volumeSettings.resolutionPreset.value;
+
+                pixelizeParams.x = (volumeSettings.preserveAspectRatio.value ? renderingData.cameraData.camera.scaledPixelWidth : renderingData.cameraData.camera.scaledPixelHeight) / (float)resolution;
+                pixelizeParams.y = renderingData.cameraData.camera.scaledPixelHeight / (float)resolution;
+                pixelizeParams.z = volumeSettings.amount.value;
+                pixelizeParams.w = volumeSettings.centerPixel.value ? 1 : 0;
+                
+                Material.SetVector(_PixelizeParams, pixelizeParams);
+
+                FinalBlit(this, context, cmd, renderingData, 0);
+            }
+        }
+
+        PixelizeRenderPass m_ScriptablePass;
+
+        [SerializeField]
+        public EffectBaseSettings settings = new EffectBaseSettings();
+
+        public override void Create()
+        {
+            m_ScriptablePass = new PixelizeRenderPass(settings);
+        }
+
+        public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
+        {
+            m_ScriptablePass.Setup(renderer, renderingData);
         }
         
-        private static readonly int _PixelizeParams = Shader.PropertyToID("_PixelizeParams");
-        private static Vector4 pixelizeParams;
-        
-        public override void Render(PostProcessRenderContext context)
+        public void OnDestroy()
         {
-            var sheet = context.propertySheets.Get(shader);
-
-            var resolution = settings.resolutionPreset.value == Pixelize.Resolution.Custom ? settings.resolution.value : (int)settings.resolutionPreset.value;
-
-            pixelizeParams.x = (settings.preserveAspectRatio.value ? context.screenWidth : context.screenHeight) / (float)resolution;
-            pixelizeParams.y = context.screenHeight / (float)resolution;
-            pixelizeParams.z = settings.amount.value;
-            pixelizeParams.w = settings.centerPixel.value ? 1 : 0;
-            
-            sheet.properties.SetVector(_PixelizeParams, pixelizeParams);
-
-            context.command.BlitFullscreenTriangle(context.source, context.destination, sheet, 0);
+            m_ScriptablePass.Dispose();
         }
     }
 }

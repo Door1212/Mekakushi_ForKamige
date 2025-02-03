@@ -1,29 +1,42 @@
 ﻿using UnityEditor;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEditor.Rendering;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(Transition))]
-    public sealed class TransitionEditor : PostProcessEffectEditor<Transition>
+    [EffectSettingsEditor(typeof(Transition))]
+    sealed class TransitionEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride gradientTex;
-        SerializedParameterOverride progress;
-        SerializedParameterOverride invert;
-        SerializedParameterOverride color;
+        SerializedDataParameter gradientTex;
+        SerializedDataParameter progress;
+        SerializedDataParameter invert;
+        SerializedDataParameter color;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            gradientTex = FindParameterOverride(x => x.gradientTex);
-            progress = FindParameterOverride(x => x.progress);
-            invert = FindParameterOverride(x => x.invert);
-            color = FindParameterOverride(x => x.color);
+            base.OnEnable();
+
+            var o = new PropertyFetcher<Transition>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<TransitionRenderer>();
+
+            gradientTex = Unpack(o.Find(x => x.gradientTex));
+            progress = Unpack(o.Find(x => x.progress));
+            invert = Unpack(o.Find(x => x.invert));
+            color = Unpack(o.Find(x => x.color));
         }
+
 
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("transition");
 
-            SCPE_GUI.DisplaySetupWarning<TransitionRenderer>();
+            SCPE_GUI.DisplaySetupWarning<TransitionRenderer>(ref isSetup);
 
             PropertyField(progress);
             SCPE_GUI.DisplayIntensityWarning(progress);
@@ -35,9 +48,9 @@ namespace SCPE
 
             if (gradientTex.overrideState.boolValue && gradientTex.value.objectReferenceValue == null)
             {
-                EditorGUILayout.HelpBox("Assign a gradient texture (pre-made textures can be found in the \"_SampleTextures\" package", MessageType.Info);
+                EditorGUILayout.HelpBox("Assign a gradient texture (pre-made textures can be found in the \"_Samples\" package", MessageType.Info);
             }
-
+            
             PropertyField(invert);
             PropertyField(color);
         }

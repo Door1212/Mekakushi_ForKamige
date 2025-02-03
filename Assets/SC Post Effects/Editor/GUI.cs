@@ -634,7 +634,7 @@ namespace SCPE
                 if (AssetVersionCheck.queryStatus == AssetVersionCheck.QueryStatus.Fetching)
                 {
                     versionStatus = SCPE_GUI.Status.Warning;
-                    versionText = "Checking update server...";
+                    versionText = "Checking asset store...";
                 }
                 else
                 {

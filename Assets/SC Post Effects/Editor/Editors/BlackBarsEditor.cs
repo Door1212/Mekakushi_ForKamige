@@ -1,41 +1,48 @@
-﻿using SCPE;
+﻿using UnityEngine.Rendering.Universal;
+using UnityEditor.Rendering;
 using UnityEditor;
-using UnityEngine.Rendering.PostProcessing;
-using UnityEditor.Rendering.PostProcessing;
+using UnityEngine;
+#if UNITY_2022_2_OR_NEWER
+using EffectSettingsEditor = UnityEditor.CustomEditor;
+#else
+using EffectSettingsEditor = UnityEditor.Rendering.VolumeComponentEditorAttribute;
+#endif
 
 namespace SCPE
 {
-    [PostProcessEditor(typeof(BlackBars))]
-    public class BlackBarsEditor : PostProcessEffectEditor<BlackBars>
+    [EffectSettingsEditor(typeof(BlackBars))]
+    sealed class BlackBarsEditor : VolumeComponentEditor
     {
-        SerializedParameterOverride mode;
-        SerializedParameterOverride size;
-        SerializedParameterOverride maxSize;
+        SerializedDataParameter mode;
+        SerializedDataParameter size;
+        SerializedDataParameter maxSize;
+
+        private bool isSetup;
 
         public override void OnEnable()
         {
-            mode = FindParameterOverride(x => x.mode);
-            size = FindParameterOverride(x => x.size);
-            maxSize = FindParameterOverride(x => x.maxSize);
-        }
+            base.OnEnable();
 
-        public override string GetDisplayTitle()
-        {
-            return "Black Bars (" + (BlackBars.Direction)mode.value.enumValueIndex + ")";
-        }
+            var o = new PropertyFetcher<BlackBars>(serializedObject);
+            isSetup = AutoSetup.ValidEffectSetup<BlackBarsRenderer>();
 
+            mode = Unpack(o.Find(x => x.mode));
+            size = Unpack(o.Find(x => x.size));
+            maxSize = Unpack(o.Find(x => x.maxSize));
+        }
+        
         public override void OnInspectorGUI()
         {
             SCPE_GUI.DisplayDocumentationButton("black-bars");
 
-            SCPE_GUI.DisplaySetupWarning<BlackBarsRenderer>();
+            SCPE_GUI.DisplaySetupWarning<BlackBarsRenderer>(ref isSetup);
+
+            PropertyField(mode);
+            
+            EditorGUILayout.Space();
 
             PropertyField(size);
             SCPE_GUI.DisplayIntensityWarning(size);
-            
-            EditorGUILayout.Space();
-            
-            PropertyField(mode);
             PropertyField(maxSize);
         }
     }

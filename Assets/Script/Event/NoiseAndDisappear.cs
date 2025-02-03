@@ -1,17 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
-using RetroLookPro;
 using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using System;
-using SCPE;
 
 [RequireComponent(typeof(AudioSource))]
 
 public class NoiseAndDisappear : MonoBehaviour
 {
-    //オーディオソース
+    // オーディオソース
     AudioSource _AudioSource;
 
     [Header("出会ったときに出る音")]
@@ -20,27 +18,25 @@ public class NoiseAndDisappear : MonoBehaviour
     [Header("敵の皮")]
     public GameObject EnemySkin;
 
-    [Header("ホストプロセス")]
-    public PostProcessVolume PostProcess;
+    [Header("URPのポストプロセス Volume")]
+    public Volume PostProcess;
 
     [Header("次のガキ")]
     public GameObject NextKids;
 
     [Header("フェードインにかかる時間（秒）")]
     [SerializeField] private float fadeInDuration = 1.0f;
-    public float targetIntensity = 1f;         // 最大インテンシティ
-    private float initialIntensity = 0f;       // 初期インテンシティ
-
-
-    RLProVHSEffect RLProVHSEffect;
-    DoubleVision doubleVision;
+    public float targetIntensity = 1f; // 最大インテンシティ
+    private float initialIntensity = 0f; // 初期インテンシティ
 
     private BoxCollider Trigger;
-
-    GameManager gameManager;
-
+    private GameManager gameManager;
     private bool IsFirst = false;
 
+    // URPのエフェクト用
+    private Vignette vignette; // ビネット
+    private FilmGrain filmGrain; // フィルムグレイン
+    private LensDistortion lensDistortion; // レンズディストーション（歪み）
 
     // Start is called before the first frame update
     void Start()
@@ -55,81 +51,68 @@ public class NoiseAndDisappear : MonoBehaviour
             NextKids.SetActive(false);
         }
 
-        // VolumeProfileを取得
+        // VolumeProfile を取得
         if (PostProcess != null && PostProcess.profile != null)
         {
-            // RLProVHSEffectエフェクトを取得
-            if (PostProcess.profile.TryGetSettings(out RLProVHSEffect))
+            // 各ポストプロセスエフェクトを取得
+            if (PostProcess.profile.TryGet(out vignette))
             {
-                Debug.Log("RLProVHSEffect xfound.");
+                vignette.active = false;
             }
 
-            // DoubleVisionエフェクトを取得
-            if (PostProcess.profile.TryGetSettings(out doubleVision))
+            if (PostProcess.profile.TryGet(out filmGrain))
             {
-                // エフェクトを非アクティブに設定
-                doubleVision.enabled.value = false;
-                doubleVision.intensity.value = initialIntensity;
-                Debug.Log("DoubleVision xfound.");
+                filmGrain.active = false;
+            }
+
+            if (PostProcess.profile.TryGet(out lensDistortion))
+            {
+                lensDistortion.active = false;
+                lensDistortion.intensity.overrideState = true;
+                lensDistortion.intensity.value = initialIntensity;
             }
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-
-    public void EnableVHSEffect(bool enable)
-    {
-        if (RLProVHSEffect != null)
-        {
-            RLProVHSEffect.active = enable; // エフェクト全体の有効化/無効化
-            Debug.Log("VHS Effect is now " + (enable ? "enabled" : "disabled"));
-        }
-    }
     private IEnumerator DoEvent()
     {
         if (!_AudioSource.isPlaying)
             _AudioSource.PlayOneShot(HorrorSound);
 
-        // VHSエフェクトを有効化
+        // ポストプロセスエフェクトを有効化
         try
         {
-            Debug.Log("Enabling VHS effect.");
-            EnableVHSEffect(true);
-            Debug.Log("VHS effect enabled.");
+            Debug.Log("Enabling URP effects.");
+            EnableEffects(true);
+            Debug.Log("URP effects enabled.");
         }
         catch (Exception ex)
         {
-            Debug.LogError("Error enabling VHS effect: " + ex.Message);
-            yield break; // コルーチンを終了
+            Debug.LogError("Error enabling URP effects: " + ex.Message);
+            yield break;
         }
 
-        // 待機
-        Debug.Log("Waiting for 0.3 seconds.");
-        yield return new WaitForSecondsRealtime(0.3f); // Realtimeで待機
+        // 0.3秒待機
+        yield return new WaitForSecondsRealtime(0.3f);
 
         // 敵を消す
         EnemySkin.SetActive(false);
-
         _AudioSource.Stop();
-        // VHSエフェクトを無効化
+
+        // ポストプロセスエフェクトを無効化
         try
         {
-            Debug.Log("Disabling VHS effect.");
-            EnableVHSEffect(false);
-            Debug.Log("VHS effect disabled.");
+            Debug.Log("Disabling URP effects.");
+            EnableEffects(false);
+            Debug.Log("URP effects disabled.");
         }
         catch (Exception ex)
         {
-            Debug.LogError("Error disabling VHS effect: " + ex.Message);
+            Debug.LogError("Error disabling URP effects: " + ex.Message);
         }
 
         if (NextKids != null)
-        { 
+        {
             NextKids.SetActive(true);
             this.enabled = false;
         }
@@ -138,56 +121,66 @@ public class NoiseAndDisappear : MonoBehaviour
             gameManager.SetStopAll(true);
             StartCoroutine(DoFinalEvent());
         }
-
-
     }
+
     private IEnumerator DoFinalEvent()
-    {    
-        // エフェクトをアクティブ化してインテンシティをフェードイン
-        doubleVision.enabled.value = true;
-
-        StartCoroutine(BlurFadeIn());
-
+    {
+        if (lensDistortion != null)
+        {
+            lensDistortion.active = true;
+            StartCoroutine(DistortionFadeIn());
+        }
 
         yield return new WaitForSeconds(3f);
         SceneChangeManager.Instance.LoadSceneAsyncWithFade("ResultHonBan");
         yield return new WaitForSeconds(SceneChangeManager.Instance.fadeDuration);
-        // エフェクトをアクティブ化してインテンシティをフェードイン
-        doubleVision.enabled.value = false;
 
-        yield return null;
+        if (lensDistortion != null)
+        {
+            lensDistortion.active = false;
+        }
     }
-
 
     private void OnTriggerEnter(Collider other)
     {
-        // 特定のタグ（例: "Player"）を持つオブジェクトとの衝突を検知
         if (other.gameObject.CompareTag("Player") && !IsFirst)
         {
-            //一回目かどうか
             IsFirst = true;
-
             StartCoroutine(DoEvent());
         }
     }
 
+    // エフェクトの有効/無効を切り替え
+    private void EnableEffects(bool enable)
+    {
+        if (vignette != null)
+        {
+            vignette.active = enable;
+        }
 
-    private IEnumerator BlurFadeIn()
+        if (filmGrain != null)
+        {
+            filmGrain.active = enable;
+        }
+    }
+
+    private IEnumerator DistortionFadeIn()
     {
         float elapsedTime = 0f;
-
-
-
 
         while (elapsedTime < fadeInDuration)
         {
             elapsedTime += Time.deltaTime;
-            // 時間に応じてalphaを増加させる
-            doubleVision.intensity.value = Mathf.Lerp(initialIntensity, targetIntensity, elapsedTime / fadeInDuration);
+            if (lensDistortion != null)
+            {
+                lensDistortion.intensity.value = Mathf.Lerp(initialIntensity, targetIntensity, elapsedTime / fadeInDuration);
+            }
             yield return null;
         }
 
-        // 最終的に完全に表示する
-        doubleVision.intensity.value = targetIntensity;
+        if (lensDistortion != null)
+        {
+            lensDistortion.intensity.value = targetIntensity;
+        }
     }
 }
