@@ -36,6 +36,8 @@ public class PlayerMove : MonoBehaviour
     public KeyCode sprintKey = KeyCode.LeftShift;
     [Header("走っているときの速度倍率")]
     public float sprintSpeed = 1.25f;
+    [Header("重力の大きさ")]
+    public float gravity = 10f;
 
     //動かせる状態かどうか
     private bool CanMove = true;
@@ -91,8 +93,20 @@ public class PlayerMove : MonoBehaviour
                 dir_player.z *= 0.75f;
             }
 
+            //接地していなければ重力を適用
+            if (characterController.isGrounded)
+            {
+            
+            }
+            else
+            {
+                // 重力を効かせる
+                dir_player.y -= gravity * Time.deltaTime;
+            }
 
+            #region MoveStateSelecter
 
+            //移動ベクトルがなければ止まっている判定
             if (dir_player.x == 0 && dir_player.z == 0)
             {
                 IsStop = true;
@@ -112,8 +126,9 @@ public class PlayerMove : MonoBehaviour
             {
                 IsRunning = false;
             }
+            #endregion
 
-            Vector3 moveDirection = new Vector3(dir_player.x, 0, dir_player.z);
+            Vector3 moveDirection = new Vector3(dir_player.x, dir_player.y, dir_player.z);
             //moveDirection = transform.TransformDirection(moveDirection); // ローカル座標系に変換
 
             characterController.Move(moveDirection * Time.deltaTime);
