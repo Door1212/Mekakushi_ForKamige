@@ -20,7 +20,7 @@ namespace DlibFaceLandmarkDetectorExample
     [RequireComponent(typeof(WebCamTextureToMatHelper))]
     public class FaceDetector : MonoBehaviour
     {
-        public static FaceDetector instance; // シングルトンインスタンス
+        public static FaceDetector FaceInstance; // シングルトンインスタンス
         Texture2D texture; // カメラ映像を格納するためのTexture2D
 
         string dlibShapePredictorFileName; // Dlibの形状予測ファイル名
@@ -57,6 +57,9 @@ namespace DlibFaceLandmarkDetectorExample
 
         public bool IsFaceDetected = false; // 顔が検出されたかどうか
         public bool IsDoneSetting = false; // 目の設定が完了したかどうか
+
+        [Header("目を閉じ続けている状態かどうか")]
+        [SerializeField]private bool isKeepCloseEye = false;
 
         private float TotalKeptClosingTime = 0.0f; // 合計で目を閉じ続けた時間
         public bool IsStartAutoSetting = false; // 自動設定が開始されたかどうか
@@ -235,7 +238,7 @@ namespace DlibFaceLandmarkDetectorExample
 
         void Update()
         {
-            if(OptionValue.IsFaceDetecting)
+            if (OptionValue.IsFaceDetecting)
             {                //キーで目を閉じる
 
 
@@ -282,8 +285,6 @@ namespace DlibFaceLandmarkDetectorExample
                     .ObserveOnMainThread() // メインスレッドに戻す
                     .Subscribe(_ => { });
                 }
-
-                PreisEyeOpen = isEyeOpen;
             }
             else
             {
@@ -294,7 +295,7 @@ namespace DlibFaceLandmarkDetectorExample
 
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
-                    if(isEyeOpen)
+                    if (isEyeOpen)
                     {
                         isEyeOpen = false;
                     }
@@ -304,7 +305,34 @@ namespace DlibFaceLandmarkDetectorExample
                     }
                 }
             }
-            
+
+            if (!isEyeOpen && !PreisEyeOpen)
+            {
+                //閉じ続けている時間を記録
+                KeptClosingTime += Time.deltaTime;
+                isKeepCloseEye = true;
+            }
+            else
+            {
+                //開けたときにリセット
+                KeptClosingTime = 0;
+                isKeepCloseEye = false;
+            }
+
+            if (isEyeOpen && PreisEyeOpen)
+            {
+                //閉じ続けている時間を記録
+                KeptOpeningTime += Time.deltaTime;
+            }
+            else
+            {
+                //開けたときにリセット
+                KeptOpeningTime = 0;
+            }
+
+            //前回の目の開閉状態を記録
+            PreisEyeOpen = isEyeOpen;
+
         }
 
         // オブジェクトが破棄される時の処理
@@ -458,6 +486,7 @@ namespace DlibFaceLandmarkDetectorExample
             {
                 return true;
             }
+
         }
 
         public float GetKeptEyeOpeningTime()
@@ -488,6 +517,11 @@ namespace DlibFaceLandmarkDetectorExample
         public bool getEyeOpen()
         {
             return isEyeOpen;
+        }
+
+        public bool getEyeKeepClose()
+        {
+            return isKeepCloseEye;
         }
 
         public void calEyeSettingValue()

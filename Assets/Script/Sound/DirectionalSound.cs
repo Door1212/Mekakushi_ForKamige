@@ -38,7 +38,7 @@ public class DirectionalSound : MonoBehaviour
     void Start()
     {
         CanMove = true;
-        _PlayerObj = GameObject.Find("Player(tentative)");
+        _PlayerObj = GameObject.Find("Player");
         if (_PlayerObj == null)
         {
             Debug.LogError("Player object not found!");
