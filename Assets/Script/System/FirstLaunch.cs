@@ -28,6 +28,7 @@ public class FirstLaunch : MonoBehaviour
             Debug.Log("2回目以降の起動");
         }
 
+       //メタAI用の
        if(!File.Exists(destinationPath))
         {
             // ファイルが存在しない場合
