@@ -69,7 +69,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 696388407294612026, guid: 44fb5a9f81ad6224baac982dcf5cdec3, type: 3}
       propertyPath: m_Name
-      value: ToFindObject (1)
+      value: Friend
       objectReference: {fileID: 0}
     - target: {fileID: 696388407294612027, guid: 44fb5a9f81ad6224baac982dcf5cdec3, type: 3}
       propertyPath: TalkText
@@ -163,7 +163,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 20
+  MaxDistance: 50
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 1
@@ -238,18 +238,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1400161655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3238850125830441981}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e4e9c3764aad41041b3aa0ac54f38fdb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SoundInterval: 3
-  CanMove: 1
-  UseFace: 1

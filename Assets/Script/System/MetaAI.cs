@@ -7,6 +7,12 @@ public class MetaAI : MonoBehaviour
 {
     string filePath = Path.Combine(Application.persistentDataPath, "MetaAIData.csv");
 
+    //したいこと
+    //動的な敵の生成
+    //動的な難易度変更
+
+
+
     // Start is called before the first frame update
     void Start()
     {

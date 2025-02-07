@@ -40,6 +40,8 @@ public class FirstLaunch : MonoBehaviour
             Debug.Log("ファイルが存在します");
         }
 
+        Debug.Log("ファイルの保存先: " + destinationPath);
+
 
     }
 

@@ -9,38 +9,51 @@ using Unity.VisualScripting;
 using UnityEngine.EventSystems;
 using UnityEditor;
 
+
 public class SearchKids : MonoBehaviour
 {
 
 
     [Header("探索に使う球コライダー")]
-    public SphereCollider SearchArea;
+    public SphereCollider _SearchArea;
 
     [Header("当たった敵の格納用")]
-    public GameObject HittedKids;
+    public GameObject _HittedKids;
 
     [Header("発動までの時間")]
-    public float ActivationTime = 3.0f;
+    public float _ActivationTime = 3.0f;
 
     [Header("最大半径までの探索にかかる時間")]
-    public float CompleteTime = 3.0f;
+    public float _CompleteTime = 3.0f;
 
     [Header("探索の最大範囲")]
-    public float MaxRange = 50.0f;
+    public float _MaxRange = 50.0f;
 
     [Header("スポットされる時間")]
-    public float SpotTime = 10.0f;
+    public float _SpotTime = 10.0f;
 
-    FaceDetector faceDetector;
+    [Header("子供が発する音")]
+    [SerializeField] public AudioClip _KidFoundSound;
+
+    [Header("探索中の音")]
+    [SerializeField] public AudioClip _SearchingSound;
+
+    [Header("探索失敗の音")]
+    [SerializeField] public AudioClip _SearchFailSound;
+
+    [Header("音源")]
+    [SerializeField] public AudioSource _AudioSource;
+
+    FaceDetector _FaceDetector;
 
     //キャンセル用トークン
-    CancellationToken Token;
+    CancellationToken _CancellationToken;
 
     //トークンソース
-    CancellationTokenSource cts;
+    CancellationTokenSource _cts;
 
     //探索中か
-    private bool isSearching = false;
+    private bool _isSearching = false;
 
 
 
@@ -48,25 +61,26 @@ public class SearchKids : MonoBehaviour
     void Start()
     {
         ResetCts();
-        SearchArea.enabled = false;
-        isSearching = false;
-        faceDetector =GameObject.Find("FaceDetecter").GetComponent<FaceDetector>();
+        _SearchArea.enabled = false;
+        _isSearching = false;
+        _FaceDetector =GameObject.Find("FaceDetecter").GetComponent<FaceDetector>();
+        _AudioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
     async void Update()
     {
         //指定時間以上開け続けたら探索を実行
-        if (faceDetector.GetKeptEyeClosingTime() > ActivationTime && !isSearching)
+        if (_FaceDetector.GetKeptEyeClosingTime() > _ActivationTime && !_isSearching)
         {
-            isSearching = true;
+            _isSearching = true;
             await SearchAction();
         }
 
         //探索中に目が開くとキャンセル
-        if (isSearching && faceDetector.getEyeOpen())
+        if (_isSearching && _FaceDetector.getEyeOpen())
         {
-            isSearching = false;
+            _isSearching = false;
             ResetCts();
         }
     }
@@ -75,34 +89,53 @@ public class SearchKids : MonoBehaviour
         // 既存のタスクが実行中ならキャンセル
         ResetCts();
 
-        // 新しい `CancellationToken` を取得
-        CancellationToken token = cts.Token;
+        //探索中の音を再生
+        if (_AudioSource.isPlaying)
+        {
+            _AudioSource.Stop();
+        }
+        _AudioSource.clip = _SearchingSound;
+        _AudioSource.Play();
 
-        SearchArea.enabled = true;
-        SearchArea.radius = 0.1f;
+        // 新しい `CancellationToken` を取得
+        CancellationToken token = _cts.Token;
+
+        _SearchArea.enabled = true;
+        _SearchArea.radius = 0.1f;
 
         float elapsedTime = 0f;
-        float startRadius = SearchArea.radius;
+        float startRadius = _SearchArea.radius;
 
         try
         {
             Debug.Log("探索開始");
 
-            while (elapsedTime < CompleteTime)
+            while (elapsedTime < _CompleteTime)
             {
                 elapsedTime += Time.deltaTime;
-                SearchArea.radius = Mathf.Lerp(startRadius, MaxRange, elapsedTime / CompleteTime);
+                _SearchArea.radius = Mathf.Lerp(startRadius, _MaxRange, elapsedTime / _CompleteTime);
 
                 await UniTask.Yield(PlayerLoopTiming.Update, token); // 1フレームごとに更新
             }
 
-            SearchArea.radius = MaxRange;   // 最終値に設定
-            SearchArea.enabled = false;     //探索円を非活性化
+            _SearchArea.radius = 0.0f;
+            _SearchArea.enabled = false;     //探索円を非活性化
+
+            //探索中の音を再生
+            if (_AudioSource.isPlaying)
+            {
+                _AudioSource.Stop();
+            }
+            _AudioSource.clip = _SearchFailSound;
+            _AudioSource.Play();
 
             Debug.Log("探索完了");
         }
         catch (OperationCanceledException)
         {
+            //円の初期化
+            _SearchArea.enabled = false;
+            _SearchArea.radius = 0.0f;
             Debug.Log("探索キャンセル");
         }
     }
@@ -115,7 +148,7 @@ public class SearchKids : MonoBehaviour
     {
         SetLayerRecursively(kid.gameObject, 8); // レイヤーを変更して強調
 
-        await UniTask.Delay(TimeSpan.FromSeconds(SpotTime)); // 指定時間待機
+        await UniTask.Delay(TimeSpan.FromSeconds(_SpotTime)); // 指定時間待機
 
         SetLayerRecursively(kid.gameObject, 0);// 元のレイヤーに戻す
     }
@@ -126,6 +159,10 @@ public class SearchKids : MonoBehaviour
         {
 
             Debug.Log("子供を発見");
+
+            ResetCts();
+
+            other.gameObject.GetComponent<AudioSource>()?.PlayOneShot(_KidFoundSound); //子供が発する音を再生
 
             SpotChild(other).Forget();
         }
@@ -138,13 +175,17 @@ public class SearchKids : MonoBehaviour
     {
 
         //探索をキャンセル
-        if (cts != null)
+        if (_cts != null)
         {
-            cts.Cancel();
-            cts.Dispose();
+            _cts.Cancel();
+            _cts.Dispose();
         }
-        cts = new CancellationTokenSource();
-        Token = cts.Token;
+        _cts = new CancellationTokenSource();
+        _CancellationToken = _cts.Token;
+
+        //円の初期化
+        _SearchArea.enabled = false;
+        _SearchArea.radius = 0.0f;
     }
 
     /// <summary>
@@ -166,10 +207,10 @@ public class SearchKids : MonoBehaviour
     //探索範囲を表示
     void OnDrawGizmosSelected()
     {
-        if (SearchArea != null)
+        if (_SearchArea != null)
         {
             Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(SearchArea.transform.position, SearchArea.radius);
+            Gizmos.DrawSphere(_SearchArea.transform.position, _SearchArea.radius);
         }
     }
 #endif
