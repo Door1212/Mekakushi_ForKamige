@@ -14,7 +14,9 @@ public class FirstLaunch : MonoBehaviour
     {
 
         string sourcePath = Path.Combine(Application.streamingAssetsPath, "MetaAI/MetaAIData.csv");
+        string sourcePathForPlaylog = Path.Combine(Application.streamingAssetsPath, "MetaAI/Playlog.csv");
         string destinationPath = Path.Combine(Application.persistentDataPath, "MetaAIData.csv");
+        string destinationPathForPlaylog = Path.Combine(Application.persistentDataPath, "Playlog.csv");
 
         if (!PlayerPrefs.HasKey(FirstLaunchKey))
         {
@@ -40,14 +42,20 @@ public class FirstLaunch : MonoBehaviour
             Debug.Log("ファイルが存在します");
         }
 
-        Debug.Log("ファイルの保存先: " + destinationPath);
+        if (!File.Exists(destinationPathForPlaylog))
+        {
+            // ファイルが存在しない場合
+            Debug.Log("プレイログファイルが存在しません");
+            File.Copy(sourcePathForPlaylog, destinationPathForPlaylog);
+        }
+        else
+        {
+            Debug.Log("プレイログファイルが存在します");
+        }
+
+        Debug.Log("ファイルの保存先: " + destinationPathForPlaylog);
 
 
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

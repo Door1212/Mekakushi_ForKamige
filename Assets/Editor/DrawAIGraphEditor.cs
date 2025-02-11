@@ -1,54 +1,55 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEditor;
-using System.Runtime.CompilerServices;
 
-[CustomEditor(typeof(DrawAIGraph))]
+[CustomEditor(typeof(MetaAI))]
 public class DrawAIGraphEditor : Editor
 {
-    private Texture2D graphTexture;
+    private const int graphSize = 200;
 
     public override void OnInspectorGUI()
     {
-        base.OnInspectorGUI(); // ƒfƒtƒHƒ‹ƒg‚ÌInspector‚ğ•`‰æ
+        base.OnInspectorGUI(); // é€šå¸¸ã®Inspectoræç”»
 
-        // ƒOƒ‰ƒt‚ğ•`‰æ
-        DrawGraph();
-    }
+        MetaAI graph = (MetaAI)target;
+        GUILayout.Space(10);
+        EditorGUILayout.LabelField("2D æ„Ÿæƒ…ã‚°ãƒ©ãƒ•", EditorStyles.boldLabel);
 
-    private void DrawGraph()
-    {
-        DrawAIGraph graph = (DrawAIGraph)target;
-        if (graph.graphCurve == null) return;
+        // ã‚°ãƒ©ãƒ•ã®æç”»é ˜åŸŸ
+        Rect rect = GUILayoutUtility.GetRect(graphSize, graphSize);
+        EditorGUI.DrawRect(rect, new Color(1.0f, 1.0f, 1.0f)); // èƒŒæ™¯è‰²
 
-        int width = 200;
-        int height = 100;
-        graphTexture = new Texture2D(width, height);
+        Handles.BeginGUI();
+        Vector2 center = new Vector2(rect.x + rect.width / 2, rect.y + rect.height / 2);
 
-        // ”wŒi‚ğ•‚É
-        Color[] pixels = new Color[width * height];
-        for (int i = 0; i < pixels.Length; i++)
+        // è»¸ã®æç”»
+        Handles.color = Color.black;
+        Handles.DrawLine(new Vector3(center.x, rect.y), new Vector3(center.x, rect.y + rect.height)); // Yè»¸
+        Handles.DrawLine(new Vector3(rect.x, center.y), new Vector3(rect.x + rect.width, center.y)); // Xè»¸
+
+        // ãƒ‡ãƒ¼ã‚¿ãƒã‚¤ãƒ³ãƒˆã®æç”»
+        if (graph.points != null)
         {
-            pixels[i] = Color.black;
-        }
-        graphTexture.SetPixels(pixels);
-
-        // ƒOƒ‰ƒt‚ğƒvƒƒbƒg
-        for (int x = 0; x < width; x++)
-        {
-            float t = (float)x / width;
-            float y = graph.graphCurve.Evaluate(t); // ƒJ[ƒu‚©‚ç’l‚ğæ“¾
-            int pixelY = (int)(y * height);
-
-            if (pixelY >= 0 && pixelY < height)
+            foreach (var point in graph.points)
             {
-                graphTexture.SetPixel(x, pixelY, Color.green); // —ÎF‚Å•`‰æ
+                if (point == null) continue; //nullãƒã‚§ãƒƒã‚¯
+                Vector2 pos = center + point.position * (graphSize / (2 * graph.graphSize));
+                Handles.color = point.color;
+                Handles.DrawSolidDisc(pos, Vector3.forward, 5f);
+                GUI.Label(new Rect(pos.x + 5, pos.y - 10, 100, 20), point.label);
+
+                GUIStyle labelStyle = new GUIStyle();
+                labelStyle.normal.textColor = point.color; // ãƒ©ãƒ™ãƒ«ã®è‰²ã‚’ `GraphPoint.color` ã«ã™ã‚‹
+                labelStyle.fontSize = 12; // âœ… ãƒ•ã‚©ãƒ³ãƒˆã‚µã‚¤ã‚ºå¤‰æ›´ï¼ˆå¿…è¦ãªã‚‰ï¼‰
             }
         }
 
-        graphTexture.Apply();
-        GUILayout.Label(graphTexture);
+        Handles.EndGUI();
+
+        // âœ… `Inspector` ã®æ›´æ–°ã‚’åæ˜ 
+        if (GUI.changed)
+        {
+            EditorUtility.SetDirty(target);
+            Repaint();
+        }
     }
 }
-

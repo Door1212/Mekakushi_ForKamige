@@ -55,8 +55,6 @@ public class SearchKids : MonoBehaviour
     //探索中か
     private bool _isSearching = false;
 
-
-
     // Start is called before the first frame update
     void Start()
     {
@@ -109,6 +107,7 @@ public class SearchKids : MonoBehaviour
         try
         {
             Debug.Log("探索開始");
+            LogRecorder.GetInstance().LogEvent("探索開始");
 
             while (elapsedTime < _CompleteTime)
             {
@@ -128,7 +127,7 @@ public class SearchKids : MonoBehaviour
             }
             _AudioSource.clip = _SearchFailSound;
             _AudioSource.Play();
-
+            LogRecorder.GetInstance().LogEvent("子供を発見できず");
             Debug.Log("探索完了");
         }
         catch (OperationCanceledException)
@@ -157,7 +156,7 @@ public class SearchKids : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Target")) //`Target` タグのオブジェクトに反応
         {
-
+            LogRecorder.GetInstance().LogEvent("子供を発見");
             Debug.Log("子供を発見");
 
             ResetCts();
