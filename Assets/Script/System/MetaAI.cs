@@ -34,18 +34,18 @@ public class MetaAI : MonoBehaviour
     private const float _MinFear = -1.0f;   //”s–k‚Ö‚Ì‹°•|‚ÌÅ¬’l
     private const float _MaxHope = 1.0f;    //Ÿ—˜‚Ö‚ÌŠó–]‚ÌÅ‘å’l
     private const float _MinHope = -1.0f;   //Ÿ—˜‚Ö‚ÌŠó–]‚Ì‚ÌÅ¬’l
-    [Header("”s–k‚Ö‚ÌŒ»İ‚Ì‹°•|‚Ì’l")]
+    [Header("”s–k‚Ö‚Ì‹°•|‚Ì‰Šú’l")]
     [SerializeField] private float _InitFear = -1.0f; //”s–k‰Šú’l
-    [Header("Ÿ—˜‚Ö‚ÌŠó–]‚Ì‹°•|‚Ì’l")]
+    [Header("Ÿ—˜‚Ö‚ÌŠó–]‚Ì‰Šú’l")]
     [SerializeField] private float _InitHope = -1.0f; //Šó–]‰Šú’l
     [Header("”s–k‚Ö‚Ì‹°•|‚ÌŒ»İ‚Ì’l")]
-    [SerializeField]private float _CurrentFear; //Œ»İ‚Ì”s–k‚Ö‚Ì‹°•|‚Ì’l
+    [SerializeField] private float _CurrentFear; //Œ»İ‚Ì”s–k‚Ö‚Ì‹°•|‚Ì’l
     [Header("Ÿ—˜‚Ö‚ÌŠó–]‚ÌŒ»İ‚Ì’l")]
-    [SerializeField]private float _CurrentHope; //Œ»İ‚ÌŸ—˜‚Ö‚ÌŠó–]‚Ì’l
+    [SerializeField] private float _CurrentHope; //Œ»İ‚ÌŸ—˜‚Ö‚ÌŠó–]‚Ì’l
     [Header("‹°•|‚ÌˆÚ“®‰Â”\”ÍˆÍ")]
-    [SerializeField]private Vector2 _FearRange;
+    [SerializeField] private Vector2 _FearRange;
     [Header("Šó–]‚ÌˆÚ“®‰Â”\”ÍˆÍ")]
-    [SerializeField]private Vector2 _HopeRange;
+    [SerializeField] private Vector2 _HopeRange;
 
     //EmotionalPoint(Š´î‚ÌˆÊ’u)
     private Vector2 _CurrentEP;//Œ»İ‚ÌŠ´î‚ÌˆÊ’u
@@ -59,7 +59,8 @@ public class MetaAI : MonoBehaviour
     public float graphSize = 1f; // ƒOƒ‰ƒt‚ÌÅ‘å’l
     public GraphPoint[] points = new GraphPoint[3]; // ƒf[ƒ^ƒ|ƒCƒ“ƒg
 
-    public AnimationCurve Value = new AnimationCurve();
+    [Header("q‹Ÿ‚ğŒ©‚Â‚¯‚½”‚©‚çŠó–]‚Ì’l‚ğ‹‚ß‚é‚½‚ß‚ÌƒJ[ƒu")]
+    public AnimationCurve _KidsFoundHopeNumCurve = new AnimationCurve();
 
     //ƒvƒŒƒCƒ„[ó‘Ô
     enum TaskState
@@ -69,7 +70,7 @@ public class MetaAI : MonoBehaviour
         Catch_Kids,     //q‹Ÿ‚ğ•ß‚Ü‚¦‚é
         P,        //
         RunFrom_Enemy,  //“G‚©‚ç“¦‚°‚é
-        
+
     }
 
     //AI‚Í‚Ç‚¤‚µ‚½‚¢‚©
@@ -138,13 +139,13 @@ public class MetaAI : MonoBehaviour
         //‰B‚ê‚Ä‚¢‚é‚©(‹°‚ê-)
 
 
-        //“G‚É’Ç‚í‚ê‚Ä‚¢‚é‚©(‹°‚ê+)
+        //“G‚É’Ç‚í‚ê‚Ä‚¢‚é‚©(‹°‚ê+,Šó–]‚Ì’l‚É‚à‰e‹¿)
 
 
         //‚ ‚Æ‰½lŒ©‚Â‚¯‚ê‚ÎƒNƒŠƒA‚©(Šó–]+)
 
 
-        _CurrentEP =  new Vector2( _CurrentFear, _CurrentHope);
+        _CurrentEP = new Vector2(_CurrentFear, _CurrentHope);
     }
 
     /// <summary>
@@ -175,7 +176,7 @@ public class MetaAI : MonoBehaviour
         //‚»‚Ìˆ×‚Ì–½—ß‚ğo‚·
 
         _NextEP = new Vector2(0, 0);
-    }   
+    }
 
     private void OnApplicationQuit()
     {
@@ -218,7 +219,7 @@ public class MetaAI : MonoBehaviour
         }
         //Œ»İ
         points[0].label = "CurrentEP";
-        points[0].position =_CurrentEP;
+        points[0].position = _CurrentEP;
         points[0].color = Color.blue;
         //Ÿ‚Ìƒ|ƒCƒ“ƒg
         points[1].label = "NextEP";
@@ -236,6 +237,7 @@ public class MetaAI : MonoBehaviour
     private void UpdateGraph()
     {
         if (points == null || points.Length < 3) return; //nullƒ`ƒFƒbƒN
+
         points[0].position = _CurrentEP;
         Debug.Log(_CurrentEP);
         points[1].position = _NextEP;
@@ -254,9 +256,9 @@ public class MetaAI : MonoBehaviour
     public void SetFear(float fear)
     {
 
-        _CurrentFear = Mathf.Clamp(fear,_FearRange.x,_FearRange.y);
+        _CurrentFear = Mathf.Clamp(fear, _FearRange.x, _FearRange.y);
 
-        
+
     }
     /// <summary>
     /// Œ»İ‚Ì”s–k‚Ö‚Ì‹°•|‚Ì’l‚ğæ“¾‚·‚é
@@ -284,7 +286,7 @@ public class MetaAI : MonoBehaviour
     /// <param name="Hope">ƒZƒbƒg‚µ‚½‚¢Šó–]‚Ì’l</param>
     public void SetHope(float Hope)
     {
-        _CurrentHope = Mathf.Clamp(Hope,_HopeRange.x,_HopeRange.y);
+        _CurrentHope = Mathf.Clamp(Hope, _HopeRange.x, _HopeRange.y);
     }
     /// <summary>
     /// Œ»İ‚ÌŸ—˜‚Ö‚ÌŠó–]‚Ì’l‚ğæ“¾‚·‚é
@@ -302,6 +304,6 @@ public class MetaAI : MonoBehaviour
     /// <param name="Hope">‰ÁZ‚µ‚½‚¢Šó–]‚Ì’l</param>
     public void AddHope(float Hope)
     {
-        _CurrentHope = Mathf.Clamp(Hope + _CurrentHope,_HopeRange.x,_HopeRange.y);
+        _CurrentHope = Mathf.Clamp(Hope + _CurrentHope, _HopeRange.x, _HopeRange.y);
     }
 }
