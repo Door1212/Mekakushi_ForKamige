@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Rendering;
+using UnityEditor.Experimental.GraphView;
 
 //グラフ情報
 public class GraphPoint
@@ -59,29 +60,29 @@ public class MetaAI : MonoBehaviour
     public float graphSize = 1f; // グラフの最大値
     public GraphPoint[] points = new GraphPoint[3]; // データポイント
 
+    private GameManager manager;
+
     [Header("子供を見つけた数から希望の値を求めるためのカーブ")]
     public AnimationCurve _KidsFoundHopeNumCurve = new AnimationCurve();
 
-    //プレイヤー状態
+    //行動状態
     enum TaskState
     {
         None,           //特に何もない状態
         Search_kids,    //子供の位置を見つける
         Catch_Kids,     //子供を捕まえる
-        P,        //
+        HideFrom_Enemy, //敵から隠れる
         RunFrom_Enemy,  //敵から逃げる
-
-    }
-
-    //AIはどうしたいか
-    enum AIThinkingPattern
-    {
-        None,           //特に何もない状態
-        Search_kids,    //子供を探してほしい
-        Catch_kids,     //子供を捕まえてほしい
         FeelSafe,       //安全を感じてほしい
         FeelDanger,     //危険を感じてほしい
     }
+   
+
+    [Header("プレイヤーの行動状態")]
+    TaskState _PlayerTask;
+
+    [Header("AIが次にして欲しい行動状態")]
+    TaskState _AITask;
 
     // Start is called before the first frame update
     void Start()
@@ -99,6 +100,8 @@ public class MetaAI : MonoBehaviour
 
         //ファイルパスを取得
         filePath = Path.Combine(Application.persistentDataPath, "MetaAIData.csv");
+
+        manager =GameObject.Find("GameManager").GetComponent<GameManager>();
 
         //グラフ情報の初期化
         InitGraph();
@@ -121,6 +124,9 @@ public class MetaAI : MonoBehaviour
         PlanGoalEP();
         //NextEPの設定
         SetNextEP();
+        //オーダーの生成
+        GenerateOrder();
+
     }
 
     /// <summary>
@@ -143,7 +149,11 @@ public class MetaAI : MonoBehaviour
 
 
         //あと何人見つければクリアか(希望+)
+        _CurrentHope += _KidsFoundHopeNumCurve.Evaluate(Mathf.Lerp(0,10.0f,((float)manager.isFindpeopleNum/ (float)manager.PeopleNum)/10));
 
+        //値のクランプ
+        _CurrentHope = Mathf.Clamp(_CurrentHope,_HopeRange.x, _HopeRange.y);
+        _CurrentFear = Mathf.Clamp(_CurrentFear,_FearRange.x, _FearRange.y);
 
         _CurrentEP = new Vector2(_CurrentFear, _CurrentHope);
     }
@@ -153,10 +163,9 @@ public class MetaAI : MonoBehaviour
     /// </summary>
     private void PlanGoalEP()
     {
-        //習熟度によって目標の感情の位置を設定する
+        
 
-
-
+        //興奮状態
         _TargetEP = new Vector2(1, 1);
 
     }
@@ -166,16 +175,19 @@ public class MetaAI : MonoBehaviour
     /// </summary>
     private void SetNextEP()
     {
-        //ゴールを達成するには...?
-        //を考えて次の感情の位置を設定する
 
-        //現在の感情の位置と目標の感情の位置を比較して次の感情の位置を設定する
-
-        //どう持っていくかも考える
-
-        //その為の命令を出す
 
         _NextEP = new Vector2(0, 0);
+    }
+
+    /// <summary>
+    /// 感情からオーダーの生成
+    /// </summary>
+    private void GenerateOrder()
+    {
+        //AIのやりたいことと感情の差からやることと変更の強度を決定する
+
+
     }
 
     private void OnApplicationQuit()
@@ -239,11 +251,11 @@ public class MetaAI : MonoBehaviour
         if (points == null || points.Length < 3) return; //nullチェック
 
         points[0].position = _CurrentEP;
-        Debug.Log(_CurrentEP);
+        Debug.Log("CurrentEP"+_CurrentEP);
         points[1].position = _NextEP;
-        Debug.Log(_NextEP);
+        Debug.Log("NextEP" + _NextEP);
         points[2].position = _TargetEP;
-        Debug.Log(_TargetEP);
+        Debug.Log("TargetEP" + _TargetEP);
     }
 
 

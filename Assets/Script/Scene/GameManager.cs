@@ -19,11 +19,12 @@ public class GameManager : MonoBehaviour
     private float TimeLimit;
 
     //見つける人数
-    [Tooltip("見つける人数")]
+    [Header("見つける人数")]
     [SerializeField]
     [Range(0, 10)]
-    private int PeopleNum;
+    public int PeopleNum;
 
+    [Header("見つかった人数")]
     public int isFindpeopleNum;
 
     //[SerializeField]

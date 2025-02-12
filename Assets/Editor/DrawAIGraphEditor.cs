@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using NUnit.Framework.Constraints;
 
 [CustomEditor(typeof(MetaAI))]
 public class DrawAIGraphEditor : Editor
@@ -32,7 +33,7 @@ public class DrawAIGraphEditor : Editor
             foreach (var point in graph.points)
             {
                 if (point == null) continue; //nullチェック
-                Vector2 pos = center + point.position * (graphSize / (2 * graph.graphSize));
+                Vector2 pos = center + new Vector2(point.position.x ,-point.position.y) * (graphSize / (2 * graph.graphSize));
                 Handles.color = point.color;
                 Handles.DrawSolidDisc(pos, Vector3.forward, 5f);
                 GUI.Label(new Rect(pos.x + 5, pos.y - 10, 100, 20), point.label);

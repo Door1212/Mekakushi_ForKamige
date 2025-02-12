@@ -263,6 +263,8 @@ public class EnemyTutorial : MonoBehaviour
         
         //初チュートリアル終了
         IsFirstTutorialDone = true;
+
+        transform.right
     }
 
     private IEnumerator StartCloseEyetime()
