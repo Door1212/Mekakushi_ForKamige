@@ -58,21 +58,19 @@ public class SoundWall : MonoBehaviour
     };
 
     //敵関連
-    // "Enemy"タグを持つすべてのオブジェクトを取得
-    //public GameObject[] enemies;
-    //public EnemyAI_move[] enemyAI_Moves;
-
+    // "Enemy"タグを持つオブジェクトを取得
+    [Header("敵関連")]
     public GameObject enemies;
     public EnemyAI_move enemyAI_Moves;
 
     [Header("敵を使うか")]
     [SerializeField] private bool UseEnemy;
 
-    [Header("敵をTPさせるか強制に気づき状態にさせるか")]
-    [SerializeField] private bool DoTP;
+    //[Header("敵をTPさせるか強制に気づき状態にさせるか")]
+    /*[SerializeField]*/ private bool DoTP;
 
-    [Header("プレイヤーから何番目に近いポイントにTPさせる")]
-    [SerializeField] private int NearNum;
+    //[Header("プレイヤーから何番目に近いポイントにTPさせる")]
+   /* [SerializeField]*/ private int NearNum;
 
     [Header("発生する確率")]
     [SerializeField][Range(0.01f, 1.00f)] private float Probability = 1.00f;
