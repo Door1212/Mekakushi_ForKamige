@@ -25,7 +25,7 @@ public class DoorOpen : MonoBehaviour
     public bool Doorlock = false;
 
     [Header("プレイヤーオブジェクトの名前")]
-    public string target_name = "Player(tentative)";
+    public string target_name = "Player";
     [Header("プレイヤーとドアの距離の確認用")]
     [SerializeField]
     private float dis;

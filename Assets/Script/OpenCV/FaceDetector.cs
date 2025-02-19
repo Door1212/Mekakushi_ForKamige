@@ -21,19 +21,7 @@ namespace DlibFaceLandmarkDetectorExample
     public class FaceDetector : MonoBehaviour
     {
         public static FaceDetector FaceInstance; // シングルトンインスタンス
-        Texture2D texture; // カメラ映像を格納するためのTexture2D
 
-        string dlibShapePredictorFileName; // Dlibの形状予測ファイル名
-
-        WebCamTextureToMatHelper webCamTextureToMatHelper; // カメラ映像をマトリックス形式で取得するヘルパー
-        FaceLandmarkDetector faceLandmarkDetector; // 顔ランドマーク検出器
-
-        FpsMonitor fpsMonitor; // FPSモニタリング用
-
-        string dlibShapePredictorFilePath; // Dlibの形状予測ファイルパス
-
-        private bool isEyeOpen = false; // 目が開いているかどうか
-        bool PreisEyeOpen = false; // 前のフレームで目が開いていたかどうか
 
         public bool isKeyEyeClose;//キーを使って目を閉じたか
 
@@ -45,6 +33,11 @@ namespace DlibFaceLandmarkDetectorExample
         private bool[] EyeData = new bool[EyeFrameInterval]; // フレームごとの目の開閉データ
         private int EyeDataCurPos; // 現在のフレーム位置
         private int EyeDataNum = 0; //
+        [Header("目開閉補正の基準パーセント")]
+        [Range(0.1f,0.9f)]public const float EyeFrameThresholdNum = 0.5f;
+        [Header("閾値自動設定の補正値")]
+        [Range(0.1f, 0.9f)]public const float _CorrectionValue = 0.2f;
+
 
         public float REyeValue; // 右目の開き具合
         public float LEyeValue; // 左目の開き具合
@@ -69,6 +62,20 @@ namespace DlibFaceLandmarkDetectorExample
 
         [Header("顔認識デバッグオブジェクト")]
         public GameObject FaceDebugObj;
+
+        Texture2D texture; // カメラ映像を格納するためのTexture2D
+
+        string dlibShapePredictorFileName; // Dlibの形状予測ファイル名
+
+        WebCamTextureToMatHelper webCamTextureToMatHelper; // カメラ映像をマトリックス形式で取得するヘルパー
+        FaceLandmarkDetector faceLandmarkDetector; // 顔ランドマーク検出器
+
+        FpsMonitor fpsMonitor; // FPSモニタリング用
+
+        string dlibShapePredictorFilePath; // Dlibの形状予測ファイルパス
+
+        private bool isEyeOpen = false; // 目が開いているかどうか
+        private bool PreisEyeOpen = false; // 前のフレームで目が開いていたかどうか
 
 
 #if UNITY_WEBGL
@@ -439,6 +446,10 @@ namespace DlibFaceLandmarkDetectorExample
             return GetAverageEyeState();
         }
 
+        /// <summary>
+        /// 目の閾値の自動調節
+        /// </summary>
+        /// <param name="points">顔頂点データ</param>
         public void AutoCloseEyeSetting(List<Vector2> points)
         {
             float eyeOpen_L = getRaitoOfEyeOpen_L(points);
@@ -464,28 +475,35 @@ namespace DlibFaceLandmarkDetectorExample
             return KeptOpeningTime;
         }
 
-        //決まったフレーム数に対する
+        /// <summary>
+        /// 目の開閉情報を補正する
+        /// </summary>
+        /// <returns>補正後の開閉状態</returns>
         public bool GetAverageEyeState()
         {
+
+            // EyeDataの要素数がEyeFrameIntervalより少ない場合は処理しない
+            if (EyeData.Length < EyeFrameInterval)
+            {
+                Debug.LogWarning("EyeDataの要素数がEyeFrameIntervalより少ないため、補正できません。");
+                return true; // デフォルト値を返す（開いている状態）
+            }
+
+            //EyeFrameIntervalの範囲で目を閉じているフレーム数をカウント
             int CloseNum = 0;
             for (int i = 0; i < EyeFrameInterval; i++)
             {
-                if (EyeData[i] == false)
+                if (!EyeData[i])//目が閉じていれば加算
                 {
                     CloseNum++;
                 }
             }
-
+            
+            //閉じているフレーム数を記録
             EyeDataNum = CloseNum;
 
-            if (CloseNum >= (EyeFrameInterval / 3) * 1.5)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            // 目を閉じたフレームがEyeFrameIntervalの 50% 以上(EyeFrameThresholdNumは0.5f)ならfalse（閉じている）
+            return CloseNum < (EyeFrameInterval * EyeFrameThresholdNum);
 
         }
 
@@ -524,34 +542,42 @@ namespace DlibFaceLandmarkDetectorExample
             return isKeepCloseEye;
         }
 
+        /// <summary>
+        /// 目の閾値の自動調節部分
+        /// </summary>
         public void calEyeSettingValue()
         {
-            //データをソートする
+            // データをソートする（目の開閉設定データを昇順に並べる）
             var sortedData = REyeSettingData.OrderBy(x => x).ToArray();
             var sortedData2 = LEyeSettingData.OrderBy(x => x).ToArray();
-            //中央値を取る
+
+            // 中央値を取得（データの中央の値を基準にする）
             float median = sortedData[sortedData.Length / 2];
             float median2 = sortedData2[sortedData2.Length / 2];
 
+            // 各データの中央値からの偏差の絶対値を計算（中央値絶対偏差）
             var absoluteDeviations = sortedData.Select(x => Mathf.Abs(x - median)).ToArray();
-            float mad = absoluteDeviations.OrderBy(x => x).ToArray()[absoluteDeviations.Length / 2];
             var absoluteDeviations2 = sortedData2.Select(x => Mathf.Abs(x - median2)).ToArray();
+
+            // 絶対偏差の中央値（MAD: Median Absolute Deviation）を取得
+            float mad = absoluteDeviations.OrderBy(x => x).ToArray()[absoluteDeviations.Length / 2];
             float mad2 = absoluteDeviations2.OrderBy(x => x).ToArray()[absoluteDeviations2.Length / 2];
 
-            //閾値を設定
+            // 閾値を設定（3倍のMADを閾値とする）
             float threshold = 3 * mad;
             float threshold2 = 3 * mad2;
 
-            //
+            // 閾値を超える外れ値を除外する（異常値を排除）
             var filteredData = sortedData.Where(x => Mathf.Abs(x - median) <= threshold).ToArray();
             var filteredData2 = sortedData2.Where(x => Mathf.Abs(x - median2) <= threshold2).ToArray();
 
-            EyeClosingLevel.REyeClosingLevelValue = filteredData.Average() + 0.2f;
-            EyeClosingLevel.LEyeClosingLevelValue = filteredData2.Average() + 0.2f;
+            // 外れ値を除外したデータの平均値を求め、目を閉じる閾値に設定（＋_CorrectionValueの補正）
+            EyeClosingLevel.REyeClosingLevelValue = filteredData.Average() + _CorrectionValue;
+            EyeClosingLevel.LEyeClosingLevelValue = filteredData2.Average() + _CorrectionValue;
         }
 
-        // 現在のランドマークポイントを取得するメソッド
-        public List<Vector2> GetLandmarkPoints()
+            // 現在のランドマークポイントを取得するメソッド
+            public List<Vector2> GetLandmarkPoints()
         {
             return currentLandmarkPoints;
         }

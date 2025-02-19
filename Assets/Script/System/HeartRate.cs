@@ -10,10 +10,19 @@ using UnityEngine;
 public class HeartRate : MonoBehaviour
 {
     [Header("現在の心拍数")]
-    public int _heartRate;
+    public float _heartRate;
 
     [Header("心拍数の初期値")]
-    public int _initHeartRate = 80;
+    public float _initHeartRate = 80f;
+        
+    [Header("心拍が上がり始める走りの秒数")]
+    public const float _RunningSecondsThreshold = 3.0f;
+
+    [Header("心拍が下がり始める止まりの秒数")]
+    public const float _StoppingSecondsThreshold = 3.0f;
+
+    [Header("止まっているのみで下がる最小の心拍数")]
+    public const float _StoppingMinHeartRate = 80f;
 
     [Header("心拍の移行状態")]
     public HeartState _heartState;
@@ -21,11 +30,22 @@ public class HeartRate : MonoBehaviour
     [Header("心拍の状態")]
     public HeartRateState _heartRateState;
 
-    private const int _maxHeartBeat = 120;    //心拍数の最大値
+    [Header("心拍安定曲線")]
+    public AnimationCurve _heartRateCurve;
 
-    private const int _minHeartBeat = 60;     //心拍数の最小値
+    [Header("心拍上昇曲線")]
+    public AnimationCurve _heartUpRateCurve;
+
+    [Header("心拍低下曲線")]
+    public AnimationCurve _heartDownRateCurve;
+
+    private const float _maxHeartBeat = 120;    //心拍数の最大値
+
+    private const float _minHeartBeat = 60;     //心拍数の最小値
 
     private PlayerMove _playerMove;             //プレイヤー移動クラス
+
+    private float _heartRateTime = 0.0f;
 
 
 
@@ -58,18 +78,87 @@ public class HeartRate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HeartUpdate();
+        HeartRateUpdate();
     }
 
-    private void HeartUpdate()
+    /// <summary>
+    /// 心拍数の更新処理
+    /// </summary>
+    private void HeartRateUpdate()
     {
         //心拍数の上下状態の判断
-        
+        SetHeartState();
+
+        //心拍数の上下を行う
+        SetHeartRate();
 
         _heartRate = Mathf.Clamp(_heartRate,_minHeartBeat,_maxHeartBeat);
 
-        //最大心拍数に対する心拍数の割合でステージ訳をする
-        if((_heartRate / _maxHeartBeat) * 100 < 60)
+        //最大心拍数に対する心拍数の割合でステージ分けをする
+        SetHeartRateState();
+
+    }
+
+    private void SetHeartState()
+    {
+        if (_playerMove != null)
+        {
+            if (_playerMove.IsRunning && _playerMove.RunningTime >= _RunningSecondsThreshold)
+            {
+                _heartState = HeartState.Increasing;
+            }
+            else if (_playerMove.IsStop && _playerMove.StoppingTime >= _StoppingSecondsThreshold && _heartRate > _StoppingMinHeartRate)
+            {
+                _heartState = HeartState.Decreasing;
+            }
+            else if(_playerMove._isEndRunning)
+            {
+                _heartState = HeartState.Normal;
+            }
+            else
+            {
+                _heartState= HeartState.Normal;
+            }
+        }
+    }
+
+
+    private void SetHeartRate()
+    {
+
+        switch (_heartState)
+        {
+            case HeartState.Normal:
+                {
+                    _heartRate += _heartRateCurve.Evaluate(_heartRateTime);
+                    break;
+                }
+            case HeartState.Increasing:
+                {
+                    _heartRate += _heartUpRateCurve.Evaluate(_heartRateTime);
+                    break;
+                }
+            case HeartState.Decreasing:
+                {
+                    _heartRate += _heartDownRateCurve.Evaluate(_heartRateTime);
+                    break;
+                }
+        }
+
+        _heartRateTime += Time.deltaTime;
+        if(_heartRateTime > 1)
+        {
+            _heartRateTime = 0;
+        }
+    }
+
+    /// <summary>
+    /// 心拍数から領域を設定
+    /// </summary>
+    private void SetHeartRateState()
+    {
+
+        if ((_heartRate / _maxHeartBeat) * 100 < 60)
         {
             _heartRateState = HeartRateState.Zone1;
         }
@@ -89,6 +178,5 @@ public class HeartRate : MonoBehaviour
         {
             _heartRateState = HeartRateState.Zone5;
         }
-
     }
 }

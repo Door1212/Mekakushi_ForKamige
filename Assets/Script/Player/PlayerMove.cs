@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 
@@ -22,10 +23,10 @@ public class PlayerMove : MonoBehaviour
     public GameObject SpawnPos;
     public GameObject StealthSpawnPos;
 
+    [Header("移動していないか")]
     public bool IsStop = false;
+    [Header("走っているか")]
     public bool IsRunning = false;
-    public bool IsUsingEnemy = true; 
-
     [Header("移動速度")]
     public float move_speed = 5f;
     [Header("カメラの名前")]
@@ -38,14 +39,26 @@ public class PlayerMove : MonoBehaviour
     public float sprintSpeed = 1.25f;
     [Header("重力の大きさ")]
     public float gravity = 10f;
+    [Header("止まり続けている時間")]
+    public float StoppingTime = 0.0f;
+    [Header("走り続けている時間")]
+    public float RunningTime = 0.0f;
+    [Header("走り続けている時間")]
+    public float _endFromRunningTime = 0.0f;
+    [Header("走り続けている時間をとり終わる時間")]
+    public const float _endFromRunningTimeEnd = 5.0f;
+    [Header("走り終わった状態であるか")]
+    public bool _isEndRunning = false;//走り終わり
+
+    private bool _isPreStop = false;
+    private bool _isPreRunning = false;
+
 
     //動かせる状態かどうか
     private bool CanMove = true;
 
     void Start()
     {
-        //rigidbodyを取得
-        //rb = this.GetComponent<Rigidbody>();
         //カメラの位置情報をtransformを取得
         cam_trans = GameObject.Find(cam_name).transform;
         //FaceDetecterを取得
@@ -54,6 +67,9 @@ public class PlayerMove : MonoBehaviour
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         //キャラクターコントローラーを取得する
         characterController =GetComponent<CharacterController>();
+
+        StoppingTime = 0.0f;
+        RunningTime = 0.0f;
 
         //スポーン場所が設定されている場合
         if (SpawnPos != null && StealthSpawnPos != null)
@@ -94,11 +110,7 @@ public class PlayerMove : MonoBehaviour
             }
 
             //接地していなければ重力を適用
-            if (characterController.isGrounded)
-            {
-            
-            }
-            else
+            if (!characterController.isGrounded)
             {
                 // 重力を効かせる
                 dir_player.y -= gravity * Time.deltaTime;
@@ -127,6 +139,50 @@ public class PlayerMove : MonoBehaviour
                 IsRunning = false;
             }
             #endregion
+
+            #region TimerUpdate
+
+            if(_isPreRunning && IsRunning)
+            {
+                RunningTime += Time.deltaTime;
+            }
+            else
+            {
+                RunningTime = 0;
+            }
+
+            //走り終わりを検知
+            if(_isPreRunning &&  !IsRunning)
+            {
+                _isEndRunning = true;
+            }
+
+            //走り終わってからの時間を計測
+            if(_isEndRunning)
+            {
+                _endFromRunningTime += Time.deltaTime;
+
+                //走り終わりの取り終わり
+                if(_endFromRunningTime > _endFromRunningTimeEnd)
+                {
+                    _isEndRunning = false;
+                    _endFromRunningTime = 0;
+                }
+            }
+
+            if (_isPreStop && IsStop)
+            {
+                StoppingTime += Time.deltaTime;
+            }
+            else
+            {
+               StoppingTime = 0;
+            }
+
+            #endregion
+
+            _isPreStop = IsStop;
+            _isPreRunning = IsRunning;
 
             Vector3 moveDirection = new Vector3(dir_player.x, dir_player.y, dir_player.z);
             //moveDirection = transform.TransformDirection(moveDirection); // ローカル座標系に変換

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.Rendering;
-using UnityEditor.Experimental.GraphView;
+//using UnityEditor.Experimental.GraphView;
 
 //グラフ情報
 public class GraphPoint
@@ -13,6 +13,34 @@ public class GraphPoint
     public Color color = Color.clear; // 点の色
 }
 
+/// <summary>
+/// 数の制限を持たせたList<T>
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class LimitedQueueList<T>
+{
+    private List<T> _list = new List<T>();
+    private int _maxCapacity;
+
+    public LimitedQueueList(int maxCapacity)
+    {
+        _maxCapacity = maxCapacity;
+    }
+
+    public void Add(T item)
+    {
+        if (_list.Count >= _maxCapacity)
+        {
+            _list.RemoveAt(0); // 一番古いデータを削除
+        }
+
+        _list.Add(item);
+    }
+
+    public List<T> GetList() => _list;
+}
+
+[RequireComponent(typeof(CSVReader))]
 
 
 public class MetaAI : MonoBehaviour
@@ -20,6 +48,8 @@ public class MetaAI : MonoBehaviour
     //データ保存用ファイルパス
     string filePath;
 
+    //データ取得用ファイルパス
+    string _dataFilePath;
 
     //したいこと
     //動的な敵の生成
@@ -47,6 +77,21 @@ public class MetaAI : MonoBehaviour
     [SerializeField] private Vector2 _FearRange;
     [Header("希望の移動可能範囲")]
     [SerializeField] private Vector2 _HopeRange;
+    [Header("保存しておく過去EPの最大数")]
+    [SerializeField] public const int _MaxPreEPDataNum = 50;
+
+    [Header("プレイヤーの行動状態")]
+    TaskState _PlayerTask;
+
+    [Header("AIが次にして欲しい行動状態")]
+    TaskState _AITask;
+
+    [Header("子供を見つけた数から希望の値を求めるためのカーブ")]
+    public AnimationCurve _KidsFoundHopeNumCurve = new AnimationCurve();
+
+    private List<HeartRateValue> _rateValue = new List<HeartRateValue>();
+
+    private LimitedQueueList<Vector2> _PreEP = new LimitedQueueList<Vector2>(_MaxPreEPDataNum);
 
     //EmotionalPoint(感情の位置)
     private Vector2 _CurrentEP;//現在の感情の位置
@@ -54,16 +99,20 @@ public class MetaAI : MonoBehaviour
     private Vector2 _TargetEP;//目標の感情の位置
 
     //習熟度の値
-    private const float _MaxProfi = 1.0f;   //勝利への希望への最大値
-    private const float _MinProfi = -1.0f;  //敗北への恐怖の最小値
+    private const float _MaxProfi = 1.0f;   //習熟度の最大
+    private const float _MinProfi = -1.0f;  //習熟度の最小
 
     public float graphSize = 1f; // グラフの最大値
     public GraphPoint[] points = new GraphPoint[3]; // データポイント
 
-    private GameManager manager;
+    //子供の人数を取得するため
+    private GameManager _manager;
 
-    [Header("子供を見つけた数から希望の値を求めるためのカーブ")]
-    public AnimationCurve _KidsFoundHopeNumCurve = new AnimationCurve();
+    //心拍の取得用
+    private HeartRate _heartRate;
+
+    //CSV読み込み用
+    private CSVReader _csvReader;
 
     //行動状態
     enum TaskState
@@ -76,16 +125,18 @@ public class MetaAI : MonoBehaviour
         FeelSafe,       //安全を感じてほしい
         FeelDanger,     //危険を感じてほしい
     }
-   
 
-    [Header("プレイヤーの行動状態")]
-    TaskState _PlayerTask;
+    public class HeartRateValue
+    {
+        public string _valueName;
+        public float _HopeValue;
+        public float _FearValue;
+    }
 
-    [Header("AIが次にして欲しい行動状態")]
-    TaskState _AITask;
+
 
     // Start is called before the first frame update
-    void Start()
+    async void Start()
     {
         //値の初期化
         _CurrentFear = _InitFear;
@@ -98,13 +149,23 @@ public class MetaAI : MonoBehaviour
         _HopeRange = new Vector2(_MinHope, _MaxHope);
         _FearRange = new Vector2(_MinFear, _MaxFear);
 
+        //過去感情リスト初期化
+        _PreEP = new LimitedQueueList<Vector2>(_MaxPreEPDataNum);
+
         //ファイルパスを取得
         filePath = Path.Combine(Application.persistentDataPath, "MetaAIData.csv");
 
-        manager =GameObject.Find("GameManager").GetComponent<GameManager>();
+        _dataFilePath = Path.Combine(Application.streamingAssetsPath, "MetaAI/MetaAIValue.csv");
+
+        _manager =GameObject.Find("GameManager").GetComponent<GameManager>();
+        _heartRate = GameObject.Find("Player").GetComponent<HeartRate>();
+        _csvReader = GetComponent<CSVReader>();
+
+        _rateValue = await _csvReader.ReadCSV(_dataFilePath);
 
         //グラフ情報の初期化
         InitGraph();
+
     }
 
     // Update is called once per frame
@@ -116,6 +177,9 @@ public class MetaAI : MonoBehaviour
         UpdateGraph();
     }
 
+    /// <summary>
+    /// AI関連処理のアップデート
+    /// </summary>
     private void AIUpdate()
     {
         //CurrentEPの推測
@@ -136,24 +200,70 @@ public class MetaAI : MonoBehaviour
     {
         //現在置かれている状況から感情の位置を推測する
         //まずは初期化
-        _CurrentFear = -1.0f;
-        _CurrentHope = -1.0f;
+        _CurrentFear = 0.0f;
+        _CurrentHope = 0.0f;
 
-        //見つけるべき子供の位置を把握しているか(恐れ-)
+        //見つけるべき子供の位置を把握しているか(恐れ)
 
 
-        //隠れているか(恐れ-)
+        //隠れているか(恐れ)
 
 
         //敵に追われているか(恐れ+,希望の値にも影響)
 
+        //心拍数の状態(恐れ)
+        if(_csvReader._isLoadDone)
+        {
+            switch (_heartRate._heartRateState)
+            {
+                case HeartRate.HeartRateState.Zone1:
+                    {
+                        Debug.Log(_rateValue[0]._valueName);
+                        _CurrentHope += _rateValue[0]._HopeValue;
+                        _CurrentFear += _rateValue[0]._FearValue;
+                        break;
+                    }
+                case HeartRate.HeartRateState.Zone2:
+                    {
+                        Debug.Log(_rateValue[1]._valueName);
+                        _CurrentHope += _rateValue[1]._HopeValue;
+                        _CurrentFear += _rateValue[1]._FearValue;
+                        break;
+                    }
+                case HeartRate.HeartRateState.Zone3:
+                    {
+                        Debug.Log(_rateValue[2]._valueName);
+                        _CurrentHope += _rateValue[2]._HopeValue;
+                        _CurrentFear += _rateValue[2]._FearValue;
+                        break;
+                    }
+                case HeartRate.HeartRateState.Zone4:
+                    {
+                        Debug.Log(_rateValue[3]._valueName);
+                        _CurrentHope += _rateValue[3]._HopeValue;
+                        _CurrentFear += _rateValue[3]._FearValue;
+                        break;
+                    }
+                case HeartRate.HeartRateState.Zone5:
+                    {
+                        Debug.Log(_rateValue[4]._valueName);
+                        _CurrentHope += _rateValue[4]._HopeValue;
+                        _CurrentFear += _rateValue[4]._FearValue;
+                        break;
+                    }
+            }
+        }
+        
 
         //あと何人見つければクリアか(希望+)
-        _CurrentHope += _KidsFoundHopeNumCurve.Evaluate(Mathf.Lerp(0,10.0f,((float)manager.isFindpeopleNum/ (float)manager.PeopleNum)/10));
+        _CurrentHope += _KidsFoundHopeNumCurve.Evaluate(Mathf.Lerp(0,10.0f,((float)_manager.isFindpeopleNum/ (float)_manager.PeopleNum)/10));
 
         //値のクランプ
         _CurrentHope = Mathf.Clamp(_CurrentHope,_HopeRange.x, _HopeRange.y);
         _CurrentFear = Mathf.Clamp(_CurrentFear,_FearRange.x, _FearRange.y);
+
+        //前の値を格納
+        _PreEP.Add(_CurrentEP);
 
         _CurrentEP = new Vector2(_CurrentFear, _CurrentHope);
     }
@@ -163,7 +273,11 @@ public class MetaAI : MonoBehaviour
     /// </summary>
     private void PlanGoalEP()
     {
-        
+        //現在のプレイヤーの状況から向かって欲しい感情を決める
+        switch(_PlayerTask)
+        {
+
+        }
 
         //興奮状態
         _TargetEP = new Vector2(1, 1);
@@ -175,7 +289,17 @@ public class MetaAI : MonoBehaviour
     /// </summary>
     private void SetNextEP()
     {
-
+        switch(_AITask)
+        {
+            case TaskState.None:
+            {
+                    return;
+            }
+            case TaskState.Search_kids:
+            {
+                    return;
+            }
+        }
 
         _NextEP = new Vector2(0, 0);
     }
