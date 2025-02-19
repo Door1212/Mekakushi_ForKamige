@@ -86,9 +86,12 @@ public sealed class LogRecorder : MonoBehaviour
         string _startLog = $"\nゲーム開始";
         File.AppendAllText(_filePath, _startLog);
     }
-    public void LogEnd()
+    public static void LogEnd()
     {
+        //インスタンスがない場合はリターン
+        if (_instance == null) return;
+
         string _endLog = $"ゲーム終了";
-        File.AppendAllText(_filePath, _endLog);
+        File.AppendAllText(_instance._filePath, _endLog);
     }
 }
