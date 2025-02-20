@@ -34,7 +34,7 @@ public class CameraMove : MonoBehaviour
 
     void Start()
     {
-        Application.targetFrameRate = 60;
+        //Application.targetFrameRate = 60;
         target_obj = GameObject.Find(target_name);
         if (target_obj == null)
         {

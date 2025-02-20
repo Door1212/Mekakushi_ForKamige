@@ -98,6 +98,11 @@ public class GameManager : MonoBehaviour
         //q‹Ÿ‚Æà‚Ì‰¹
         directionalSound = FindObjectsOfType<DirectionalSound>();
         soundWall = FindObjectOfType<SoundWall>();
+
+        // VSyncCount ‚ğ Dont Sync ‚É•ÏX
+        QualitySettings.vSyncCount = 0;
+        // 60fps‚ğ–Ú•W‚Éİ’è
+        Application.targetFrameRate = 60;
     }
 
     // Update is called once per frame

@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
 using UniRx;
+using Cysharp.Threading.Tasks;
 //using System.Runtime.Remoting.Messaging;
 
 namespace DlibFaceLandmarkDetectorExample
@@ -130,8 +131,6 @@ namespace DlibFaceLandmarkDetectorExample
                     GetComponent<OptionCameraToUIImageWithFaceDetection>().enabled = false;
                 }
 
-
-
                 return;
             }
             else
@@ -149,13 +148,12 @@ namespace DlibFaceLandmarkDetectorExample
                 // Dlibの形状予測ファイルのパスを取得
                 dlibShapePredictorFilePath = DlibFaceLandmarkDetector.UnityUtils.Utils.getFilePath(dlibShapePredictorFileName);
 
-                // 初期化処理を次のフレームで実行
-                Observable.NextFrame().Subscribe(_ => Run());
+                Run();
             }
            
         }
 
-        private void Run()
+        private async void Run()
         {
             if (string.IsNullOrEmpty(dlibShapePredictorFilePath))
             {
@@ -163,26 +161,25 @@ namespace DlibFaceLandmarkDetectorExample
                 return;
             }
 
-            // Dlibの形状予測器を非同期に初期化
-            Observable.Start(() =>
+            // 形状予測ファイルの読み込み（別スレッドで処理）
+            await UniTask.RunOnThreadPool(() =>
             {
                 faceLandmarkDetector = new FaceLandmarkDetector(dlibShapePredictorFilePath);
-                if (faceLandmarkDetector == null)
-                {
-                    Debug.LogError(faceLandmarkDetector.ToString());
-                }
-            })
-            .ObserveOnMainThread() // メインスレッドに戻す
-            .Subscribe(x =>
-            {
-                Debug.Log("Finish!");
-
-                // Webカメラの初期化
-                Observable.NextFrame().Subscribe(_ => webCamTextureToMatHelper.Initialize());
-
-                UseFaceInitDone = true;
-
             });
+
+            if (faceLandmarkDetector == null)
+            {
+                Debug.LogError("Failed to initialize FaceLandmarkDetector.");
+                return;
+            }
+
+            Debug.Log("Finish!");
+
+            //メインスレッドで `webCamTextureToMatHelper.Initialize()` を実行
+            await UniTask.SwitchToMainThread();
+            webCamTextureToMatHelper.Initialize();
+
+            UseFaceInitDone = true;
         }
 
         public void OnWebCamTextureToMatHelperInitialized()
@@ -243,7 +240,7 @@ namespace DlibFaceLandmarkDetectorExample
             }
         }
 
-        void Update()
+        private void Update()
         {
             if (OptionValue.IsFaceDetecting)
             {                //キーで目を閉じる
@@ -267,30 +264,10 @@ namespace DlibFaceLandmarkDetectorExample
                     // カメラ映像を取得
                     Mat rgbaMat = webCamTextureToMatHelper.GetMat();
                     OpenCVForUnityUtils.SetImage(faceLandmarkDetector, rgbaMat);
+                    
+                    //別スレッドで処理し、終了を待機してほしくないのでForgetを使用
+                    UniTask.RunOnThreadPool(faceDetectUpdate).Forget();
 
-                    // 別スレッドで顔検出と目の状態を更新
-                    Observable.Start(() =>
-                    {
-                        List<UnityEngine.Rect> detectResult = faceLandmarkDetector.DetectClosest(); // 最も近い顔を検出
-
-                        foreach (var rect in detectResult)
-                        {
-                            List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect); // ランドマークポイントを検出
-
-                            if (isKeyEyeClose)
-                            {
-                                isEyeOpen = false;
-                            }
-                            else
-                            {
-                                isEyeOpen = UpdateEyeState(points); // 目の状態を更新
-                            }
-
-                            currentLandmarkPoints = points; // ランドマークポイントを保存
-                        }
-                    })
-                    .ObserveOnMainThread() // メインスレッドに戻す
-                    .Subscribe(_ => { });
                 }
             }
             else
@@ -654,6 +631,27 @@ namespace DlibFaceLandmarkDetectorExample
 
             OptionValue.IsFaceDetecting = IsUseEye;
 
+        }
+
+        private void faceDetectUpdate()
+        {
+            List<UnityEngine.Rect> detectResult = faceLandmarkDetector.DetectClosest(); // 最も近い顔を検出
+
+            foreach (var rect in detectResult)
+            {
+                List<Vector2> points = faceLandmarkDetector.DetectLandmark(rect); // ランドマークポイントを検出
+
+                if (isKeyEyeClose)
+                {
+                    isEyeOpen = false;
+                }
+                else
+                {
+                    isEyeOpen = UpdateEyeState(points); // 目の状態を更新
+                }
+
+                currentLandmarkPoints = points; // ランドマークポイントを保存
+            }
         }
     }
 }

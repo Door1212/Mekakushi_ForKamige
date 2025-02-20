@@ -45,23 +45,23 @@ public class DoorOpen : MonoBehaviour
     [Header("オーディオソース")]
     //[SerializeField]
     AudioSource audioSource;
-    [Header("ドアが開く音")]
-    [SerializeField]
+    //[Header("ドアが開く音")]
+    //[SerializeField]
     private AudioClip AC_OpenDoor;
-    [Header("ドアが閉まる音")]
-    [SerializeField]
+    //[Header("ドアが閉まる音")]
+    //[SerializeField]
     private AudioClip AC_CloseDoor;
-    [Header("ドアを開けようとする音")]
-    [SerializeField]
+    //[Header("ドアを開けようとする音")]
+    //[SerializeField]
     private AudioClip AC_TryOpenDoor;
-    [Header("ドアを無理やり開けた音")]
-    [SerializeField]
+    //[Header("ドアを無理やり開けた音")]
+    //[SerializeField]
     private AudioClip AC_SlumDoor;
-    [Header("ドアを強く閉める音")]
-    [SerializeField]
+    //[Header("ドアを強く閉める音")]
+    //[SerializeField]
     private AudioClip AC_ForceCloseDoor;
-    [Header("ドアが開かない音")]
-    [SerializeField]
+    //[Header("ドアが開かない音")]
+    //[SerializeField]
     private AudioClip AC_LockDoor;
     [Header("敵オブジェクト")]
     [SerializeField]
@@ -96,6 +96,9 @@ public class DoorOpen : MonoBehaviour
 
     [Header("対のドア")]
     [SerializeField] public DoorOpen PairDoor;
+    
+    //オーディオローダー
+    private AudioLoader audioLoader;
 
     NavMeshObstacle obstacles;
     void Start()
@@ -111,6 +114,7 @@ public class DoorOpen : MonoBehaviour
         audioSource = this.GetComponent<AudioSource>();
         enemyAImove = new EnemyAI_move[Enemies.Length];
         Enemy_dis = new float[Enemies.Length];
+        audioLoader = FindObjectOfType<AudioLoader>();
         this.tag = "Door";
 
         Doorlock = false;
@@ -229,42 +233,42 @@ public class DoorOpen : MonoBehaviour
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-        audioSource.PlayOneShot(AC_OpenDoor);
+        audioLoader.PlayAudio("Open Drawer");
     }
 
     public void PlayCloseDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioSource.PlayOneShot(AC_CloseDoor);
+            audioLoader.PlayAudio("Close Drawer");
     }
 
     void PlayTryOpenDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioSource.PlayOneShot(AC_TryOpenDoor);
+            audioLoader.PlayAudio("Scratching");
     }
 
     void PlaySlumDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioSource.PlayOneShot(AC_SlumDoor);
+            audioLoader.PlayAudio("Door Slum2");
     }
 
     void PlayForceCloseDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioSource.PlayOneShot(AC_ForceCloseDoor);
+            audioLoader.PlayAudio("Door Slum1");
     }
 
     void PlayLockDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioSource.PlayOneShot(AC_LockDoor);
+            audioLoader.PlayAudio("Padlock");
     }
 
     public void PlayCloseDoorAnim()

@@ -81,7 +81,6 @@ public class PlayerMove : MonoBehaviour
             {
                 gameManager.isFindpeopleNum = 1;
             }
-
         }
 
         CanMove = true;

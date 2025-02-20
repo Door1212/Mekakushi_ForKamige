@@ -57,16 +57,19 @@ public sealed class LogRecorder : MonoBehaviour
             LogEnd();
         }
     }
+#else
 
-#endif
-
-    /// <summary>
+ /// <summary>
     /// アプリケーション終了時に終了ログ
     /// </summary>
     private void OnApplicationQuit()
     {
         LogEnd();
     }
+
+#endif
+
+
 
 
 
@@ -83,7 +86,7 @@ public sealed class LogRecorder : MonoBehaviour
 
     public void LogStart()
     {
-        string _startLog = $"\nゲーム開始";
+        string _startLog = $"\nゲーム開始\n";
         File.AppendAllText(_filePath, _startLog);
     }
     public static void LogEnd()
