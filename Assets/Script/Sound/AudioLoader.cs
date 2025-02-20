@@ -11,7 +11,7 @@ public class AudioLoader : MonoBehaviour
 
     private void Start()
     {
-        csvFilePath = Path.Combine(Application.streamingAssetsPath, "Sound/AudioData.csv");
+        csvFilePath = Path.Combine(Application.streamingAssetsPath, "Audio/AudioData.csv");
         LoadAudioData().Forget();
     }
 
