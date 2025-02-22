@@ -288,7 +288,7 @@ namespace DlibFaceLandmarkDetectorExample
                         isEyeOpen = true;
                     }
                 }
-            }
+            } 
 
             if (!isEyeOpen && !PreisEyeOpen)
             {

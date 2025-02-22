@@ -70,6 +70,8 @@ public class GameManager : MonoBehaviour
 
     private SoundWall soundWall;
 
+    private LockerOpen[] AllLocker;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -94,6 +96,8 @@ public class GameManager : MonoBehaviour
         AllDoor = FindObjectsOfType<DoorOpen>();
 
         PlaySound = FindObjectOfType<playSound>();
+
+        AllLocker = FindObjectsOfType<LockerOpen>();   
         
         //éqãüÇ∆è‡ÇÃâπ
         directionalSound = FindObjectsOfType<DirectionalSound>();
@@ -254,6 +258,10 @@ public class GameManager : MonoBehaviour
         for(int i = 0; i < AllDoor.Length; i++)
         {
             AllDoor[i]?.SetCanMove(!StopAll);
+        }
+        for (int i = 0; i < AllLocker.Length; i++)
+        {
+            AllLocker[i]?.SetCanMove(!StopAll);
         }
 
         for (int i = 0; i < directionalSound.Length; i++)

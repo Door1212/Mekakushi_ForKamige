@@ -1,0 +1,11 @@
+diff a/Assets/Script/Player/PlayerMove.cs b/Assets/Script/Player/PlayerMove.cs	(rejected hunks)
+@@ -101,9 +101,6 @@
+ 
+     void Update()
+     {
+-        //�J�����Ɠ������������
+-        this.transform.eulerAngles = new Vector3(this.transform.eulerAngles.x, cam_trans.eulerAngles.y, this.transform.eulerAngles.z);
+-
+        
+         //�I�v�V�������͎~�߂�
+         if (!CanMove) { return; }

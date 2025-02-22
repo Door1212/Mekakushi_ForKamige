@@ -26,15 +26,9 @@ public class DoorOpen : MonoBehaviour
 
     [Header("プレイヤーオブジェクトの名前")]
     public string target_name = "Player";
-    [Header("プレイヤーとドアの距離の確認用")]
-    [SerializeField]
-    private float dis;
     [Header("敵によってドアが作動する距離")]
     [SerializeField]
     private float Enemy_Active_Distance = 3.0f;
-    //[Header("ドア当たり判定オフセット")]
-    //[SerializeField]
-    //private Vector3 DoorPosOffset = new Vector3(1.5f, 1.0f, 0.0f);
 
     [Header("プレイヤーが閉めたあと敵が開けられるまでの時間")]
     [SerializeField]
@@ -45,24 +39,6 @@ public class DoorOpen : MonoBehaviour
     [Header("オーディオソース")]
     //[SerializeField]
     AudioSource audioSource;
-    //[Header("ドアが開く音")]
-    //[SerializeField]
-    private AudioClip AC_OpenDoor;
-    //[Header("ドアが閉まる音")]
-    //[SerializeField]
-    private AudioClip AC_CloseDoor;
-    //[Header("ドアを開けようとする音")]
-    //[SerializeField]
-    private AudioClip AC_TryOpenDoor;
-    //[Header("ドアを無理やり開けた音")]
-    //[SerializeField]
-    private AudioClip AC_SlumDoor;
-    //[Header("ドアを強く閉める音")]
-    //[SerializeField]
-    private AudioClip AC_ForceCloseDoor;
-    //[Header("ドアが開かない音")]
-    //[SerializeField]
-    private AudioClip AC_LockDoor;
     [Header("敵オブジェクト")]
     [SerializeField]
     private GameObject[] Enemies;
@@ -136,11 +112,10 @@ public class DoorOpen : MonoBehaviour
         if(!CanMove)
         {  return; }
 
-        dis = Vector3.Distance(Player.transform.position, this.transform.position/* + DoorPosOffset*/);
 
         for (int i = 0; i < Enemies.Length; i++)
         {
-            Enemy_dis[i] = Vector3.Distance(Enemies[i].transform.position, this.transform.position/* + DoorPosOffset*/);
+            Enemy_dis[i] = Vector3.Distance(Enemies[i].transform.position, this.transform.position);
         }
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
@@ -177,18 +152,17 @@ public class DoorOpen : MonoBehaviour
                     {
                         PlayOpenDoorSound();
                         PlayOpenDoorAnim();
-                        IsOpen = true;
 
                     }
                     else
                     {
                         PlayCloseDoorSound();
                         PlayCloseDoorAnim();
-                        IsOpen = false;
 
                         IsPlayerClosed = true;
                         Enemy_CouldOpen_Time = 0;
                     }
+                    IsOpen = !IsOpen;
                 }
             }
             else if(Input.GetKeyDown(KeyCode.Mouse0) && Doorlock)

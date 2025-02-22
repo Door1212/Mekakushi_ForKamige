@@ -34,6 +34,7 @@ public class Discover1 : MonoBehaviour
     [Header("クロスヘアUIオブジェクトの名前")]
     //[SerializeField]
     private string CrosshairName = "Crosshair";
+    private string CrosshairSubName = "Crosshair_Sub";
 
     [Header("クロスヘアアイコンUI")]
     private Sprite CrosshairIcon;
@@ -41,19 +42,38 @@ public class Discover1 : MonoBehaviour
     [Header("ドアが開けられる状態を示すアイコンUI")]
     private Sprite DoorIcon;
 
-    [Header("アイコンサイズ変更用RectTransformエディター")]
-    private RectTransform CrosshairTransform;
+    [Header("ドアが開けられる状態を示すアイコンUI")]
+    private Sprite HideIcon;
 
+    private RectTransform CrosshairTransform;//クロスヘア用トランスフォーム
+
+    private RectTransform CrosshairSubTransform;//サブクロスヘア用トランスフォーム
+
+    //クロスヘアサイズ
     private float CrosshairSizeX = 100.0f;
     private float CrosshairSizeY = 100.0f;
 
+    //ドア用クロスヘアサイズ
     private float DoorIconSizeX = 500.0f;
     private float DoorIconSizeY = 500.0f;
 
-    private Image UICrosshair;  // 遅延時間を秒単位で設定
+    //ロッカーに入る用クロスヘアサイズ
+    private float LockerIconSizeX = 500.0f;
+    private float LockerIconSizeY = 500.0f;
 
-    [TagField]
-    public string[] tagList;
+    //クロスヘアの初期位置
+    private float CrosshairInitPosX;
+    private float CrosshairInitPosY;
+
+    private float CrosshairSubInitPosX;
+    private float CrosshairSubInitPosY;
+
+    private Image UICrosshair;
+    private Image UICrosshairSub;
+
+
+    [Header("判定を取るオブジェクトタグ")]
+    [TagField] public string[] tagList;
 
     [Header("見つけたオブジェクト")]
     public GameObject FoundObj;
@@ -61,6 +81,8 @@ public class Discover1 : MonoBehaviour
     public GameObject ForwardObj;
     [Header("取得したドアオブジェクト")]
     [SerializeField] private GameObject ForwardDoor;
+    [Header("取得したロッカーオブジェクト")]
+    [SerializeField] private GameObject ForwardLocker;
 
     DlibFaceLandmarkDetectorExample.FaceDetector faceDetector;
 
@@ -80,12 +102,21 @@ public class Discover1 : MonoBehaviour
         StareProgressGauge.GetComponent<Image>();
 
         StareProgressGauge.fillAmount = 0.0f;
-
+        //クロスヘア関係の初期化
         CrosshairTransform = GameObject.Find(CrosshairName).GetComponent<RectTransform>();
+        CrosshairSubTransform = GameObject.Find(CrosshairSubName).GetComponent<RectTransform>();
+        CrosshairInitPosX = CrosshairTransform.transform.position.x;
+        CrosshairInitPosY = CrosshairTransform.transform.position.y;
+        CrosshairSubInitPosX = CrosshairSubTransform.transform.position.x;
+        CrosshairSubInitPosY = CrosshairSubTransform.transform.position.y;
         UICrosshair = GameObject.Find(CrosshairName).GetComponent<Image>();
+        UICrosshairSub = GameObject.Find(CrosshairSubName).GetComponent<Image>();
+        UICrosshairSub.gameObject.SetActive(false);
+
         //リソースフォルダから読み込む
         CrosshairIcon = Resources.Load<Sprite>("Image/Crosshair");
         DoorIcon = Resources.Load<Sprite>("Image/aikonn_door_01");
+        HideIcon = Resources.Load<Sprite>("Image/InLocker"); 
     }
 
     void Update()
@@ -179,11 +210,11 @@ public class Discover1 : MonoBehaviour
         }
     }
     //エラーがウザったいため一旦コメント化
-//    void OnDrawGizmos()
+//        void OnDrawGizmos()
 //    {
 //#if UNITY_EDITOR
 //        //有効か?
-//        if (!isEnable || !faceDetector.isEyeOpen)
+//        if (!isEnable || !faceDetector.getEyeOpen())
 //        {
 //            return;
 //        }
@@ -252,8 +283,35 @@ public class Discover1 : MonoBehaviour
                 if("Door"== tagList[i])
                 {
                     ForwardDoor = hit.transform.gameObject;
+                    CrosshairInit();
                     CrosshairTransform.sizeDelta = new Vector2(DoorIconSizeX, DoorIconSizeY);
                     UICrosshair.sprite = DoorIcon;
+                    return false;
+                }
+
+                if("Locker" == tagList[i])
+                {
+                    ForwardLocker = hit.transform.gameObject;
+                    if(ForwardObj.GetComponent<LockerOpen>().IsOpen)
+                    {
+                        //メインのクロスヘアをずらして
+                        CrosshairTransform.sizeDelta = new Vector2(DoorIconSizeX, DoorIconSizeY);
+                        CrosshairTransform.position = new Vector2(CrosshairTransform.position.x - CrosshairTransform.sizeDelta.x / 8, CrosshairTransform.position.y);
+                        UICrosshair.sprite = DoorIcon;
+
+                        CrosshairSubTransform.gameObject.SetActive(true);
+                        CrosshairSubTransform.position = new Vector2( CrosshairTransform.position.x + CrosshairSubTransform.sizeDelta.x / 4, CrosshairTransform.position.y);
+                        CrosshairSubTransform.sizeDelta = new Vector2(DoorIconSizeX, DoorIconSizeY);
+                        UICrosshairSub.sprite = HideIcon;
+
+                    }
+                    else
+                    {
+                        CrosshairInit();
+                        CrosshairTransform.sizeDelta = new Vector2(DoorIconSizeX, DoorIconSizeY);
+                        UICrosshair.sprite = DoorIcon;
+                    }
+
                     return false;
                 }
                 return true;
@@ -261,11 +319,21 @@ public class Discover1 : MonoBehaviour
             else
             {
                 ForwardDoor = null;
-                CrosshairTransform.sizeDelta = new Vector2(CrosshairSizeX, CrosshairSizeY);
-                UICrosshair.sprite = CrosshairIcon;
+                CrosshairInit();
             }
         }
         return false;
+    }
+
+    private void CrosshairInit()
+    {
+        //ポジションとサイズを戻し
+        CrosshairTransform.position = new Vector2(CrosshairInitPosX, CrosshairInitPosY);
+        CrosshairTransform.sizeDelta = new Vector2(CrosshairSizeX, CrosshairSizeY);
+        //サブクロスヘアを非アクティブに
+        CrosshairSubTransform.gameObject.SetActive(false);
+        //画像もクロスヘアにさしかえ
+        UICrosshair.sprite = CrosshairIcon;
     }
 
     /// <summary>
@@ -275,5 +343,14 @@ public class Discover1 : MonoBehaviour
     public GameObject GetDoorObject()
     {
         return ForwardDoor;
+    }
+
+    /// <summary>
+    /// 取得したロッカーオブジェクトを返す
+    /// </summary>
+    /// <returns> GameObject型</returns>
+    public GameObject GetLockerObject()
+    {
+        return ForwardLocker;
     }
 }
