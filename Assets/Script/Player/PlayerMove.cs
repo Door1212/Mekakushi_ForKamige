@@ -156,7 +156,6 @@ public class PlayerMove : MonoBehaviour
             case PlayerState.Warp:
                 {
                     Vector3 warpDir = _WarpPos - transform.position;
-                    Debug.Log($"{warpDir.magnitude}, {_WarpPos}, {transform.position}");
                     if (warpDir.magnitude <= 0.8f)
                     {
                         characterController.Move(warpDir);
