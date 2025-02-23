@@ -319,6 +319,7 @@ public class Discover1 : MonoBehaviour
             else
             {
                 ForwardDoor = null;
+                ForwardLocker = null;
                 CrosshairInit();
             }
         }
