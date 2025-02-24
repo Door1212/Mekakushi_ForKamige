@@ -129,7 +129,7 @@ public class TitleController : MonoBehaviour
         if (IsChangeScene)
         {
             IsChangeScene = false;
-            SceneChangeManager.Instance.LoadSceneAsyncWithFade("SchoolMain 1");
+            SceneChangeManager.Instance.LoadSceneAsyncWithFade("TrueSchool");
         }
         
     }

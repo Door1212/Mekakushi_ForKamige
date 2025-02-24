@@ -6076,10 +6076,10 @@ NavMeshObstacle:
   m_Shape: 1
   m_Extents: {x: 0.48000002, y: 0.99500006, z: 0.020000001}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 0.54, y: 1.005, z: 0.020000001}
-  m_TimeToStationary: 0.5
+  m_TimeToStationary: 1
 --- !u!114 &6555326562891507482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9293,10 +9293,10 @@ NavMeshObstacle:
   m_Shape: 1
   m_Extents: {x: 0.48000002, y: 0.99500006, z: 0.020000001}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: 1.46, y: 1.005, z: -0.020000001}
-  m_TimeToStationary: 0.5
+  m_TimeToStationary: 1
 --- !u!114 &1310880171404428078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17110,10 +17110,10 @@ NavMeshObstacle:
   m_Shape: 1
   m_Extents: {x: 0.48000002, y: 0.99500006, z: 0.020000001}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: -0.54, y: 1.005, z: -0.020000001}
-  m_TimeToStationary: 0.5
+  m_TimeToStationary: 1
 --- !u!114 &4886552464450563877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22464,10 +22464,10 @@ NavMeshObstacle:
   m_Shape: 1
   m_Extents: {x: 0.48000002, y: 0.99500006, z: 0.024}
   m_MoveThreshold: 0.1
-  m_Carve: 0
+  m_Carve: 1
   m_CarveOnlyStationary: 1
   m_Center: {x: -1.46, y: 1.005, z: 0.020000001}
-  m_TimeToStationary: 0.5
+  m_TimeToStationary: 1
 --- !u!114 &7905533254055588431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23181,6 +23181,38 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7522532933962403419}
     m_Modifications:
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: MaxDistance
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: rolloffMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: DopplerLevel
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: BypassEffects
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: BypassReverbZones
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: BypassListenerEffects
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: SpatializePostEffects
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1400161656, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
+      propertyPath: spreadCustomCurve.m_Curve.Array.data[0].value
+      value: 0.46666667
+      objectReference: {fileID: 0}
     - target: {fileID: 3238850125830441968, guid: 4e76297758c3fab468dab1247d1c218b, type: 3}
       propertyPath: m_RootOrder
       value: 0

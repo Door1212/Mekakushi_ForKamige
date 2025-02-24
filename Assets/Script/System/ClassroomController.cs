@@ -1,6 +1,8 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 
 public class ClassroomController : MonoBehaviour
 {
@@ -29,95 +31,12 @@ public class ClassroomController : MonoBehaviour
 
 
 
+
     // Start is called before the first frame update
     void Start()
     {
-        //カウントを初期化
-        HitNumsCnt = 0;
-
-        _gameManager = FindObjectOfType<GameManager>();
-        _UseKidsNum = _gameManager.PeopleNum;
-
-        //教室をすべて取得
-        ClassroomParents = GameObject.FindGameObjectsWithTag("Classroom");
-
-        //配列の初期化
-        usedNumbers = new bool[ClassroomParents.Length];
-
-        usedKids = new bool[_UseClassroomNum];
-
-
-        //UsedNumbersの初期化
-        for (var i = 0; i < ClassroomParents.Length; i++)
-        {
-            usedNumbers[i] = false;
-
-        }
-
-        //使う教室をかぶりなしで決定
-        for (var i = 0; i < _UseClassroomNum; i++)
-        {
-            GetUniqueRandomNumber();
-            usedKids[i] = false;
-        }
-
-        for(var i = 0;i < _UseKidsNum;i++)
-        {
-            GetUniqueRandomNumberKids();
-        }
-        Debug.Log(_UseKidsNum);
-        Debug.Log(usedKids);
-        // 教室の数分のリストを作成
-        Classroom = new GameObject[ClassroomParents.Length];
-        Doors = new GameObject[ClassroomParents.Length];
-        Friends = new GameObject[ClassroomParents.Length];
-
-        for (var i = 0; i < ClassroomParents.Length; i++) // `<=` ではなく `<`
-        {
-            Transform parentTransform = ClassroomParents[i].transform;
-
-            // 子オブジェクトをすべて取得
-            foreach (Transform child in parentTransform)
-            {
-                // "Doors" という名前のオブジェクトを取得
-                if (child.name == "Doors")
-                {
-                    Doors[i] = child.gameObject;
-                }
-                // "TheClassroom" を含むオブジェクトを取得（部分一致）
-                else if (child.name.Contains(FindWords))
-                {
-                    Classroom[i] = child.gameObject;
-                }
-
-            }
-
-            // "Friend" を含むオブジェクトを取得
-            Friends[i] = Classroom[i].transform.Find("Friend").gameObject;
-            Friends[i].SetActive(false);
-
-            SetClassroomActive(i,usedNumbers[i]);
-
-            if (usedNumbers[i])
-            {
-                //子供を使う教室の子供をアクティブ状態に
-                if (HitNumsCnt < usedKids.Length && usedKids[HitNumsCnt])
-                {
-                    if (Friends[i] != null)
-                    {
-                        Friends[i].SetActive(true);
-                    }
-                }
-
-                HitNumsCnt++;
-
-            }
-
-
-        }
-        int targetCount = GetTaggedObjectCount("Target");
-        Debug.Log($"タグ 'Target' を持つオブジェクトの数: {targetCount}");
-
+        UniTask.SwitchToMainThread();
+        ClassroomLoad();
     }
     //教室とドアのアクティブ状態を設定する
     private void SetClassroomActive(int _num,bool _isActive)
@@ -154,5 +73,94 @@ public class ClassroomController : MonoBehaviour
     int GetTaggedObjectCount(string tag)
     {
         return GameObject.FindGameObjectsWithTag(tag).Length;
+    }
+
+    private void ClassroomLoad()
+    {
+        //カウントを初期化
+        HitNumsCnt = 0;
+
+        _gameManager = FindObjectOfType<GameManager>();
+        _UseKidsNum = _gameManager.PeopleNum;
+
+        //教室をすべて取得
+        ClassroomParents = GameObject.FindGameObjectsWithTag("Classroom");
+
+        //配列の初期化
+        usedNumbers = new bool[ClassroomParents.Length];
+
+        usedKids = new bool[_UseClassroomNum];
+
+
+        //UsedNumbersの初期化
+        for (var i = 0; i < ClassroomParents.Length; i++)
+        {
+            usedNumbers[i] = false;
+
+        }
+
+        //使う教室をかぶりなしで決定
+        for (var i = 0; i < _UseClassroomNum; i++)
+        {
+            GetUniqueRandomNumber();
+            usedKids[i] = false;
+        }
+
+        for (var i = 0; i < _UseKidsNum; i++)
+        {
+            GetUniqueRandomNumberKids();
+        }
+
+        // 教室の数分のリストを作成
+        Classroom = new GameObject[ClassroomParents.Length];
+        Doors = new GameObject[ClassroomParents.Length];
+        Friends = new GameObject[ClassroomParents.Length];
+
+        for (var i = 0; i < ClassroomParents.Length; i++) // `<=` ではなく `<`
+        {
+            Transform parentTransform = ClassroomParents[i].transform;
+
+            // 子オブジェクトをすべて取得
+            foreach (Transform child in parentTransform)
+            {
+                // "Doors" という名前のオブジェクトを取得
+                if (child.name == "Doors")
+                {
+                    Doors[i] = child.gameObject;
+                }
+                // "TheClassroom" を含むオブジェクトを取得（部分一致）
+                else if (child.name.Contains(FindWords))
+                {
+                    Classroom[i] = child.gameObject;
+                }
+
+            }
+
+            // "Friend" を含むオブジェクトを取得
+            Friends[i] = Classroom[i].transform.Find("Friend").gameObject;
+            Friends[i].SetActive(false);
+
+            SetClassroomActive(i, usedNumbers[i]);
+
+            if (usedNumbers[i])
+            {
+                //子供を使う教室の子供をアクティブ状態に
+                if (HitNumsCnt < usedKids.Length && usedKids[HitNumsCnt])
+                {
+                    if (Friends[i] != null)
+                    {
+                        Friends[i].SetActive(true);
+                    }
+                }
+
+                HitNumsCnt++;
+
+            }
+
+
+        }
+        int targetCount = GetTaggedObjectCount("Target");
+        Debug.Log($"タグ 'Target' を持つオブジェクトの数: {targetCount}");
+
     }
 }

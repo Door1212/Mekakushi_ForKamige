@@ -27,8 +27,7 @@ public class GameManager : MonoBehaviour
     [Header("見つかった人数")]
     public int isFindpeopleNum;
 
-    //[SerializeField]
-    //TextMeshProUGUI PeopleNumTMP;
+    private TextMeshProUGUI PeopleNumTMP;
 
     [Tooltip("制限時間で終わるならチェック")]
     public bool isTimeLim = false;
@@ -83,7 +82,7 @@ public class GameManager : MonoBehaviour
 
     //テキストの色を変える
     //PeopleNumTMP.color = Color.red;
-    playerMove.GetComponent<PlayerMove>();
+        playerMove.GetComponent<PlayerMove>();
         CameraMove.GetComponent<CameraMove>();
    
         //for(int i = 0; i < EnemyAI_Moves.Length; i++)
@@ -107,6 +106,13 @@ public class GameManager : MonoBehaviour
         QualitySettings.vSyncCount = 0;
         // 60fpsを目標に設定
         Application.targetFrameRate = 60;
+
+        PeopleNumTMP = GameObject.Find("PeopleNum").GetComponent<TextMeshProUGUI>();
+
+        StopAll = false;
+
+        DoStopAll();
+
     }
 
     // Update is called once per frame
@@ -164,8 +170,8 @@ public class GameManager : MonoBehaviour
             }
         }
 #endif
-
-        //UpdatePeopleText();
+        //人数の更新
+        UpdatePeopleText();
         if (!isGameOverClear)
         {
             //ゲームオーバーでリザルトに移行するやつ(ほんとにそれだけ)
@@ -232,7 +238,7 @@ public class GameManager : MonoBehaviour
     //上記のGet関数を利用したUIのtext更新関数
     void UpdatePeopleText()
     {
-       // PeopleNumTMP.SetText(GetPeopleNum().ToString());
+        PeopleNumTMP.SetText(GetPeopleNum().ToString() + "人");
 
     }
 

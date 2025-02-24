@@ -38,11 +38,20 @@ public class HidingCharacter : MonoBehaviour
     //話始めたか
     public bool IsStartTalk = false;
 
+    private AudioSource _audioSource;
+    [Header("声を出すクールタイム")]
+    public const float _Cooltime = 5.0f;
+
+    private float CntCooltime;
+
+
     void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
 
         IsStartTalk = false;
+
+        CntCooltime = 0.0f;
 
         if(IsTalkKids)
         {
@@ -54,6 +63,8 @@ public class HidingCharacter : MonoBehaviour
         {
             IsEnemyContactAttach = true;
         }
+
+        _audioSource = GetComponent<AudioSource>();
 
     }
     void Update()
@@ -97,6 +108,19 @@ public class HidingCharacter : MonoBehaviour
                     DoTalk();
                 }
             }
+        }
+
+        CntCooltime += Time.deltaTime;
+
+        if(_Cooltime <= CntCooltime)
+        {
+            CntCooltime = 0.0f;
+
+            if (_audioSource.isPlaying)
+            {
+                _audioSource.Stop();
+            }
+            _audioSource.Play();
         }
     }
 

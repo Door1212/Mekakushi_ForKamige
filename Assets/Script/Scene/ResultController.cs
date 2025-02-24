@@ -1,34 +1,34 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ResultController : MonoBehaviour
 {
-    [Header("g‚¤‰æ‘œ")]
-    [SerializeField]private Sprite[] sprites;
+    [Header("ä½¿ã†ç”»åƒ")]
+    [SerializeField] private Sprite[] sprites;
 
-    [Header("g‚¤‰æ‘œ")]
+    [Header("ä½¿ã†ç”»åƒ")]
     [SerializeField] private Image image;
 
-    [Header("•¶šƒIƒuƒWƒFƒNƒg(•\)")]
+    [Header("æ–‡å­—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(è¡¨)")]
     [SerializeField] GameObject Moji;
 
-    [Header("•¶šƒIƒuƒWƒFƒNƒg(— )")]
+    [Header("æ–‡å­—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ(è£)")]
     [SerializeField] GameObject AntiMoji;
 
-    [Header("BGM—pƒ\[ƒX")]
+    [Header("BGMç”¨ã‚½ãƒ¼ã‚¹")]
     public AudioSource BGMSoource;
 
-    [Header("SE—pƒ\[ƒX")]
+    [Header("SEç”¨ã‚½ãƒ¼ã‚¹")]
     public AudioSource SESoource;
 
-    [Header("ƒtƒF[ƒhƒCƒ“‚É‚©‚©‚éŠÔi•bj")]
+    [Header("ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³ã«ã‹ã‹ã‚‹æ™‚é–“ï¼ˆç§’ï¼‰")]
     [SerializeField] private float WaitDuration = 3.0f;
-    [Header("ƒtƒF[ƒhƒCƒ“‚É‚©‚©‚éŠÔi•bj")]
+    [Header("ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³ã«ã‹ã‹ã‚‹æ™‚é–“ï¼ˆç§’ï¼‰")]
     [SerializeField] private float HorrorDuration = 0.1f;
 
-    [Header("ƒtƒF[ƒhƒCƒ“‚É‚©‚©‚éŠÔi•bj")]
+    [Header("ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¤ãƒ³ã«ã‹ã‹ã‚‹æ™‚é–“ï¼ˆç§’ï¼‰")]
     [SerializeField] private float HorrorDuration2 = 2f;
 
     // Start is called before the first frame update
@@ -47,22 +47,28 @@ public class ResultController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private IEnumerator DoEnding()
     {
-        yield return new WaitForSeconds(WaitDuration);
+        yield return new WaitForSeconds(WaitDuration); // ä¸€å®šæ™‚é–“å¾…æ©Ÿ
 
-        SESoource.Play();
-        image.sprite = sprites[1];
-        IsMoji(false);
+        SESoource.Play(); // SEã‚’å†ç”Ÿ
+        image.sprite = sprites[1]; // ç”»åƒã‚’å¤‰æ›´
+        IsMoji(false); // æ–‡å­—ã‚’éè¡¨ç¤º
 
-        yield return new WaitForSeconds(WaitDuration - 5);
+        // ğŸ”½ éŸ³é‡ã‚’å¾ã€…ã« 0 ã«ã™ã‚‹ï¼ˆãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆï¼‰
+        while (SESoource.volume > 0.0f)
+        {
+            SESoource.volume -= 0.001f; // éŸ³é‡ã‚’å¾ã€…ã«æ¸›å°‘
+            yield return new WaitForSeconds(0.01f);
+        }
 
+        Debug.Log("OWAYADE");
 
+        // ã‚·ãƒ¼ãƒ³é·ç§»
         SceneChangeManager.Instance.LoadSceneAsyncWithFade("Title1");
-
     }
 
     void IsMoji(bool isMoji)

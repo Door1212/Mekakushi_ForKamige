@@ -49,18 +49,18 @@ public class EnemyAI_move : MonoBehaviour
     [Header("去る音")]
     private AudioSource audioByeBye;
     public bool enemy_Chasing = false;
-    [SerializeField]
+
     [Header("心音用のオーディオソース")]
-    private AudioSource audioHeartBeat;
-    [SerializeField]
+    [SerializeField]private AudioSource audioHeartBeat;
+    
     [Header("心音が聞こえ始める距離")]
-    private float StartingHeartBeatSound = 15.0f;
-    [SerializeField]
+    [SerializeField] private float StartingHeartBeatSound = 15.0f;
+
     [Header("心音")]
-    private AudioClip AC_HeartBeat;
-    [SerializeField]
+    [SerializeField] private AudioClip AC_HeartBeat;
+    
     [Header("敵とプレイヤーの距離")]
-    private float EtPDis;
+    [SerializeField] private float EtPDis;
 
     private GameManager gameManager;
     private SoundManager soundManager;
@@ -205,10 +205,7 @@ public class EnemyAI_move : MonoBehaviour
             navMeshAgent.isStopped = false;
         }
 
-        DistanceSoundUpdate();
-        //pitchに併せて音程が変わらないように心音を鳴らす
-        heartAudioMixer.SetFloat("HeartBeat", 1.0f / audioHeartBeat.pitch);
-
+       
         //敵タイプごとのアップデート
         switch (type)
         {

@@ -17,6 +17,10 @@ public class SceneChangeManager : MonoBehaviour
     [SerializeField]public float fadeDuration = 1f; // フェードの時間
     [Header("目のフェードアニメーション")]
     [SerializeField]private GameObject _EyefadeObj;
+
+    [Header("ローディング画面")]
+    [SerializeField] private GameObject _LoadingObj;
+
     Animator EyeFade;   //フェード用アニメーター
 
     public bool isCompleteOpen = false;
@@ -64,7 +68,10 @@ public class SceneChangeManager : MonoBehaviour
                 Debug.LogError(fadeImage +"is Missing");
             }
         }
-
+        if(_LoadingObj != null)
+        {
+            _LoadingObj.SetActive(false);
+        }
 
 
         // アプリケーション開始時のフェードイン処理を開始
@@ -86,6 +93,7 @@ public class SceneChangeManager : MonoBehaviour
 
     private IEnumerator FadeOutAndLoadScene(string sceneName)
     {
+
         // フェードアウト
         if (!IsAnimFade)
         {
@@ -94,6 +102,20 @@ public class SceneChangeManager : MonoBehaviour
         else
         {
             yield return AnimFadeOut();
+        }
+
+        _LoadingObj.SetActive(true);
+
+        //yield return new WaitForSeconds(3);
+
+        // フェードイン
+        if (!IsAnimFade)
+        {
+            yield return FadeIn();
+        }
+        else
+        {
+            yield return AnimFadeIn();
         }
 
         // SoundManagerのフェードアウト
@@ -120,6 +142,18 @@ public class SceneChangeManager : MonoBehaviour
             yield return null;
         }
 
+        // フェードアウト
+        if (!IsAnimFade)
+        {
+            yield return FadeOut();
+        }
+        else
+        {
+            yield return AnimFadeOut();
+        }
+
+        _LoadingObj.SetActive(false);
+        //yield return new WaitForSeconds(3);
 
         // フェードイン
         if (!IsAnimFade)
@@ -139,6 +173,7 @@ public class SceneChangeManager : MonoBehaviour
             Debug.Log("CurrentScene is " + SceneManager.GetActiveScene().name);
             //soundManager.FadeInBGM();
         }
+
     }
 
     private IEnumerator FadeOut()
