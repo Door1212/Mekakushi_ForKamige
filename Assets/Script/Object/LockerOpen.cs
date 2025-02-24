@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 //クロスヘア変更用
 using UnityEngine.UI;
-using UnityEngine.UIElements;
+//using UnityEngine.UIElements;
 public class LockerOpen : MonoBehaviour
 {
     [Header("ドアが開いているか")]
@@ -15,20 +15,21 @@ public class LockerOpen : MonoBehaviour
     [SerializeField] private const float _LockerCooltime = 1f;
 
 
-
-    GameObject _Player;//プレイヤーオブジェクト
-    PlayerMove _playerMove;//プレイヤー移動オブジェクト
-    CameraMove _cameraMove;
-    Animator _animator;//アニメーター
-    AudioSource _audioSource;//オーディオソース
+    private Image LockerOverlay;//ロッカーに入った時のオーバーレイ
+    private GameObject _Player;//プレイヤーオブジェクト
+    private PlayerMove _playerMove;//プレイヤー移動オブジェクト
+    private CameraMove _cameraMove;
+    private Animator _animator;//アニメーター
+    private AudioSource _audioSource;//オーディオソース
     private AudioLoader _audioLoader;//オーディオローダー
-    private bool CanMove = true;// 稼働可能か
     private Discover1 discover;//視線選択用Discover
     private Transform _forTPTransform;
-    BoxCollider _collider;//コライダー
-    GameManager gameManager;
+    private BoxCollider _collider;//コライダー
+    private GameManager gameManager;
+
     private float _LockerTime;//クールタイム計測
     private bool _isCoolTime;//クールタイムか?
+    private bool CanMove = true;// 稼働可能か
 
 
 
@@ -45,6 +46,8 @@ public class LockerOpen : MonoBehaviour
         _collider = GetComponent<BoxCollider>();
         _collider.enabled = true;
         _cameraMove = FindObjectOfType<CameraMove>();
+        LockerOverlay = GameObject.Find("LockerOverlay").GetComponent<Image>();
+        LockerOverlay.enabled = false;
         this.tag = "Locker";
         gameManager = FindObjectOfType<GameManager>();
         _forTPTransform = this.GetComponentInParent<Transform>();
@@ -97,9 +100,7 @@ public class LockerOpen : MonoBehaviour
             {
                 PlayInLockerSound();
                 PlayCloseLockerAnim();
-                _collider.enabled = !IsOpen;
-                IsOpen = !IsOpen;
-                gameManager.SetStopAll(true);
+                LockerInOut();
                 _cameraMove.gameObject.transform.rotation = Quaternion.Euler(0, Mathf.Atan2(this.gameObject.transform.parent.forward.x, this.gameObject.transform.parent.forward.z) * Mathf.Rad2Deg, 0);
                 _playerMove.Warp(_forTPTransform, PlayerMove.PlayerState.InLocker,this.gameObject);
             }
@@ -117,10 +118,8 @@ public class LockerOpen : MonoBehaviour
             {
                 PlayOpenLockerSound();
                 PlayOpenLockerAnim();
-                _collider.enabled = !IsOpen;
-                IsOpen = true;
-                _isCoolTime = true;
-                gameManager.SetStopAll(false);
+                LockerInOut();
+                _isCoolTime = IsOpen;
                 _playerMove.OutLocker();
             }
         }
@@ -162,4 +161,15 @@ public class LockerOpen : MonoBehaviour
     {
         CanMove = Set;
     }
+    /// <summary>
+    /// ロッカーに出入りするときのフラグ操作をまとめたもの
+    /// </summary>
+    private void LockerInOut()
+    {
+        _collider.enabled = !IsOpen;    //ロッカーのコライダーの有効状態変更
+        LockerOverlay.enabled = IsOpen; //ロッカーの中の有効状態変更
+        gameManager.SetStopAll(IsOpen); //移動状態の変更
+        IsOpen = !IsOpen;               //扉の開閉状態
+    }
+
 }
