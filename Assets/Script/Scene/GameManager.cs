@@ -71,6 +71,10 @@ public class GameManager : MonoBehaviour
 
     private LockerOpen[] AllLocker;
 
+    private EN_Move _EN_Move;
+
+    private EnemyController _enemyController;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -101,6 +105,10 @@ public class GameManager : MonoBehaviour
         //éqãüÇ∆è‡ÇÃâπ
         directionalSound = FindObjectsOfType<DirectionalSound>();
         soundWall = FindObjectOfType<SoundWall>();
+
+        _enemyController = FindObjectOfType<EnemyController>();
+
+        _EN_Move = FindObjectOfType<EN_Move>();
 
         // VSyncCount Ç Dont Sync Ç…ïœçX
         QualitySettings.vSyncCount = 0;
@@ -255,6 +263,8 @@ public class GameManager : MonoBehaviour
         CameraMove?.SetCanMove(!StopAll);
         PlaySound?.SetCanMove(!StopAll);
         soundWall?.SetCanMove(!StopAll);
+        _enemyController?.SetCanMove(!StopAll);
+        _EN_Move?.SetCanMove(!StopAll);
 
         for (int i = 0; i < EnemyAI_Moves.Length; i++)
         {

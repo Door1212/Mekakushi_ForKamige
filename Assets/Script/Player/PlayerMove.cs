@@ -127,7 +127,7 @@ public class PlayerMove : MonoBehaviour
         {
             case PlayerState.Normal:
                 {
-                    NormalUpdate();
+                    
                     break;
                 }
             case PlayerState.Warp:
@@ -151,6 +151,9 @@ public class PlayerMove : MonoBehaviour
         {
             case PlayerState.Normal:
                 {
+                    //オプション中は止める
+                    if (!CanMove) { return; }
+                    NormalUpdate();
                     break;
                 }
             case PlayerState.Warp:
@@ -271,7 +274,7 @@ public class PlayerMove : MonoBehaviour
         Vector3 moveDirection = new Vector3(dir_player.x, dir_player.y, dir_player.z);
         //moveDirection = transform.TransformDirection(moveDirection); // ローカル座標系に変換
 
-        characterController.Move(moveDirection * Time.deltaTime);
+        characterController.Move(moveDirection * Time.fixedDeltaTime);
     }
     /// <summary>
     /// 目標地点までワープした後にステートを設定する

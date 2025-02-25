@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;
 
 public class SceneChangeManager : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class SceneChangeManager : MonoBehaviour
 
     public bool isCompleteOpen = false;
     public bool isCompleteClose = false;
+    public bool isLoadSchoolScene = false;
 
     private void Awake()
     {
@@ -73,6 +75,8 @@ public class SceneChangeManager : MonoBehaviour
             _LoadingObj.SetActive(false);
         }
 
+        //PreloadScene("TrueSchool").Forget();
+
 
         // アプリケーション開始時のフェードイン処理を開始
         StartCoroutine(WaitForLoadAndFadeIn());
@@ -88,20 +92,20 @@ public class SceneChangeManager : MonoBehaviour
 
     public void LoadSceneAsyncWithFade(string sceneName)
     {
-        StartCoroutine(FadeOutAndLoadScene(sceneName));
+       FadeOutAndLoadScene(sceneName).Forget();
     }
 
-    private IEnumerator FadeOutAndLoadScene(string sceneName)
+    private async UniTask FadeOutAndLoadScene(string sceneName)
     {
 
         // フェードアウト
         if (!IsAnimFade)
         {
-            yield return FadeOut();
+            await FadeOut();
         }
         else
         {
-            yield return AnimFadeOut();
+            await AnimFadeOut();
         }
 
         _LoadingObj.SetActive(true);
@@ -111,11 +115,11 @@ public class SceneChangeManager : MonoBehaviour
         // フェードイン
         if (!IsAnimFade)
         {
-            yield return FadeIn();
+            await FadeIn();
         }
         else
         {
-            yield return AnimFadeIn();
+            await AnimFadeIn();
         }
 
         // SoundManagerのフェードアウト
@@ -126,30 +130,39 @@ public class SceneChangeManager : MonoBehaviour
             soundManager.FadeOutBGM();
         }
 
+        //if(sceneName != "TrueSchool")
+        //{
+            // シーンを非同期でロード
+            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+            asyncLoad.allowSceneActivation = false;
 
-        // シーンを非同期でロード
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
-        asyncLoad.allowSceneActivation = false;
-
-        // シーンがロード完了するまで待機
-        while (!asyncLoad.isDone)
-        {
-            if (asyncLoad.progress >= 0.9f)
+            // シーンがロード完了するまで待機
+            while (!asyncLoad.isDone)
             {
-                // ロード完了時にシーン切り替えを許可
-                asyncLoad.allowSceneActivation = true;
+                if (asyncLoad.progress >= 0.9f)
+                {
+                    // ロード完了時にシーン切り替えを許可
+                    asyncLoad.allowSceneActivation = true;
+                }
+                await UniTask.Yield();
             }
-            yield return null;
-        }
+        //}
+        //else
+        //{
+        //    await UniTask.WaitUntil(() => isLoadSchoolScene);
+        //    SceneManager.LoadScene("TrueSchool");
+        //}
+
+
 
         // フェードアウト
         if (!IsAnimFade)
         {
-            yield return FadeOut();
+            await FadeOut();
         }
         else
         {
-            yield return AnimFadeOut();
+            await AnimFadeOut();
         }
 
         _LoadingObj.SetActive(false);
@@ -158,11 +171,11 @@ public class SceneChangeManager : MonoBehaviour
         // フェードイン
         if (!IsAnimFade)
         {
-            yield return FadeIn();
+            await FadeIn();
         }
         else
         {
-            yield return AnimFadeIn();
+            await AnimFadeIn();
         }
 
         // SoundManagerのフェードアウト
@@ -309,5 +322,21 @@ public class SceneChangeManager : MonoBehaviour
         Debug.LogWarning("No SoundManager object found in the scene.");
         return null; // 見つからなかった場合はnullを返す
     }
+    async UniTask PreloadScene(string sceneName)
+    {
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+        asyncLoad.allowSceneActivation = false; // 自動的に切り替えないようにする
 
+        // 読み込みが完了するまで待機
+        while (!asyncLoad.isDone)
+        {
+            if (asyncLoad.progress >= 0.9f)
+            {
+                Debug.Log($"{sceneName} のロード完了！（切り替えはしていない）");
+                isLoadSchoolScene = true;
+                break;
+            }
+            await UniTask.Yield();
+        }
+    }
 }
