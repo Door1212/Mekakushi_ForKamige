@@ -85,19 +85,39 @@ public class EnemyController : MonoBehaviour
 
     private void SpawnOnNavMesh()
     {
-        Vector3 randomPosition = _playerObj.transform.position + Random.insideUnitSphere * _SpawningArea;
-        randomPosition.y = _playerObj.transform.position.y; // 高さを基準点にする
+        const int maxAttempts = 10; // 試行回数の上限を設定
+        int attempts = 0;
+        bool foundValidPosition = false;
+        Vector3 spawnPosition = Vector3.zero;
+        NavMeshHit hit;
 
-        // NavMeshの上の位置を検索 
-        do
+        while (attempts < maxAttempts)
         {
-                NavMesh.SamplePosition(randomPosition, out hit, maxNavMeshDistance, NavMesh.AllAreas);
-        } while (IsPositionHidden(hit.position, _playerObj.transform));
+            // プレイヤーの周囲でランダムな位置を取得
+            Vector3 randomPosition = _playerObj.transform.position + Random.insideUnitSphere * _SpawningArea;
 
-            Instantiate(_EnemyPrefab, hit.position, Quaternion.identity);
+            // NavMeshの高さを考慮してランダムな位置を NavMesh に補正
+            if (NavMesh.SamplePosition(randomPosition, out hit, maxNavMeshDistance, NavMesh.AllAreas))
+            {
+                if (IsPositionHidden(hit.position, _playerObj.transform))
+                {
+                    spawnPosition = hit.position;
+                    foundValidPosition = true;
+                    break;
+                }
+            }
+            attempts++;
+        }
 
+        if (foundValidPosition)
+        {
+            Instantiate(_EnemyPrefab, spawnPosition, Quaternion.identity);
+        }
+        else
+        {
+            Debug.LogWarning("敵のスポーンに適した位置が見つかりませんでした！");
+        }
     }
-
     /// <summary>
     /// プレイヤーからみえる位置であるか判定
     /// </summary>
