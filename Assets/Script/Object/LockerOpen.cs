@@ -25,7 +25,9 @@ public class LockerOpen : MonoBehaviour
     private Discover1 discover;//視線選択用Discover
     private Transform _forTPTransform;
     private BoxCollider _collider;//コライダー
-    private GameManager gameManager;
+    private GameManager gameManager;//ゲームマネージャー
+    private GameObject _InLockerRemainPeopleNum;//ロッカーに入っている間に非表示にしたいオブジェクト
+    private GameObject[] _InLockerDisenableObj;//ロッカーに入っている間に非表示にしたいオブジェクト
 
     private float _LockerTime;//クールタイム計測
     private bool _isCoolTime;//クールタイムか?
@@ -51,6 +53,12 @@ public class LockerOpen : MonoBehaviour
         this.tag = "Locker";
         gameManager = FindObjectOfType<GameManager>();
         _forTPTransform = this.GetComponentInParent<Transform>();
+        _InLockerRemainPeopleNum = GameObject.FindGameObjectWithTag("RemainPeopleShow");
+        //for (var i = 0;i < _InLockerDisenableObj.Length;i++)
+        //{
+        //    _InLockerDisenableObj[i] = GetComponent<GameObject>();
+        //}
+
         _LockerTime = 0.0f;
 
     }
@@ -169,7 +177,13 @@ public class LockerOpen : MonoBehaviour
         _collider.enabled = !IsOpen;    //ロッカーのコライダーの有効状態変更
         LockerOverlay.enabled = IsOpen; //ロッカーの中の有効状態変更
         gameManager.SetStopAll(IsOpen); //移動状態の変更
+        _InLockerRemainPeopleNum.SetActive(!IsOpen);
+        //for (var i = 0; i < _InLockerDisenableObj.Length; i++)
+        //{
+        //    _InLockerDisenableObj[i].SetActive(!IsOpen);
+        //}
         IsOpen = !IsOpen;               //扉の開閉状態
+
     }
 
 }
