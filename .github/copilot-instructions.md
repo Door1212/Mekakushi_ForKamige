@@ -8,7 +8,7 @@
   - Layers:
     - Default, TransparentFX, Ignore Raycast, Player, Water, UI, PostProcess, Kids, Outline
 - Active game object:
-  - Name: PlaylogObserver
+  - Name: FaceDetecter
   - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->

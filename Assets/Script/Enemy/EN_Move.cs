@@ -135,15 +135,11 @@ public class EN_Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!CanMove)
+        //ロッカー入ってる状態なら敵を止めない
+        if (!CanMove && _playerMove.GetPlayerState() != PlayerMove.PlayerState.InLocker)
         {
-            //ロッカー入ってる状態なら敵を止めない
-            if(_playerMove.GetPlayerState() != PlayerMove.PlayerState.InLocker)
-            {
                 _navMeshAgent.isStopped = true;
                 return;
-            }
-           
         }
         else
         {
@@ -156,6 +152,7 @@ public class EN_Move : MonoBehaviour
 
     private void EnemyUpdate()
     {
+        //制限時間が来ると消える
         if(_livingTime <= _livingTimeCnt)
         {
             //消える
@@ -164,6 +161,7 @@ public class EN_Move : MonoBehaviour
 
         }
 
+        //時間計測
         _livingTimeCnt += Time.deltaTime;
 
         ////心音
@@ -191,6 +189,7 @@ public class EN_Move : MonoBehaviour
                 {
                     _OutRangeTimeCnt += Time.deltaTime;
 
+                    //見失って暫くたつと
                     if(_OutRangeTime <= _OutRangeTimeCnt)
                     {
                         EnemyStateChanger(EnemyState.Idle);
@@ -224,7 +223,8 @@ public class EN_Move : MonoBehaviour
                     transform.rotation = Quaternion.Slerp(transform.rotation, setRotation, _navMeshAgent.angularSpeed * 0.5f * Time.deltaTime);
                     var dis = Vector3.Distance(_playerObj.transform.position, transform.position);
 
-                    if (_catchDistance > dis)
+                    //捕まえる距離かつプレイヤーとの間に障害物がないかを確認 
+                    if (_catchDistance > dis && IsPositionHidden(this.gameObject.transform.position,_playerObj.transform))
                     {
                         EnemyStateChanger(EnemyState.Catch);
                     }
@@ -281,6 +281,10 @@ public class EN_Move : MonoBehaviour
     //    }
     //}
 
+    /// <summary>
+    /// 状態が変わった時に行う操作
+    /// </summary>
+    /// <param name="_E_state">変更先のステート</param>
     private void EnemyStateChanger(EnemyState _E_state)
     {
         switch(_E_state)
@@ -305,6 +309,7 @@ public class EN_Move : MonoBehaviour
                     //叫ばせる
                     _audioSource.PlayOneShot(_ac_Scream);
 
+                    //画面を揺らす
                     _cameraMove.StartShakeWithSecond(30f, 5f);
 
 
@@ -320,6 +325,7 @@ public class EN_Move : MonoBehaviour
                         Debug.Log("Not On Navmesh");
                     }
                     _navMeshAgent.isStopped = false;
+
                     break;
                 }
         }
@@ -398,8 +404,13 @@ public class EN_Move : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            Debug.Log("プレイヤー発見！");
-            EnemyStateChanger(EnemyState.Chase);
+            //ロッカーに入っていなければ発見
+            if(_playerMove.GetPlayerState() != PlayerMove.PlayerState.InLocker)
+            {
+                Debug.Log("プレイヤー発見！");
+                EnemyStateChanger(EnemyState.Chase);
+            }
+
         }
     }
 
@@ -417,6 +428,13 @@ public class EN_Move : MonoBehaviour
         _audioSource.pitch = 1.0f + Random.Range(-pitchRange, pitchRange);
         //source.Play();
         _audioSource.PlayOneShot(_ac_FootStep[Random.Range(0, _ac_FootStep.Length)]);
+
+        var dis = Vector3.Distance(_playerObj.transform.position, transform.position);
+        if (_BoxCollider.size.x * 1.5f > dis)
+        {
+            _cameraMove.StartShakeWithSecond(10f, 2f);
+        }
+
 
     }
 }

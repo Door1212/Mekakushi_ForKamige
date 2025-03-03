@@ -2,263 +2,130 @@
 
 using System.Collections;
 using System.Collections.Generic;
-//using Unity.UI;
 using UnityEngine;
-
-
-
+using Cysharp.Threading.Tasks;
 
 public class BlinkController : MonoBehaviour
 {
     public enum EYELIDSTATE
     {
-        Default = 0,//初期状態
-        Opening,//開いてる途中
-        Closing,//閉じている途中
-        Open,//開き切った状態
-        Close,//閉じ切った状態
-    }
-
-    public enum OPERATOR
-    {
-        Plus,//足す
-        Minus,//引く
-        Assignment,//代入
+        Default = 0, // 初期状態
+        Opening,     // 開いてる途中
+        Closing,     // 閉じている途中
+        Open,        // 開き切った状態
+        Close        // 閉じ切った状態
     }
 
     private enum STARTEYELIDSTATE
     {
         OPEN,
-        CLOSE,
+        CLOSE
     }
 
+    [SerializeField] private RectTransform UpperEyelid; // 上瞼オブジェクト
+    [SerializeField] private RectTransform LowerEyelid; // 下瞼オブジェクト
 
-
-
-    //変数定義
-    [SerializeField]
-    private RectTransform UpperEyelid;//上瞼オブジェクト
-    [SerializeField]
-    private RectTransform LowerEyelid;//下瞼オブジェクト
-
-
-    [Tooltip("瞼位置の微調整")]
-    [SerializeField]
-    private static float MicroUpperEyelidX = 10f;
-    [SerializeField]
-    private static float MicroUpperEyelidY = 0f;
-    [SerializeField]
-    private  static float MicroLowerEyelidX = 10f;
-    [SerializeField]
-    private static float MicroLowerEyelidY = 0f;
-    
-    //目の状態
     [SerializeField]
     [Tooltip("瞼が動き切るまでの時間")]
-    private EYELIDSTATE eyelidstate = EYELIDSTATE.Open;//目の状態の初期化
-
-    [SerializeField]
     [Range(0.1f, 3.0f)]
-    [Tooltip("瞼が動き切るまでの時間")]
-    float animDuration = 1f; // アニメーションの総時間
-    //最初目がどの状態で始まるか
-    [SerializeField]
-    STARTEYELIDSTATE starteyelidstate = STARTEYELIDSTATE.OPEN;
+    private float animDuration = 1f; // アニメーションの総時間
 
-    Vector3 CloseUPos = new((Screen.width / 2) + MicroUpperEyelidX, 0 + (Screen.height / 2) + MicroUpperEyelidY, 0f);//上瞼の閉じている時の位置
-    Vector3 CloseLPos = new((Screen.width / 2) + MicroLowerEyelidX, 0 - (Screen.height / 2) + MicroLowerEyelidY, 0f);//下瞼の開いている時の位置
+    [SerializeField] private STARTEYELIDSTATE starteyelidstate = STARTEYELIDSTATE.OPEN;
+    private EYELIDSTATE eyelidstate = EYELIDSTATE.Open; // 目の状態の初期化
 
-    Vector3 OpenUPos = new((Screen.width / 2) + MicroUpperEyelidX, (Screen.height + Screen.height / 2) + MicroUpperEyelidY, 0f);//上瞼の開いている時の位置
-    Vector3 OpenLPos = new((Screen.width / 2) + MicroLowerEyelidX, (-Screen.height - Screen.height / 2) + MicroLowerEyelidY, 0f);//下瞼の閉じている時の位置
+    public Vector3 CloseUPos, CloseLPos;
+    public Vector3 OpenUPos, OpenLPos;
 
 #if UsingFaceDetector
-    //顔検出器を呼び出し
-    DlibFaceLandmarkDetectorExample.FaceDetector faceDetector;
-
-    //目が閉じているか開いているかの変数
-    bool EyeOpen = false;
-
-
-
-#else
-//FaceDetectorを使わない場合の変数
-    [Header("FaceDetectorを使わない場合の変数")]
+    private DlibFaceLandmarkDetectorExample.FaceDetector faceDetector;
+    private bool EyeOpen = false;
 #endif
 
+    private bool IsAnimating = false;
 
-
-
-
-
-    bool NowClosing = false;
-    bool NowOpening = false;
-
-
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
 
-        //初期値の代入
+        CloseUPos = UpperEyelid.localPosition;
+        CloseLPos = LowerEyelid.localPosition;
+        OpenUPos = CloseUPos + new Vector3(0f, UpperEyelid.localPosition.y, 0f);
+        OpenLPos = CloseLPos + new Vector3(0f, LowerEyelid.localPosition.y, 0f);
+
         if (starteyelidstate == STARTEYELIDSTATE.OPEN)
         {
             UpperEyelid.localPosition = OpenUPos;
             LowerEyelid.localPosition = OpenLPos;
         }
-        else if(starteyelidstate == STARTEYELIDSTATE.CLOSE)
-        {
-            UpperEyelid.localPosition = CloseUPos;
-            LowerEyelid.localPosition = CloseLPos;
-        }
 
+#if UsingFaceDetector
         faceDetector = GetComponent<DlibFaceLandmarkDetectorExample.FaceDetector>();
-        
+        if (faceDetector == null)
+        {
+            Debug.LogWarning("FaceDetector が見つかりません！");
+        }
+#endif
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        //画面サイズが変わっても瞼がズレない
-        Vector3 CloseUPos = new((Screen.width / 2) + MicroUpperEyelidX, 0 + (Screen.height / 2) + MicroUpperEyelidY, 0f);//上瞼の閉じている時の位置
-        Vector3 CloseLPos = new((Screen.width / 2) + MicroLowerEyelidX, 0 - (Screen.height / 2) + MicroLowerEyelidY, 0f);//下瞼の開いている時の位置
-
-        Vector3 OpenUPos = new((Screen.width / 2) + MicroUpperEyelidX, (Screen.height + Screen.height / 2) + MicroUpperEyelidY, 0f);//上瞼の開いている時の位置
-        Vector3 OpenLPos = new((Screen.width / 2) + MicroLowerEyelidX, (-Screen.height - Screen.height / 2) + MicroLowerEyelidY, 0f);//下瞼の閉じている時の位置
-
-
-
-
-        EyeOpen = faceDetector.getEyeOpen();
-        //FaceDetectorから指示を受け目を閉じ開きする
-        //瞼状態の変化
-
-        if (EyeOpen)
+#if UsingFaceDetector
+        if (faceDetector != null)
         {
-            if (eyelidstate != EYELIDSTATE.Closing && eyelidstate != EYELIDSTATE.Open)
-            {
-                eyelidstate = EYELIDSTATE.Opening;
-            }
-            else
-            {
-                //Debug.Log("まだ閉じ切っていません");
-            }
+            EyeOpen = faceDetector.getEyeOpen();
         }
+#endif
 
-
-        if (!EyeOpen)
+        if (EyeOpen && eyelidstate != EYELIDSTATE.Opening && eyelidstate != EYELIDSTATE.Open)
         {
-            if (eyelidstate != EYELIDSTATE.Opening && eyelidstate != EYELIDSTATE.Close)
-            {
-                eyelidstate = EYELIDSTATE.Closing;
-            }
-            else
-            {
-                //Debug.Log("まだ空き切っていません");
-            }
+            eyelidstate = EYELIDSTATE.Opening;
+            if (!IsAnimating) EyelidOpen().Forget();
         }
-
-        switch (eyelidstate)
+        else if (!EyeOpen && eyelidstate != EYELIDSTATE.Closing && eyelidstate != EYELIDSTATE.Close)
         {
-            case EYELIDSTATE.Opening:
-                {
-                    if (!NowOpening)
-                    {
-                        StartCoroutine(EyelidOpen());
-                        NowOpening = true;
-                    }
-                    break;
-                }
-            case EYELIDSTATE.Closing:
-                {
-                    if (!NowClosing)
-                    {
-                        StartCoroutine(EyelidClose());
-                        NowClosing = true;
-                    }
-                    break;
-                }
+            eyelidstate = EYELIDSTATE.Closing;
+            if (!IsAnimating) EyelidClose().Forget();
         }
     }
 
-
-
-    //現在の瞼の位置を返す関数
-    Vector2 GetEyeLidPos()
+    private async UniTask EyelidOpen()
     {
-        Vector2 EyelidPos;
-        EyelidPos.x = UpperEyelid.localPosition.y;
-        EyelidPos.y = LowerEyelid.localPosition.y;
-        return EyelidPos;
+        if (eyelidstate == EYELIDSTATE.Open) return;
+
+        IsAnimating = true;
+        float startTime = Time.time;
+
+        while (Time.time - startTime < animDuration)
+        {
+            float journeyFraction = Mathf.SmoothStep(0f, 1f, (Time.time - startTime) / animDuration);
+            UpperEyelid.localPosition = Vector3.Lerp(CloseUPos, OpenUPos, journeyFraction);
+            LowerEyelid.localPosition = Vector3.Lerp(CloseLPos, OpenLPos, journeyFraction);
+            await UniTask.Yield();
+        }
+
+        UpperEyelid.localPosition = OpenUPos;
+        LowerEyelid.localPosition = OpenLPos;
+        eyelidstate = EYELIDSTATE.Open;
+        IsAnimating = false;
     }
 
-    // 上瞼を指定された位置に移動させるコルーチン
-    private IEnumerator EyelidOpen()
+    private async UniTask EyelidClose()
     {
-       //Debug.Log("瞼開きコルーチン開始");
+        if (eyelidstate == EYELIDSTATE.Close) return;
 
-        if (eyelidstate == EYELIDSTATE.Open)
+        IsAnimating = true;
+        float startTime = Time.time;
+
+        while (Time.time - startTime < animDuration)
         {
-            //Debug.Log("すでに開き切っています");
+            float journeyFraction = Mathf.SmoothStep(0f, 1f, (Time.time - startTime) / animDuration);
+            UpperEyelid.localPosition = Vector3.Lerp(OpenUPos, CloseUPos, journeyFraction);
+            LowerEyelid.localPosition = Vector3.Lerp(OpenLPos, CloseLPos, journeyFraction);
+            await UniTask.Yield();
         }
-        else
-        {
 
-            Vector3 UpperStartDeckPos = CloseUPos;
-            Vector3 UpperEndHandPos = OpenUPos;
-            Vector3 LowerStartDeckPos =  CloseLPos;
-            Vector3 LowerEndHandPos = OpenLPos;
-
-            float startTime = Time.time;
-            float ANIMDURATION = animDuration;
-
-            while (Time.time - startTime < ANIMDURATION)
-            {
-                float journeyFraction = (Time.time - startTime) / animDuration;
-                //滑らかに移動
-                journeyFraction = Mathf.SmoothStep(0f, 1f, journeyFraction);
-                UpperEyelid.transform.localPosition = Vector3.Lerp(UpperStartDeckPos, UpperEndHandPos, journeyFraction);
-                LowerEyelid.transform.localPosition= Vector3.Lerp(LowerStartDeckPos, LowerEndHandPos, journeyFraction);
-                yield return null;
-            }
-            eyelidstate = EYELIDSTATE.Open;
-            NowOpening = false;
-            //Debug.Log("瞼開き終了");
-        }
-        
+        UpperEyelid.localPosition = CloseUPos;
+        LowerEyelid.localPosition = CloseLPos;
+        eyelidstate = EYELIDSTATE.Close;
+        IsAnimating = false;
     }
-
-    private IEnumerator EyelidClose()
-    {
-        //Debug.Log("瞼閉じコルーチン開始");
-        if (eyelidstate == EYELIDSTATE.Close)
-        {
-            //Debug.Log("すでに閉じ切っています");
-        }
-        else
-        {
-            Vector3 UpperStartDeckPos = OpenUPos;
-            Vector3 UpperEndHandPos = CloseUPos;
-            Vector3 LowerStartDeckPos = OpenLPos;
-            Vector3 LowerEndHandPos = CloseLPos;
-
-            float startTime = Time.time;
-            float ANIMDURATION = animDuration;
-
-            while (Time.time - startTime < ANIMDURATION)
-            {
-                float journeyFraction = (Time.time - startTime) / animDuration;
-                //滑らかに移動
-                journeyFraction = Mathf.SmoothStep(0f, 1f, journeyFraction);
-                UpperEyelid.transform.localPosition = Vector3.Lerp(UpperStartDeckPos, UpperEndHandPos,journeyFraction);
-                LowerEyelid.transform.localPosition = Vector3.Lerp(LowerStartDeckPos, LowerEndHandPos, journeyFraction);
-
-                yield return null;
-            }
-            eyelidstate = EYELIDSTATE.Close;
-            NowClosing = false;
-            //Debug.Log("瞼閉じ終了");
-        }
-        
-    }
-
-
 }
