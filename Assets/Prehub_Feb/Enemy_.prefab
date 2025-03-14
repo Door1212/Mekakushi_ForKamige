@@ -77,7 +77,7 @@ MonoBehaviour:
   _livingMinTime: 120
   _BoxCollider: {fileID: 7931865100896916861}
   _OutRangeTimeCnt: 0
-  _OutRangeTime: 5
+  _OutRangeTime: 15
   stoppingDistance: 1
   _catchDistance: 2
   pitchRange: 0.1
