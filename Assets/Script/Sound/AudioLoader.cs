@@ -101,13 +101,22 @@ public class AudioLoader : MonoBehaviour
     /// <summary>
     /// ロードしたAudioClipを再生する
     /// </summary>
-    public void PlayAudio(string audioName)
+    public void PlayAudio(string audioName, AudioSource _audioSource = null)
     {
         if (audioClips.TryGetValue(audioName, out AudioClip clip))
         {
-            AudioSource audioSource = GetComponent<AudioSource>();
-            audioSource.clip = clip;
-            audioSource.PlayOneShot(clip);
+            if(_audioSource != null)
+            {
+                _audioSource.clip = clip;
+                _audioSource.PlayOneShot(clip);
+            }
+            else
+            {
+                AudioSource audioSource = GetComponent<AudioSource>();
+                audioSource.clip = clip;
+                audioSource.PlayOneShot(clip);
+            }
+
         }
         else
         {

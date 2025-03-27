@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 4871602770760600317}
   - component: {fileID: 4871602770760600315}
-  - component: {fileID: 4871602770760600314}
+  - component: {fileID: 4737978540011874470}
   - component: {fileID: 7931865100896916861}
   - component: {fileID: 6639339107816358488}
-  - component: {fileID: 6791532131414894804}
+  - component: {fileID: 8713685888619724068}
   m_Layer: 0
-  m_Name: Enemy_
+  m_Name: Enemy_Tutorial
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -59,7 +59,7 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 1
   m_ObstacleAvoidanceType: 4
---- !u!114 &4871602770760600314
+--- !u!114 &4737978540011874470
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,14 +68,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 4871602770760600316}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d61b9bf1e3fb1a429bdac5118b9b76f, type: 3}
+  m_Script: {fileID: 11500000, guid: b6288153d33a2184dad33b64dc986efa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _state: 0
   _SearchingArea: 20
   _livingTime: 0
-  _livingMaxTime: 180
-  _livingMinTime: 120
+  _livingMaxTime: 20
+  _livingMinTime: 10
   _BoxCollider: {fileID: 7931865100896916861}
   _OutRangeTimeCnt: 0
   _OutRangeTime: 15
@@ -83,7 +83,7 @@ MonoBehaviour:
   _catchDistance: 2
   AC_HeartBeat: {fileID: 8300000, guid: 9cd8b7fdf019c724a8fad650a97752fa, type: 3}
   heartAudioMixer: {fileID: 24100000, guid: 371cbe20729162647ae7d4ca14d5157e, type: 2}
-  _audioHeartBeat: {fileID: 6791532131414894804}
+  _audioHeartBeat: {fileID: 8713685888619724068}
   StartingHeartBeatSound: 10
   _audioSource: {fileID: 6639339107816358488}
   pitchRange: 0.1
@@ -202,7 +202,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!82 &6791532131414894804
+--- !u!82 &8713685888619724068
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

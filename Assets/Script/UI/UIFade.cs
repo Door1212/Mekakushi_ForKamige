@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Cysharp.Threading.Tasks;
 
 public class UIFade : MonoBehaviour
 {
@@ -38,7 +39,7 @@ public class UIFade : MonoBehaviour
 
     public void StartFadeOutIn()
     {
-        StartCoroutine(FadeOutAndIN());
+        FadeOutAndIN().Forget();
     }
 
     public void SetAlphaZero()
@@ -81,11 +82,11 @@ public class UIFade : MonoBehaviour
         this.gameObject.SetActive(false);
     }
 
-    private IEnumerator FadeOutAndIN()
+    private async UniTask FadeOutAndIN()
     {
         StartFadeIn();
 
-        yield return new WaitForSeconds(3);
+        await UniTask.WaitForSeconds(3);
 
         StartFadeOut();
     }

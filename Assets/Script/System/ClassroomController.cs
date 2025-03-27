@@ -75,6 +75,9 @@ public class ClassroomController : MonoBehaviour
         return GameObject.FindGameObjectsWithTag(tag).Length;
     }
 
+    /// <summary>
+    /// 教室のランダム配置
+    /// </summary>
     private void ClassroomLoad()
     {
         //カウントを初期化

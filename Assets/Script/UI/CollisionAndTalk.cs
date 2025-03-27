@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider))]
@@ -12,10 +13,10 @@ public class CollisionAndTalk : MonoBehaviour
         TALK,
         EVENT,
         ACTIVE,
-        ENEMY_ACTIVE,
+        INDUCTION_LINE,
         MAX
     }
-
+    
     [Header("使用するモード")]
     public Mode UsingMode = Mode.TALK;
 
@@ -26,24 +27,21 @@ public class CollisionAndTalk : MonoBehaviour
     public float TimeForReset;
 
     [Header("表示しきるまでの時間")]
-    [SerializeField] private float TypingSpeed;
+    public float TypingSpeed;
 
     [Header("音鳴らす用のオーディオソースをもつオブジェクト")]
-    [SerializeField]private GameObject _Obj_AudioSource;
+    public GameObject _Obj_AudioSource;
 
     private AudioSource audioSource;
 
-    [Header("鳴らす音")]
-    [SerializeField] private AudioClip audioClip;
+    [Header("audioClip")]
+    public AudioClip audioClip;
 
     [Header("イベント発動用トリガー")]
-    [SerializeField] private bool EventTrigger = false;
+    public bool EventTrigger = false;
 
     [Header("アクティブにするオブジェクト")]
-    [SerializeField] private GameObject ToActiveObject;
-
-    [Header("アクティブにする敵")]
-    [SerializeField] private EnemyAI_move enemyAI_Move;
+    public GameObject ToActiveObject;
 
     //プレイヤーのトランスフォームオブジェクト
     private Transform playerTransform;
@@ -51,6 +49,8 @@ public class CollisionAndTalk : MonoBehaviour
     private BoxCollider Trigger;
 
     private TextTalk textTalk;
+
+    private InductionLineController _inductionCont;
 
     private bool IsFirst = false;
 
@@ -92,10 +92,9 @@ public class CollisionAndTalk : MonoBehaviour
                     ToActiveObject.SetActive(false);
                     break;
                 }
-            case Mode.ENEMY_ACTIVE:
+            case Mode.INDUCTION_LINE:
                 {
-                    enemyAI_Move = GetComponent<EnemyAI_move>();
-                    playerTransform = GameObject.FindGameObjectWithTag("Player").gameObject.transform;
+                    _inductionCont = FindObjectOfType(typeof(InductionLineController)).GetComponent<InductionLineController>();
                     break;
                 }
             case Mode.MAX:
@@ -196,15 +195,10 @@ public class CollisionAndTalk : MonoBehaviour
                         ToActiveObject.SetActive(true);
                         break;
                     }
-
-                case Mode.ENEMY_ACTIVE:
+                case Mode.INDUCTION_LINE:
                     {
-                        IsFirst = true;
-                        ToActiveObject.SetActive(true);
-                        enemyAI_Move.gameObject.SetActive(true);
-                        enemyAI_Move.SetState(EnemyAI_move.EnemyState.Chase,playerTransform);
-
-                        break ;
+                        _inductionCont.SetNextCur();
+                        break;
                     }
                 case Mode.MAX:
                     {

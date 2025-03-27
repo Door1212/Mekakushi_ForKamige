@@ -122,10 +122,10 @@ public class InductionLineController : MonoBehaviour
 
         for (int i = 0; i < path.corners.Length; i++)
         {
-            _lineRenderer.SetPosition(i + 1, new Vector3(path.corners[i].x , GetStartPoint().y, path.corners[i].z));
+            _lineRenderer.SetPosition(i + 1, new Vector3(path.corners[i].x , path.corners[i].y, path.corners[i].z));
         }
 
-        _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, new Vector3(_wayPointsList[NowCurNum].transform.position.x, GetStartPoint().y, _wayPointsList[NowCurNum].transform.position.z));
+        _lineRenderer.SetPosition(_lineRenderer.positionCount - 1, new Vector3(_wayPointsList[NowCurNum].transform.position.x, _wayPointsList[NowCurNum].transform.position.y, _wayPointsList[NowCurNum].transform.position.z));
     }
 
 }

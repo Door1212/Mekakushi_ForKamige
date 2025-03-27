@@ -51,6 +51,8 @@ public class HidingCharacter : MonoBehaviour
 
         IsStartTalk = false;
 
+        IsCatched = false;
+
         CntCooltime = 0.0f;
 
         if(IsTalkKids)
@@ -84,6 +86,8 @@ public class HidingCharacter : MonoBehaviour
         {
             //ƒ^ƒO‚ğ‚È‚­‚µ‚ÄDiscover‚ª”½‰‚µ‚È‚¢‚æ‚¤‚É
             this.gameObject.tag = "Untagged";
+
+            IsCatched = true;
 
             //Á‚¦•û‚ğl‚¦
             if (!IsTalkKids)

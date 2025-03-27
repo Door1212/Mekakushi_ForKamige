@@ -6,13 +6,13 @@ using UnityEngine.AI;
 using UnityEngine.Audio;
 using Cysharp.Threading.Tasks;
 
-[RequireComponent (typeof(NavMeshAgent))]
+
+[RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(BoxCollider))]
 [RequireComponent(typeof(AudioSource))]
 
-public class EN_Move : MonoBehaviour
+public class EN_TutoMove : MonoBehaviour
 {
-
     public enum EnemyState
     {
         Idle,       // ランダム徘徊
@@ -20,6 +20,9 @@ public class EN_Move : MonoBehaviour
         Chase,      // 追跡
         Catch,      // 捕まえる
     };
+
+    [Header("動き出す基準になるロッカーオブジェクト")]
+    public static LockerOpen _locker = new LockerOpen();
 
     //敵の情報
     [Header("敵状態")]
@@ -32,7 +35,7 @@ public class EN_Move : MonoBehaviour
     [SerializeField] private float _livingTime;
 
     [Header("存在できる最大時間")]
-    [SerializeField] private  float _livingMaxTime = 60f;
+    [SerializeField] private float _livingMaxTime = 60f;
     [Header("存在できる最小時間")]
     [SerializeField] private float _livingMinTime = 30f;
 
@@ -70,7 +73,7 @@ public class EN_Move : MonoBehaviour
 
     //音関連
     [Header("心音以外を鳴らすオーディオソース")]
-    [SerializeField] private AudioSource _audioSource;
+    [SerializeField]private AudioSource _audioSource;
     [SerializeField] float pitchRange = 0.1f;
     [Header("敵の足音")]
     public AudioClip[] _ac_FootStep;
@@ -87,19 +90,21 @@ public class EN_Move : MonoBehaviour
     private PlayerMove _playerMove;
     private CameraMove _cameraMove;
 
-
     //動けるかどうか
     [SerializeField]
     private bool CanMove = true;
+
+    //ロッカーに入るまで待つ
+    [SerializeField]
+    private bool _waitUntilLocker = true;
 
     private Transform targetTransform; // ターゲットの情報
     private NavMeshAgent _navMeshAgent; // NavMeshAgentコンポーネント
     private DlibFaceLandmarkDetectorExample.FaceDetector face; // FaceDetectorコンポーネント
     private GameManager gameManager;
     private SoundManager soundManager;
-    private EnemyController _enemyController;//敵コントローラー
+    private EnemyTutorialController _enemyTutoController;//敵コントローラー
     private CancellationTokenSource _cts;//キャンセルトークン
-
     // Start is called before the first frame update
     void Start()
     {
@@ -119,10 +124,9 @@ public class EN_Move : MonoBehaviour
         _navMeshAgent = GetComponent<NavMeshAgent>();
         _cameraMove = FindObjectOfType<CameraMove>();
 
-        _enemyController =  GameObject.FindGameObjectWithTag("EnemyController").GetComponent<EnemyController>();
+        _enemyTutoController = FindObjectOfType<EnemyTutorialController>();
 
-        _enemyController.IncExistNum();
-
+        _audioSource = GetComponent<AudioSource>();
 
         //敵の生存時間を決定
         _livingTime = Random.Range(_livingMinTime, _livingMaxTime);
@@ -135,11 +139,29 @@ public class EN_Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(_waitUntilLocker)
+        {
+            _navMeshAgent.isStopped = true;
+
+            //敵がロッカーに入ると動き始める
+            if (_enemyTutoController._isInlocker)
+            {
+                _waitUntilLocker = false;
+            }
+
+            if (!_audioSource.isPlaying)
+            {
+                PlayFootstepSE();
+            }
+
+            return;
+        }
+
         //ロッカー入ってる状態なら敵を止めない
         if (!CanMove && _playerMove.GetPlayerState() != PlayerMove.PlayerState.InLocker)
         {
-                _navMeshAgent.isStopped = true;
-                return;
+            _navMeshAgent.isStopped = true;
+            return;
         }
         else
         {
@@ -147,16 +169,15 @@ public class EN_Move : MonoBehaviour
         }
 
         EnemyUpdate();
-
     }
 
     private void EnemyUpdate()
     {
         //制限時間が来ると消える
-        if(_livingTime <= _livingTimeCnt)
+        if (_livingTime <= _livingTimeCnt)
         {
             //消える
-            _enemyController.DecExistNum();
+            _enemyTutoController.DoDisappearSound();
             Destroy(this.gameObject);
 
         }
@@ -190,13 +211,13 @@ public class EN_Move : MonoBehaviour
                     _OutRangeTimeCnt += Time.deltaTime;
 
                     //見失って暫くたつと
-                    if(_OutRangeTime <= _OutRangeTimeCnt)
+                    if (_OutRangeTime <= _OutRangeTimeCnt)
                     {
                         EnemyStateChanger(EnemyState.Idle);
                     }
 
                     //ロッカーに入っていれば見失う
-                    if(_playerMove.GetPlayerState() == PlayerMove.PlayerState.InLocker)
+                    if (_playerMove.GetPlayerState() == PlayerMove.PlayerState.InLocker)
                     {
                         EnemyStateChanger(EnemyState.Idle);
                     }
@@ -224,60 +245,13 @@ public class EN_Move : MonoBehaviour
                     var dis = Vector3.Distance(_playerObj.transform.position, transform.position);
 
                     //捕まえる距離かつプレイヤーとの間に障害物がないかを確認 
-                    if (_catchDistance > dis && IsPositionHidden(this.gameObject.transform.position,_playerObj.transform))
+                    if (_catchDistance > dis && IsPositionHidden(this.gameObject.transform.position, _playerObj.transform))
                     {
                         EnemyStateChanger(EnemyState.Catch);
                     }
 
                     break;
                 }
-        }
-    }
-    public void SetCanMove(bool Set)
-    {
-        CanMove = Set;
-    }
-
-    /// <summary>
-    /// 敵の探索範囲を変更する
-    /// </summary>
-    /// <param name="searchArea">設定する範囲</param>
-    public void SetSearchArea(float searchArea)
-    {
-        _SearchingArea = searchArea;
-    }
-
-    //距離によって音量や再生速度を変更する
-    void DistanceSoundUpdate()
-    {
-        EtPDis = Vector3.Distance(this.transform.position, _playerObj.transform.position);
-        if (EtPDis <= StartingHeartBeatSound)
-        {
-
-            if (EtPDis >= 10.0f)
-            {
-                //距離で音程を変える
-                _audioHeartBeat.pitch = 2.0f * (1.0f / 10.0f); ;
-                _audioHeartBeat.volume = (1.0f / 10.0f);
-            }
-            else
-            {
-                //距離で音程を変える
-                _audioHeartBeat.pitch = 2.0f * (1.0f / EtPDis) * 1.2f;
-                //距離で音量を変える
-                _audioHeartBeat.volume = (1.0f / EtPDis) * 1.2f;
-            }
-
-            if (!_audioHeartBeat.isPlaying)
-            {
-                //音を鳴らす
-                _audioHeartBeat.PlayOneShot(AC_HeartBeat);
-            }
-        }
-        else
-        {
-            //後々音のフェードアウトもしたい
-            _audioHeartBeat.Stop();
         }
     }
 
@@ -287,7 +261,7 @@ public class EN_Move : MonoBehaviour
     /// <param name="_E_state">変更先のステート</param>
     private void EnemyStateChanger(EnemyState _E_state)
     {
-        switch(_E_state)
+        switch (_E_state)
         {
             case EnemyState.Idle:
                 {
@@ -313,7 +287,7 @@ public class EN_Move : MonoBehaviour
                     _cameraMove.StartShakeWithSecond(30f, 5f);
 
 
-                  _OutRangeTimeCnt = 0.0f;
+                    _OutRangeTimeCnt = 0.0f;
 
                     //目標地点をプレイヤーに設定
                     if (_navMeshAgent.isOnNavMesh)
@@ -376,6 +350,8 @@ public class EN_Move : MonoBehaviour
 
     void OnDestroy()
     {
+
+
         if (_cts != null)
         {
             _cts.Cancel();  // 非同期処理をキャンセル
@@ -383,6 +359,41 @@ public class EN_Move : MonoBehaviour
             _cts = null;
         }
     }
+
+    //距離によって音量や再生速度を変更する
+    void DistanceSoundUpdate()
+    {
+        EtPDis = Vector3.Distance(this.transform.position, _playerObj.transform.position);
+        if (EtPDis <= StartingHeartBeatSound)
+        {
+
+            if (EtPDis >= 10.0f)
+            {
+                //距離で音程を変える
+                _audioHeartBeat.pitch = 2.0f * (1.0f / 10.0f); ;
+                _audioHeartBeat.volume = (1.0f / 10.0f);
+            }
+            else
+            {
+                //距離で音程を変える
+                _audioHeartBeat.pitch = 2.0f * (1.0f / EtPDis) * 1.2f;
+                //距離で音量を変える
+                _audioHeartBeat.volume = (1.0f / EtPDis) * 1.2f;
+            }
+
+            if (!_audioHeartBeat.isPlaying)
+            {
+                //音を鳴らす
+                _audioHeartBeat.PlayOneShot(AC_HeartBeat);
+            }
+        }
+        else
+        {
+            //後々音のフェードアウトもしたい
+            _audioHeartBeat.Stop();
+        }
+    }
+
 
     /// <summary>
     /// プレイヤーからみえる位置であるか判定
@@ -405,7 +416,7 @@ public class EN_Move : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             //ロッカーに入っていなければ発見
-            if(_playerMove.GetPlayerState() != PlayerMove.PlayerState.InLocker)
+            if (_playerMove.GetPlayerState() != PlayerMove.PlayerState.InLocker)
             {
                 Debug.Log("プレイヤー発見！");
                 EnemyStateChanger(EnemyState.Chase);
@@ -420,13 +431,13 @@ public class EN_Move : MonoBehaviour
         {
             Debug.Log("プレイヤー発見！");
             _OutRangeTimeCnt = 0.0f;//居続ける限りカウントは進まない
-            
+
         }
     }
+
     public void PlayFootstepSE()
     {
         _audioSource.pitch = 1.0f + Random.Range(-pitchRange, pitchRange);
-        //source.Play();
         _audioSource.PlayOneShot(_ac_FootStep[Random.Range(0, _ac_FootStep.Length)]);
 
         var dis = Vector3.Distance(_playerObj.transform.position, transform.position);

@@ -12,13 +12,13 @@ using UnityEngine.UI;
 using TMPro;
 using UniRx;
 using Cysharp.Threading.Tasks;
-//using System.Runtime.Remoting.Messaging;
 
 namespace DlibFaceLandmarkDetectorExample
 {
     // デフォルト実行順序を設定し、WebCamTextureToMatHelperコンポーネントが必要であることを指定
     [DefaultExecutionOrder(-5)]
     [RequireComponent(typeof(WebCamTextureToMatHelper))]
+
     public class FaceDetector : MonoBehaviour
     {
         public static FaceDetector FaceInstance; // シングルトンインスタンス
@@ -102,13 +102,10 @@ namespace DlibFaceLandmarkDetectorExample
             string dlibShapePredictorFileName = "DlibFaceLandmarkDetector/sp_human_face_68.dat"; // エディタ環境用のファイル名
 #else
             string dlibShapePredictorFileName = System.IO.Path.Combine(Application.streamingAssetsPath, "DlibFaceLandmarkDetector/sp_human_face_68.dat"); // ビルド環境用のファイルパス
-            //  StreamingAssetsフォルダからの相対パス
-            // string relativePath = "DlibFaceLandmarkDetector/sp_human_face_68.dat";
 
-            //  絶対パス
-            //string absolutePath = System.IO.Path.Combine(Application.streamingAssetsPath, relativePath);
             Debug.Log("Build Path: " + dlibShapePredictorFileName);
 #endif
+            //顔認識を使用するかでカメラ使用を切り替える為にコンポーネントのアクティブ状態を切り替える。
             if (!OptionValue.IsFaceDetecting)
             {
                 if(GetComponent<WebCamTextureToMatHelper>())
@@ -153,6 +150,9 @@ namespace DlibFaceLandmarkDetectorExample
            
         }
 
+        /// <summary>
+        /// 読み込みの準備を始める
+        /// </summary>
         private async void Run()
         {
             if (string.IsNullOrEmpty(dlibShapePredictorFilePath))
@@ -182,6 +182,9 @@ namespace DlibFaceLandmarkDetectorExample
             UseFaceInitDone = true;
         }
 
+        /// <summary>
+        /// カメラ関係初期化
+        /// </summary>
         public void OnWebCamTextureToMatHelperInitialized()
         {
             Debug.Log("OnWebCamTextureToMatHelperInitialized");
@@ -243,9 +246,9 @@ namespace DlibFaceLandmarkDetectorExample
         private void Update()
         {
             if (OptionValue.IsFaceDetecting)
-            {                //キーで目を閉じる
+            {
 
-
+                //キーで目を閉じる
                 if (Input.GetKeyDown(KeyCode.Q))
                 {
                     if (isEyeOpen)
@@ -329,31 +332,18 @@ namespace DlibFaceLandmarkDetectorExample
                 faceLandmarkDetector.Dispose();
         }
 
-        public void OnBackButtonClick()
-        {
-            SceneManager.LoadScene("DlibFaceLandmarkDetectorExample");
-        }
-
-        public void OnPlayButtonClick()
-        {
-            webCamTextureToMatHelper.Play();
-        }
-
-        public void OnPauseButtonClick()
-        {
-            webCamTextureToMatHelper.Pause();
-        }
-
-        public void OnStopButtonClick()
-        {
-            webCamTextureToMatHelper.Stop();
-        }
-
+        //Webカメラ切り替え
         public void OnChangeCameraButtonClick()
         {
             webCamTextureToMatHelper.requestedIsFrontFacing = !webCamTextureToMatHelper.requestedIsFrontFacing;
         }
 
+        /// <summary>
+        /// 左目の開き具合を返す
+        /// </summary>
+        /// <param name="points">頂点情報のリスト</param>
+        /// <returns>右目の開き具合</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public float getRaitoOfEyeOpen_L(List<Vector2> points)
         {
             if (points.Count != 68)
@@ -362,6 +352,12 @@ namespace DlibFaceLandmarkDetectorExample
             return Mathf.Clamp(Mathf.Abs(points[43].y - points[47].y) / (Mathf.Abs(points[43].x - points[44].x) * 0.75f), -0.1f, 2.0f);
         }
 
+        /// <summary>
+        /// 右目の開き具合を返す
+        /// </summary>
+        /// <param name="points">頂点情報のリスト</param>
+        /// <returns>右目の開き具合</returns>
+        /// <exception cref="ArgumentNullException"></exception>
         public float getRaitoOfEyeOpen_R(List<Vector2> points)
         {
             if (points.Count != 68)
@@ -370,6 +366,11 @@ namespace DlibFaceLandmarkDetectorExample
             return Mathf.Clamp(Mathf.Abs(points[38].y - points[40].y) / (Mathf.Abs(points[37].x - points[38].x) * 0.75f), -0.1f, 2.0f);
         }
 
+        /// <summary>
+        /// 左右の目の開き具合から目が開いているかを判断する
+        /// </summary>
+        /// <param name="points"></param>
+        /// <returns></returns>
         public bool UpdateEyeState(List<Vector2> points)
         {
             float eyeOpen_L = getRaitoOfEyeOpen_L(points);
@@ -633,6 +634,9 @@ namespace DlibFaceLandmarkDetectorExample
 
         }
 
+        /// <summary>
+        /// 顔認識部分
+        /// </summary>
         private void faceDetectUpdate()
         {
             List<UnityEngine.Rect> detectResult = faceLandmarkDetector.DetectClosest(); // 最も近い顔を検出

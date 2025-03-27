@@ -93,7 +93,6 @@ public class DoorOpen : MonoBehaviour
         audioLoader = FindObjectOfType<AudioLoader>();
         this.tag = "Door";
 
-        Doorlock = false;
         textTalk = FindObjectOfType<TextTalk>();
 
         for (int i = 0; i < Enemies.Length; i++)
@@ -207,42 +206,42 @@ public class DoorOpen : MonoBehaviour
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-        audioLoader.PlayAudio("Open Drawer");
+        audioLoader.PlayAudio("Open Drawer", audioSource);
     }
 
     public void PlayCloseDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioLoader.PlayAudio("Close Drawer");
+            audioLoader.PlayAudio("Close Drawer", audioSource);
     }
 
     void PlayTryOpenDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioLoader.PlayAudio("Scratching");
+            audioLoader.PlayAudio("Scratching", audioSource);
     }
 
     void PlaySlumDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioLoader.PlayAudio("Door Slum2");
+            audioLoader.PlayAudio("Door Slum2", audioSource);
     }
 
     void PlayForceCloseDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioLoader.PlayAudio("Door Slum1");
+            audioLoader.PlayAudio("Door Slum1", audioSource);
     }
 
     void PlayLockDoorSound()
     {
         audioSource.Stop();
         if (!audioSource.isPlaying)
-            audioLoader.PlayAudio("Padlock");
+            audioLoader.PlayAudio("Padlock", audioSource);
     }
 
     public void PlayCloseDoorAnim()
@@ -269,7 +268,7 @@ public class DoorOpen : MonoBehaviour
     {
         if (IsOpen)
         {
-            PlayForceCloseDoorSound();
+            PlayCloseDoorSound();
             PlayCloseDoorAnim();
             IsOpen = true;
 
