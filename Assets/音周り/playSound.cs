@@ -13,9 +13,12 @@ public class playSound : MonoBehaviour
     [SerializeField]
     private bool CanMove = true;
 
+    private PlayerMove _playerMove;
+
     void Awake()
     {
         source = GetComponents<AudioSource>()[0];
+        _playerMove = GetComponent<PlayerMove>();
     }
 
     void Update()
@@ -26,7 +29,8 @@ public class playSound : MonoBehaviour
             return;
         }
 
-        if(Input.GetKey(KeyCode.W)|| Input.GetKey(KeyCode.A)|| Input.GetKey(KeyCode.D)|| Input.GetKey(KeyCode.S))
+        //ƒvƒŒƒCƒ„[‚ª‘–‚Á‚Ä‚ê‚Î‘«‰¹
+        if(Input.GetKey(KeyCode.W)|| Input.GetKey(KeyCode.A)|| Input.GetKey(KeyCode.D)|| Input.GetKey(KeyCode.S) && _playerMove.IsRunning)
         {
 
             if(source.isPlaying == false)

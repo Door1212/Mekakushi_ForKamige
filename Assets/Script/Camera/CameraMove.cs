@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using DlibFaceLandmarkDetectorExample;
 
 [RequireComponent(typeof(CurveControlledBob))]
 
@@ -18,10 +21,25 @@ public class CameraMove : MonoBehaviour
     [Header("カメラが揺れる状態か")]
     [SerializeField]private bool IsShaking;
 
+    [Header("カメラ誘導が有効か")]
+    [SerializeField] private bool _isLookAt;
+
+    [Header("LookAtにかかる時間のデフォルト")]
+    public const float _defaultMoveSecond = 0.5f;
+
+    [Header("LookAtで注視する時間のデフォルト")]
+    public const float _defaultStopSecond = 0.5f;
+
+    [Header("LookAtのイージング方法のデフォルト")]
+    public const Ease _defaultEase = Ease.InOutSine;
+
+
     Camera mainCamera_;
     GameObject target_obj;
     PlayerMove playerMove;
     Transform cam_transform;
+    FaceDetector _faceDetector;
+    GameManager _gameManager;
     Vector3 target_position;
 
     float mouse_input_x;
@@ -57,21 +75,26 @@ public class CameraMove : MonoBehaviour
         cam_transform.position = target_position + dist;
         cam_transform.LookAt(target_position);
 
+        _faceDetector = FindObjectOfType<FaceDetector>();
+        _gameManager = FindObjectOfType<GameManager>();
         //カメラを動かせる状態にする
         CanMove = true;
+
+        _isLookAt = false;
     }
 
     void Update()
     {
-        //テスト用
-        if (Input.GetKey(KeyCode.Y))
+        if(_isLookAt)
         {
-            StartShakeWithSecond(3.0f, 3.0f);
+            return;
         }
+
 
         //動くのが可能か
         if (CanMove)
         {
+
             if (setpos)
             {
                 setpos = false;
@@ -83,22 +106,6 @@ public class CameraMove : MonoBehaviour
             transform.localEulerAngles = new Vector3(-rotY, rotX, 0f);
 
             Vector3 handbob = has_Bob.DoHeadBob(ShakeSpeed, playerMove.IsStop, playerMove.IsRunning,IsShaking);
-
-            //if (playerMove.IsStop)
-            //{
-            //    Vector3 pos = target_obj.transform.position;
-            //    pos.y += perspective;
-
-            //    this.transform.position = pos;
-            //}
-            //else
-            //{
-            ////カメラを揺らす
-            //    Vector3 pos = target_obj.transform.position + handbob;
-            //    pos.y += perspective;
-
-            //    this.transform.position = pos;
-            // }
             
             //カメラを揺らす
             Vector3 pos = target_obj.transform.position + handbob;
@@ -156,6 +163,50 @@ public class CameraMove : MonoBehaviour
         //スピードの初期化と揺らし状態の解除
         SetCamShakeSpeed(InitShakeSpeed);
         IsShaking = false;
+    }
+    /// <summary>
+    /// "指定されたオブジェクト"を"視点移動にかかる時間"かけて"イージング方法"視点移動して"注視する時間"止まってから通常視点に戻る
+    /// </summary>
+    /// <param name="_obj">指定されたオブジェクト</param>
+    /// <param name="_moveSeconds">視点移動にかかる時間</param>
+    /// <param name="_StopSeconds">注視する時間</param>
+    /// <param name="_ease">イージング方法</param>
+    public async void DoLookAtObj(GameObject _obj = null, float _moveSeconds = _defaultMoveSecond, float _StopSeconds = _defaultStopSecond, Ease _ease = _defaultEase)
+    {
+        if (_obj == null) return;
+
+        //カメラを動かないように
+        _isLookAt = true;
+        _gameManager.SetStopAll(true);
+        //目があくまで待つ
+        await UniTask.WaitUntil(() => _faceDetector.getEyeOpen());
+
+        // LookAt前のカメラのtransformを保存
+        Vector3 startPosition = transform.position;
+        Quaternion startRotation = transform.rotation;
+
+        //指定オブジェクトの方を向く
+        await LookatObj(_obj, _moveSeconds, _StopSeconds, _ease);
+
+        // カメラを元の位置に戻す
+        transform.DOMove(startPosition, _moveSeconds).SetEase(_ease);
+        transform.DORotateQuaternion(startRotation, _moveSeconds).SetEase(_ease);
+        _isLookAt = false;
+        _gameManager.SetStopAll(false);
+    }
+
+    private async UniTask LookatObj(GameObject _obj, float _moveSeconds, float _StopSeconds, Ease _ease)
+    {
+        if (_obj == null) return;
+
+        // 目標の位置を取得
+        Vector3 targetPos = _obj.transform.position;
+
+        // 目標へスムーズにカメラを向ける
+        transform.DOLookAt(targetPos, _moveSeconds).SetEase(_ease);
+
+        // 指定秒数停止
+        await UniTask.Delay((int)(_StopSeconds * 1000));
     }
 
 }

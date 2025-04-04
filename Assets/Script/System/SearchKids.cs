@@ -8,6 +8,7 @@ using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine.EventSystems;
 using UnityEditor;
+using UnityEngine.SceneManagement;
 
 
 public class SearchKids : MonoBehaviour
@@ -44,6 +45,20 @@ public class SearchKids : MonoBehaviour
     [Header("音源")]
     [SerializeField] public AudioSource _AudioSource;
 
+    [Header("チュートリアルシーン用")]
+
+    [Header("話させたいセリフ")]
+    public string TalkText = "見つけた！捕まえに行こう！";
+
+    [Header("リセットまでの時間")]
+    public float TimeForReset = 7.0f;
+
+    [Header("表示しきるまでの時間")]
+    public float TypingSpeed = 0.5f;
+
+    [Header("ロック解除するドア(チュートリアル専用)")]
+    public DoorOpen[] _Doors;
+
     FaceDetector _FaceDetector;
 
     //キャンセル用トークン
@@ -52,8 +67,15 @@ public class SearchKids : MonoBehaviour
     //トークンソース
     CancellationTokenSource _cts;
 
+    //話す
+    private TextTalk textTalk;
+
     //探索中か
     private bool _isSearching = false;
+
+    //チュートリアルシーン中に始めて子供を見つけた時
+    private bool _isFirst = false;
+    private CameraMove _CameraMove;
 
     // Start is called before the first frame update
     void Start()
@@ -61,8 +83,11 @@ public class SearchKids : MonoBehaviour
         ResetCts();
         _SearchArea.enabled = false;
         _isSearching = false;
+        _isFirst = false;
         _FaceDetector =GameObject.Find("FaceDetecter").GetComponent<FaceDetector>();
         _AudioSource = GetComponent<AudioSource>();
+        textTalk = FindObjectOfType<TextTalk>();
+        _CameraMove = FindObjectOfType<CameraMove>();
     }
 
     // Update is called once per frame
@@ -78,6 +103,13 @@ public class SearchKids : MonoBehaviour
         //探索中に目が開くとキャンセル
         if (_isSearching && _FaceDetector.getEyeOpen())
         {
+            if (_AudioSource.isPlaying)
+            {
+                _AudioSource.Stop();
+            }
+            _AudioSource.clip = _SearchFailSound;
+            _AudioSource.Play();
+
             _isSearching = false;
             ResetCts();
         }
@@ -107,7 +139,7 @@ public class SearchKids : MonoBehaviour
         try
         {
             Debug.Log("探索開始");
-            LogRecorder.GetInstance().LogEvent("探索開始");
+            LogRecorder.GetInstance()?.LogEvent("探索開始");
 
             while (elapsedTime < _CompleteTime)
             {
@@ -119,19 +151,19 @@ public class SearchKids : MonoBehaviour
 
             _SearchArea.radius = 0.0f;
             _SearchArea.enabled = false;     //探索円を非活性化
-
-            //探索中の音を再生
             if (_AudioSource.isPlaying)
             {
                 _AudioSource.Stop();
             }
             _AudioSource.clip = _SearchFailSound;
             _AudioSource.Play();
+
             LogRecorder.GetInstance().LogEvent("子供を発見できず");
             Debug.Log("探索完了");
         }
         catch (OperationCanceledException)
         {
+
             //円の初期化
             _SearchArea.enabled = false;
             _SearchArea.radius = 0.0f;
@@ -147,6 +179,8 @@ public class SearchKids : MonoBehaviour
     {
         SetLayerRecursively(kid.gameObject, 8); // レイヤーを変更して強調
 
+        await UniTask.WaitUntil(() => _FaceDetector.getEyeOpen());//目があくまで待つ
+
         await UniTask.Delay(TimeSpan.FromSeconds(_SpotTime)); // 指定時間待機
 
         SetLayerRecursively(kid.gameObject, 0);// 元のレイヤーに戻す
@@ -158,6 +192,19 @@ public class SearchKids : MonoBehaviour
         {
             LogRecorder.GetInstance().LogEvent("子供を発見");
             Debug.Log("子供を発見");
+
+            if("Tutorial" == SceneManager.GetActiveScene().name && !_isFirst)
+            {
+                _CameraMove.DoLookAtObj(other.gameObject, 0.5f, 3.0f);
+                textTalk.SetText(TalkText, TimeForReset, TypingSpeed);
+                _isFirst = true;
+
+                //ドアをアンロックする
+                for (int i = 0; i < _Doors.Length; i++)
+                {
+                    _Doors[i].Doorlock = false;
+                }
+            }
 
             ResetCts();
 

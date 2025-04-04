@@ -3,19 +3,32 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Cysharp.Threading.Tasks;
 
 public class ShowTutorial : MonoBehaviour
 {
     //[Header("チュートリアル表示用TMPro")]
     //[SerializeField] private TextMeshProUGUI TutoTMP;
 
+    //Tutoeialの表示モード
+    public enum Mode
+    {
+        EXIT,
+        TIME,
+        MAX
+    }
+    [Header("使用するモード")]
+    public Mode mode = Mode.EXIT;
+
     [Header("きっかけとなるコライダー")]
-    [SerializeField]
-    private BoxCollider Trigger;
+    public BoxCollider Trigger;
 
     [Header("チュートリアル表示用オブジェクト")]
-    [SerializeField]  private GameObject TutorialUI;
-    
+    public GameObject TutorialUI;
+
+    [Header("消えるまでの時間")]
+    public float TimeForReset;
+
     private UIFade uifade;
 
     public bool IsStart = false;//最初にすぐ表示するか否か
@@ -41,7 +54,16 @@ public class ShowTutorial : MonoBehaviour
     {
         if (other.CompareTag("Player")&& TutorialUI.activeInHierarchy)
         {
-            uifade.StartFadeIn();
+            if (mode == Mode.EXIT)
+            {
+                uifade.StartFadeIn();
+            }
+            else if (mode == Mode.TIME)
+            {
+                DoFadeInFadeOut().Forget();
+            }
+
+
         }
     }
 
@@ -50,9 +72,19 @@ public class ShowTutorial : MonoBehaviour
     {
         if (other.CompareTag("Player") && TutorialUI.activeInHierarchy)
         {
-            uifade.StartFadeOut();
+            if (mode == Mode.EXIT)
+            {
+                uifade.StartFadeOut();
+            }
         }
     }
 
+    private async UniTask DoFadeInFadeOut()
+    {
+        uifade.StartFadeIn();
 
+        await UniTask.WaitForSeconds(TimeForReset);
+
+        uifade.StartFadeOut();
+    }
 }

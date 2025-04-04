@@ -114,8 +114,11 @@ public class GameManager : MonoBehaviour
         QualitySettings.vSyncCount = 0;
         // 60fpsを目標に設定
         Application.targetFrameRate = 60;
-
-        PeopleNumTMP = GameObject.Find("PeopleNum").GetComponent<TextMeshProUGUI>();
+        if(PeopleNumTMP!= null)
+        {
+            PeopleNumTMP = GameObject.Find("PeopleNum").GetComponent<TextMeshProUGUI>();
+        }
+       
 
         StopAll = false;
 
@@ -246,8 +249,7 @@ public class GameManager : MonoBehaviour
     //上記のGet関数を利用したUIのtext更新関数
     void UpdatePeopleText()
     {
-        PeopleNumTMP.SetText(GetPeopleNum().ToString() + "人");
-
+            PeopleNumTMP?.SetText(GetPeopleNum().ToString() + "人");
     }
 
     public void SetStopAll(bool Set)
