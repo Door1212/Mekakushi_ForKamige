@@ -7,8 +7,6 @@ using Cysharp.Threading.Tasks;
 
 public class ShowTutorial : MonoBehaviour
 {
-    //[Header("チュートリアル表示用TMPro")]
-    //[SerializeField] private TextMeshProUGUI TutoTMP;
 
     //Tutoeialの表示モード
     public enum Mode

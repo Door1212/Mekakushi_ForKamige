@@ -2,14 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-//public class CurveControlledBob : MonoBehaviour
-//using System;
-//using UnityEngine;
-
-
-//namespace UnityStandardAssets.Utility
-//{
-
+/// <summary>
+/// ƒJƒƒ‰—h‚ç‚µ‚ğ’S‚¤
+/// </summary>
 public class CurveControlledBob : MonoBehaviour
 {
     [Header("•à‚«ó‘Ô‚ÌƒJƒƒ‰‚Ì—h‚ê")]
@@ -24,9 +19,7 @@ public class CurveControlledBob : MonoBehaviour
     [Header("—h‚êó‘Ô‚ÌƒJƒƒ‰‚Ì—h‚ê")]
     public float kShakingHorizontalBobRange = 0.099f;
     public float kShakingVerticalBobRange = 0.099f;
-    //[Header("“G‚ÉŒ©‚Â‚©‚Á‚½‚ÌƒJƒƒ‰‚Ì—h‚ê")]
-    //public float kContactHorizontalBobRange = 0.33f;
-    //public float kContactVerticalBobRange = 0.33f;
+
     public AnimationCurve Bobcurve = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(0.5f, 1f),
                                                             new Keyframe(1f, 0f), new Keyframe(1.5f, -1f),
                                                             new Keyframe(2f, 0f)); // sin curve for head bob

@@ -10,7 +10,9 @@ using OpenCVForUnity.ImgprocModule;
 using TMPro;
 using UniRx;
 
-
+/// <summary>
+/// シーン中に顔と頂点情報を記述する
+/// </summary>
 public class OptionCameraToUIImageWithFaceDetection : MonoBehaviour
 {
     public WebCamTextureToMatHelper webCamTextureToMatHelper;

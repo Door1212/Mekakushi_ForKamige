@@ -6,6 +6,9 @@ using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using DlibFaceLandmarkDetectorExample;
 
+/// <summary>
+/// オプションのコントローラー
+/// </summary>
 public class OptionController : MonoBehaviour
 {
     enum OPTION_STATE { NONE, IN_OPTION, EYE_OPTION, AUDIO_OPTION }

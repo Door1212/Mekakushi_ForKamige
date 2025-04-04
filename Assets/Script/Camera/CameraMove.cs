@@ -5,8 +5,11 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using DlibFaceLandmarkDetectorExample;
 
-[RequireComponent(typeof(CurveControlledBob))]
+/// <summary>
+/// カメラのコントロールを担う
+/// </summary>
 
+[RequireComponent(typeof(CurveControlledBob))]
 public class CameraMove : MonoBehaviour
 {
     [Header("感度")]
@@ -194,7 +197,14 @@ public class CameraMove : MonoBehaviour
         _isLookAt = false;
         _gameManager.SetStopAll(false);
     }
-
+    /// <summary>
+    /// 実際に向ける処理
+    /// </summary>
+    /// <param name="_obj">指定されたオブジェクト></param>
+    /// <param name="_moveSeconds">視点移動にかかる時間</param>
+    /// <param name="_StopSeconds">注視する時間</param>
+    /// <param name="_ease">イージング方法</param>
+    /// <returns></returns>
     private async UniTask LookatObj(GameObject _obj, float _moveSeconds, float _StopSeconds, Ease _ease)
     {
         if (_obj == null) return;

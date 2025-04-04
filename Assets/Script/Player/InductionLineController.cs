@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine.AI;
 using System.Net;
 using UnityEditor;
+
 /// <summary>
 /// プレイヤー誘導のラインをNavmeshを用いて
 /// Playerの子オブジェクト"InductionLine"にアタッチ

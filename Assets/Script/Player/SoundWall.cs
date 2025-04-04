@@ -6,7 +6,9 @@ using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
-
+/// <summary>
+/// 目を閉じている時に周りのオブジェクトを音で知らせる
+/// </summary>
 public class SoundWall : MonoBehaviour
 {
     //プレイヤーオブジェクト
@@ -57,21 +59,6 @@ public class SoundWall : MonoBehaviour
         new Vector3(-1, 0, -1).normalized
     };
 
-    //敵関連
-    // "Enemy"タグを持つオブジェクトを取得
-    [Header("敵関連")]
-    public GameObject enemies;
-    public EnemyAI_move enemyAI_Moves;
-
-    [Header("敵を使うか")]
-    [SerializeField] private bool UseEnemy;
-
-    //[Header("敵をTPさせるか強制に気づき状態にさせるか")]
-    /*[SerializeField]*/ private bool DoTP;
-
-    //[Header("プレイヤーから何番目に近いポイントにTPさせる")]
-   /* [SerializeField]*/ private int NearNum;
-
     [Header("発生する確率")]
     [SerializeField][Range(0.01f, 1.00f)] private float Probability = 1.00f;
 
@@ -111,18 +98,12 @@ public class SoundWall : MonoBehaviour
             Debug.LogError("AudioSourceが見つかりません。");
         }
 
-        //エネミーを初期化
-        enemies = null;
-
-        // 配列の初期化
-        enemyAI_Moves = null;
-
     }
 
     void Update()
     {
         //オプション状態ならリターン
-        if(!CanMove)
+        if (!CanMove)
         {
             return;
         }
@@ -183,22 +164,13 @@ public class SoundWall : MonoBehaviour
         //-----------------------------------------------------------------------------------
 
         // ヒット対象のオブジェクトの中から最も近いオブジェクトのタグで音を変える
-        for (int i = 0;i < selectedTag.Length;i++)
+        for (int i = 0; i < selectedTag.Length; i++)
         {
 
-            if(closestTag == selectedTag[i])
+            if (closestTag == selectedTag[i])
             {
                 audioSource.clip = _hitSound[i];
                 break;
-            }
-        }
-
-        //敵が存在していれば
-        if (enemyAI_Moves != null)
-        {
-            if(closestTag == "Barricade")
-            {
-                TriggerEvent(Probability);
             }
         }
 
@@ -216,68 +188,13 @@ public class SoundWall : MonoBehaviour
             //音の間隔計測の値をリセット
             SoundIntervalCount = 0.0f;
         }
-            
-    }
-
-    //敵を
-    void TriggerEvent(float probability)
-    {
-        // 0.0〜1.0の間で乱数を生成し、確率に基づいてイベントを発生
-        if (Random.value <= probability)
-        {
-            if (!UseEnemy)
-            {
-                if (DoTP)
-                {
-                    
-                    //敵を自分の近くにTPさせる
-                    enemyAI_Moves.EnemyTpNear(NearNum);
-                    Debug.Log("TP Event triggered!");
-                }
-                else
-                {
-                    //敵をプレイヤーに気づかせる
-                    enemyAI_Moves.SetState(EnemyAI_move.EnemyState.Chase, this.transform);
-                    Debug.Log("Notice Event triggered!");
-                }
-            }
-            else
-            {
-                enemyAI_Moves.gameObject.SetActive(true);
-                //敵をプレイヤーに気づかせる
-                enemyAI_Moves.SetState(EnemyAI_move.EnemyState.Chase, this.transform);
-            }
-
-            // イベント処理
-        }
-        else
-        {
-            Debug.Log("Event not triggered.");
-        }
-        
 
     }
+
+
 
     public void SetCanMove(bool Set)
     {
         CanMove = Set;
     }
-
-    public void SetEnemy(EnemyAI_move enemy =null)
-    {
-        if(enemy != null)
-        {
-            enemyAI_Moves = enemy;
-            Probability = 1.0f;
-            UseEnemy = true;
-        }
-        else
-        {
-            enemyAI_Moves = null;
-            Probability = 0.0f;
-            UseEnemy = false;
-        }
-
-    }
-
 }

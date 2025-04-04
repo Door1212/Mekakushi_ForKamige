@@ -7,8 +7,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    //敵タイプ
-    EnemyTypeSelector enemyType;
 
     SceneChangeManager sceneChangeManager;
 
@@ -57,15 +55,10 @@ public class GameManager : MonoBehaviour
     [Header("CameraMove")]
     [SerializeField]
     private CameraMove CameraMove;
-    [Header("EnemyAIMove")]
-    [SerializeField]
-    private EnemyAI_move[] EnemyAI_Moves;
 
     private DoorOpen[] AllDoor;
 
     private playSound PlaySound;
-
-    private DirectionalSound[] directionalSound; 
 
     private SoundWall soundWall;
 
@@ -102,8 +95,6 @@ public class GameManager : MonoBehaviour
 
         AllLocker = FindObjectsOfType<LockerOpen>();   
         
-        //子供と鐘の音
-        directionalSound = FindObjectsOfType<DirectionalSound>();
         soundWall = FindObjectOfType<SoundWall>();
 
         _enemyController = FindObjectOfType<EnemyController>();
@@ -268,10 +259,6 @@ public class GameManager : MonoBehaviour
         _enemyController?.SetCanMove(!StopAll);
         _EN_Move?.SetCanMove(!StopAll);
 
-        for (int i = 0; i < EnemyAI_Moves.Length; i++)
-        {
-            EnemyAI_Moves[i]?.SetCanMove(!StopAll);
-        }
 
         for(int i = 0; i < AllDoor.Length; i++)
         {
@@ -282,9 +269,5 @@ public class GameManager : MonoBehaviour
             AllLocker[i]?.SetCanMove(!StopAll);
         }
 
-        for (int i = 0; i < directionalSound.Length; i++)
-        {
-            directionalSound[i]?.SetCanMove(!StopAll);
-        }
     }
 }

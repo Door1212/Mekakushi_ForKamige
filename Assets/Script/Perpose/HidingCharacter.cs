@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// 発見対象の子供
+/// </summary>
 public class HidingCharacter : MonoBehaviour
 {
-    //[Header("GameManager.csがアタッチされているオブジェクトの名前")]
-    //public string GameMangerName = "GameManager";
+    //ゲームマネージャー
     GameManager gameManager;
-
-    //敵を呼び出すやつ
-    EnemyContactEvent enemyContactEvent;
 
     //話す用のコンポーネント
     TextTalk textTalk;
@@ -47,32 +47,33 @@ public class HidingCharacter : MonoBehaviour
 
     void Start()
     {
+        //コンポーネント取得
         gameManager = FindObjectOfType<GameManager>();
+        _audioSource = GetComponent<AudioSource>();
 
+        if (IsTalkKids)
+        {
+            textTalk = FindObjectOfType<TextTalk>();
+        }
+
+
+        //初期化
         IsStartTalk = false;
 
         IsCatched = false;
 
         CntCooltime = 0.0f;
 
-        if(IsTalkKids)
-        {
-            textTalk = FindObjectOfType<TextTalk>();
-        }
-
-
-        if (GetComponent<EnemyContactEvent>() != null)
-        {
-            IsEnemyContactAttach = true;
-        }
-
-        _audioSource = GetComponent<AudioSource>();
-
     }
     void Update()
     {
+        //クールタイムを数える
+        CntCooltime += Time.deltaTime;
+
+        //しゃべる子供であれば
         if (IsTalkKids)
         {
+            //しゃべり終わってから消す
             if (textTalk.EraseDone && IsStartTalk)
             {
                 gameManager.SetStopAll(false);
@@ -82,6 +83,7 @@ public class HidingCharacter : MonoBehaviour
             }
         }
 
+        //見つかったら
         if (Discover1.instance.FoundObj == this.gameObject)
         {
             //タグをなくしてDiscoverが反応しないように
@@ -89,9 +91,10 @@ public class HidingCharacter : MonoBehaviour
 
             IsCatched = true;
 
-            //消え方を考え
+            //しゃべる子供か
             if (!IsTalkKids)
             {
+                //そのまま消す
                 if (IsEnemyContactAttach)
                 {
                     IsCatched = true;
@@ -104,6 +107,7 @@ public class HidingCharacter : MonoBehaviour
             }
             else
             {
+                //まだ話していなければ話し出す
                 if (!IsStartTalk)
                 {
                     gameManager.SetStopAll(true);
@@ -114,8 +118,8 @@ public class HidingCharacter : MonoBehaviour
             }
         }
 
-        CntCooltime += Time.deltaTime;
 
+        //鳴き声を出す。
         if(_Cooltime <= CntCooltime)
         {
             CntCooltime = 0.0f;
@@ -128,6 +132,9 @@ public class HidingCharacter : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 子供をTextTalkを用いてしゃべらせる
+    /// </summary>
     private void DoTalk()
     {
         textTalk.SetText(TalkText,TimeForReset,TypingSpeed);

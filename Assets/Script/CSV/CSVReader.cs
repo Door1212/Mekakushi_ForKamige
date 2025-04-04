@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using Cysharp.Threading.Tasks;
-
+/// <summary>
+/// CSVファイルの読み込みを行う
+/// </summary>
 public class CSVReader : MonoBehaviour
 {
     //ロードが完了しているか

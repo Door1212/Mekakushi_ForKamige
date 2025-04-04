@@ -7,7 +7,7 @@
   - Layers:
     - Default, TransparentFX, Ignore Raycast, Player, Water, UI, PostProcess, Kids, Outline
 - Active game object:
-  - Name: Enemy_Tutorial
-  - Tag: Enemy
+  - Name: Classroom (4)
+  - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
